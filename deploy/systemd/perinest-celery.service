@@ -1,0 +1,19 @@
+# /etc/systemd/system/perinest-celery.service
+# Pheromone 信息素 — Celery worker 守护
+[Unit]
+Description=PeriNest Celery Worker
+After=network.target redis.service
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/perinest/queen
+Environment="PATH=/opt/perinest/queen/.venv/bin:/usr/local/bin:/usr/bin"
+ExecStart=/opt/perinest/queen/.venv/bin/celery -A app.tasks.celery_app worker --loglevel=info --concurrency=4
+Restart=always
+RestartSec=5
+StandardOutput=append:/var/log/perinest/celery.log
+StandardError=append:/var/log/perinest/celery.log
+
+[Install]
+WantedBy=multi-user.target

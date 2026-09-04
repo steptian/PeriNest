@@ -1,0 +1,2 @@
+.user-header { text-align: center; padding: 60rpx 0; }
+.nickname { font-size: 36rpx; font-weight: bold; }

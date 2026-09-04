@@ -1,0 +1,9 @@
+<view wx:if="{{orders.length === 0 && !loading}}" class="card text-muted">暂无订单</view>
+<view wx:for="{{orders}}" wx:key="id" class="card">
+  <view class="order-no">{{item.order_no}}</view>
+  <view class="row">
+    <text>状态：{{statusLabel[item.status]}}</text>
+    <text class="amount">￥{{item.total_amount}}</text>
+  </view>
+  <view class="text-muted">{{item.items.length}} 件商品</view>
+</view>

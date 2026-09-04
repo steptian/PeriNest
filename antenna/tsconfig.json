@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "CommonJS",
+    "strict": true,
+    "noImplicitAny": true,
+    "removeComments": true,
+    "types": ["miniprogram-api-typings"],
+    "outDir": "dist",
+    "rootDir": "miniprogram",
+    "skipLibCheck": true
+  },
+  "include": ["miniprogram/**/*.ts", "typings/**/*.d.ts"],
+  "exclude": ["node_modules", "dist"]
+}

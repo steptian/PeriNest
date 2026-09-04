@@ -1,0 +1,10 @@
+{
+  "name": "perinest-antenna",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PeriNest Antenna 微信小程序（原生 TS）",
+  "devDependencies": {
+    "miniprogram-api-typings": "^3.12.0",
+    "typescript": "^5.4.5"
+  }
+}

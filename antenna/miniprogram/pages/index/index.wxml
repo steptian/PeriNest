@@ -1,0 +1,8 @@
+<view class="card">
+  <view class="title">🪳 PeriNest</view>
+  <view class="text-muted">Built to Survive, Designed to Adapt.</view>
+</view>
+<view class="card">
+  <view class="section-title">快捷入口</view>
+  <navigator url="/pages/order/order" class="btn-primary">查看我的订单</navigator>
+</view>

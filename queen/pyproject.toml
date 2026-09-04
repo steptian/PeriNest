@@ -1,0 +1,53 @@
+[project]
+name = "perinest-queen"
+version = "0.1.0"
+description = "PeriNest Queen — 后端核心 (FastAPI + MySQL + Redis)"
+requires-python = ">=3.11"
+
+dependencies = [
+    # Web 框架
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.29",
+    "gunicorn>=21.2",
+    # 数据 (Core 腺体 — MySQL 8)
+    "sqlalchemy[asyncio]>=2.0.25",
+    "aiomysql>=0.2.0",
+    "alembic>=1.13",
+    # Nectar 花蜜 — Redis 7
+    "redis>=5.0",
+    # Pheromone 信息素 — Celery
+    "celery>=5.3",
+    # Carapace 加密
+    "python-jose[cryptography]>=3.3",
+    "passlib[bcrypt]>=1.7",
+    "bcrypt<4.1",           # passlib 1.7.4 与 bcrypt 4.1+ 不兼容
+    # 契约与配置
+    "pydantic>=2.6",
+    "pydantic-settings>=2.2",
+    "email-validator>=2.1",
+    # HTTP 客户端（微信 API）
+    "httpx>=0.27",
+    # 日志
+    "structlog>=24.1",
+    # 微信数据解密
+    "cryptography>=42.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "httpx>=0.27",           # TestClient
+    "ruff>=0.4",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

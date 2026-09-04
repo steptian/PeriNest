@@ -1,0 +1,14 @@
+{
+  "appid": "wx0000000000000000",
+  "compileType": "miniprogram",
+  "libVersion": "2.30.3",
+  "projectname": "perinest-antenna",
+  "setting": {
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "useCompilerPlugins": ["typescript"]
+  },
+  "miniprogramRoot": "miniprogram/"
+}
