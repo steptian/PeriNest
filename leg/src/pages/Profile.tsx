@@ -1,7 +1,6 @@
 import { LogOut, Moon, Sun } from "lucide-react";
-import { useTheme } from "@/hooks/useTheme";
 import { useAuthStore } from "@/stores/auth";
-import { fmtTime } from "@/utils/format";
+import { useTheme } from "@/hooks/useTheme";
 
 export default function Profile() {
   const user = useAuthStore((s) => s.user);
@@ -9,35 +8,39 @@ export default function Profile() {
   const { dark, toggle } = useTheme();
 
   return (
-    <div className="p-4">
-      <div className="mb-4 flex items-center gap-3 rounded-2xl border bg-background p-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-xl text-primary-foreground">
+    <div className="p-5">
+      {/* 标本框头像 */}
+      <div className="specimen-card mb-4 flex items-center gap-4 px-4 py-5">
+        <div className="btn-amber flex h-14 w-14 items-center justify-center rounded-xl font-specimen text-2xl font-bold">
           {(user?.username ?? "?").charAt(0).toUpperCase()}
         </div>
-        <div>
-          <div className="font-bold">{user?.username ?? "-"}</div>
-          <div className="text-xs text-muted-foreground">
-            {user?.email ?? "—"} · 注册于 {user ? fmtTime(user.created_at) : "—"}
-          </div>
+        <div className="min-w-0">
+          <div className="font-specimen truncate text-lg font-bold">{user?.username ?? "-"}</div>
+          <div className="truncate text-xs text-muted-foreground">{user?.email ?? "—"}</div>
         </div>
       </div>
 
       <button
         onClick={toggle}
-        className="mb-4 flex w-full items-center justify-between rounded-2xl border bg-background p-4 text-sm"
+        className="specimen-card mb-3 flex w-full items-center justify-between px-4 py-3.5 text-sm"
       >
-        <span>{dark ? "🌙 暗色模式（当前）" : "☀️ 亮色模式（当前）"}</span>
+        <span>
+          <span className="specimen-latin mb-0.5 block">illumination</span>
+          {dark ? "树脂深处 · 暗色" : "琥珀白昼 · 亮色"}
+        </span>
         {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
       </button>
-      <div className="mb-4 rounded-2xl border bg-background p-4 text-xs text-muted-foreground">
-        PeriNest Leg v{__APP_VERSION__}
+
+      <div className="specimen-card mb-4 flex items-center justify-between px-4 py-3.5">
+        <span className="specimen-latin">version</span>
+        <span className="font-specimen text-sm">PeriNest Leg v{__APP_VERSION__}</span>
       </div>
 
       <button
         onClick={logout}
-        className="flex w-full items-center justify-center gap-1 rounded-2xl border bg-background py-3 text-sm font-medium text-red-500 active:bg-muted"
+        className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-red-500/30 bg-red-500/5 py-3 text-sm font-medium text-red-500 active:bg-red-500/10"
       >
-        <LogOut className="h-4 w-4" /> 退出登录
+        <LogOut className="h-4 w-4" /> 离巢
       </button>
     </div>
   );

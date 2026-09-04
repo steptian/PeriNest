@@ -9,34 +9,50 @@ export default function Orders() {
   });
 
   return (
-    <div className="p-4">
-      <h2 className="mb-3 text-lg font-bold">我的订单</h2>
+    <div className="p-5">
+      <div className="mb-4 flex items-baseline justify-between">
+        <div>
+          <h2 className="font-specimen text-lg font-bold">订单巢</h2>
+          <p className="text-[11px] text-muted-foreground">全部订单 · 按时间倒序</p>
+        </div>
+        <span className="specimen-latin">specimens</span>
+      </div>
+
       {isLoading && <p className="text-sm text-muted-foreground">加载中…</p>}
       {!isLoading && orders.length === 0 && (
-        <div className="rounded-2xl border bg-background p-8 text-center text-sm text-muted-foreground">
-          暂无订单
+        <div className="specimen-card p-8 text-center text-sm text-muted-foreground">
+          巢穴暂无标本
         </div>
       )}
-      <div className="space-y-3">
-        {orders.map((o) => (
-          <div key={o.id} className="rounded-2xl border bg-background p-4">
-            <div className="flex items-center justify-between">
-              <span className="rounded-full bg-muted px-2 py-0.5 text-xs">
-                {ORDER_STATUS_LABEL[o.status] ?? o.status}
+
+      <div className="space-y-3.5">
+        {orders.map((o, idx) => (
+          <div key={o.id} className="specimen-card msg-in px-4 pb-3.5 pt-4">
+            <div className="mb-2 flex items-baseline justify-between">
+              <span className="specimen-latin">no.{String(orders.length - idx).padStart(3, "0")}</span>
+              <span className="font-specimen text-base font-bold text-primary">
+                {fmtMoney(Number(o.total_amount))}
               </span>
-              <span className="font-bold text-primary">{fmtMoney(Number(o.total_amount))}</span>
             </div>
-            <div className="mt-2 space-y-1">
+
+            <div className="space-y-1">
               {o.items.map((it) => (
-                <div key={it.id} className="flex justify-between text-sm text-muted-foreground">
-                  <span>{it.sku_name} × {it.quantity}</span>
+                <div key={it.id} className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">
+                    {it.sku_name} × {it.quantity}
+                  </span>
                   <span>{fmtMoney(Number(it.unit_price))}</span>
                 </div>
               ))}
             </div>
-            <div className="mt-2 flex justify-between text-xs text-muted-foreground">
-              <span className="font-mono">{o.order_no}</span>
-              <span>{fmtTime(o.created_at)}</span>
+
+            <div className="mt-2.5 flex items-center justify-between border-t border-border/60 pt-2.5">
+              <span className="rounded-full border border-primary/40 px-2.5 py-0.5 text-[11px] text-primary">
+                {ORDER_STATUS_LABEL[o.status] ?? o.status}
+              </span>
+              <span className="font-specimen text-[11px] text-muted-foreground">
+                {o.order_no.slice(-8)} · {fmtTime(o.created_at)}
+              </span>
             </div>
           </div>
         ))}

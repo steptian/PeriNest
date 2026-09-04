@@ -1,8 +1,10 @@
-<view class="card">
-  <view class="title">🪳 PeriNest</view>
-  <view class="text-muted">Built to Survive, Designed to Adapt.</view>
+<view class="specimen-card" style="padding-top: 56rpx; padding-bottom: 56rpx;">
+  <view class="specimen-latin">periplaneta · antenna</view>
+  <view class="title font-specimen">PeriNest</view>
+  <view class="slogan">built to survive, designed to adapt.</view>
 </view>
-<view class="card">
-  <view class="section-title">快捷入口</view>
-  <navigator url="/pages/order/order" class="btn-primary">查看我的订单</navigator>
+<view class="specimen-card">
+  <view class="specimen-latin">entries</view>
+  <view class="section-title font-specimen">巢穴入口</view>
+  <navigator url="/pages/order/order" class="btn-amber">查看我的订单</navigator>
 </view>

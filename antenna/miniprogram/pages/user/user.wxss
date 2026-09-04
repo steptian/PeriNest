@@ -1,7 +1,13 @@
-.user-header { text-align: center; padding: 60rpx 0; }
-.nickname { font-size: 36rpx; font-weight: bold; }
-.version {
-  margin-top: 12rpx;
-  font-size: 22rpx;
-  color: #9ca3af;
+.user-header { text-align: center; padding: 64rpx 32rpx; }
+.avatar {
+  width: 112rpx;
+  height: 112rpx;
+  line-height: 112rpx;
+  margin: 0 auto 20rpx;
+  border-radius: 28rpx;
+  font-size: 48rpx;
+  font-weight: bold;
 }
+.nickname { font-size: 40rpx; font-weight: bold; }
+.version { margin-top: 20rpx; font-size: 22rpx; color: var(--ink-soft); }
+.leave { color: #d66; font-size: 28rpx; }

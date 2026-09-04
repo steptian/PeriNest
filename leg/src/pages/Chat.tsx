@@ -4,7 +4,7 @@ import { aiApi, type ChatMsg } from "@/api/ai";
 
 const WELCOME: ChatMsg = {
   role: "assistant",
-  content: "你好，我是 PeriNest 的神经索 🧠 有什么可以帮你？",
+  content: "你好，我是巢穴的神经索。琥珀中沉睡三亿年的生存智慧，随取随用。",
 };
 
 export default function Chat() {
@@ -23,9 +23,6 @@ export default function Chat() {
     setInput("");
     setStreaming(true);
     const next: ChatMsg[] = [...messages, { role: "user", content: text }];
-    setMessages(next);
-
-    // 追加一个空的 assistant 消息，流式增量逐字填充
     setMessages([...next, { role: "assistant", content: "" }]);
     try {
       await aiApi.streamChat(next, (delta) =>
@@ -54,33 +51,49 @@ export default function Chat() {
 
   return (
     <div className="flex h-[calc(100vh-4rem)] flex-col">
-      <div className="flex-1 space-y-3 overflow-y-auto p-4">
-        {messages.map((m, i) => (
-          <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-            <div
-              className={`max-w-[80%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-[15px] leading-relaxed ${
-                m.role === "user"
-                  ? "rounded-br-sm bg-primary text-primary-foreground"
-                  : "rounded-bl-sm border bg-background"
-              }`}
-            >
-              {m.content || (streaming && i === messages.length - 1 ? "▍" : "")}
+      {/* 头部：标本馆标签 */}
+      <header className="flex items-baseline justify-between border-b border-border/60 px-5 pt-4 pb-2.5">
+        <div>
+          <h1 className="font-specimen text-lg font-bold">Nerve</h1>
+          <p className="text-[11px] text-muted-foreground">神经索 · 流式对话</p>
+        </div>
+        <span className="specimen-latin">fossil intelligence</span>
+      </header>
+
+      <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
+        {messages.map((m, i) =>
+          m.role === "user" ? (
+            <div key={i} className="msg-in flex justify-end">
+              <div className="btn-amber max-w-[80%] whitespace-pre-wrap rounded-2xl rounded-br-md px-4 py-2.5 text-[15px] leading-relaxed">
+                {m.content}
+              </div>
             </div>
-          </div>
-        ))}
+          ) : (
+            <div key={i} className="msg-in flex flex-col items-start">
+              <div className="specimen-card max-w-[86%] px-4 pb-3 pt-4 text-[15px] leading-relaxed">
+                <span className="specimen-latin mb-1.5 block">
+                  {i === 0 ? "exhibit 001" : `exhibit ${String(i).padStart(3, "0")}`}
+                </span>
+                {m.content || (streaming && i === messages.length - 1 ? "" : "")}
+                {streaming && i === messages.length - 1 && <span className="amber-caret" />}
+              </div>
+            </div>
+          )
+        )}
         <div ref={bottomRef} />
       </div>
-      <div className="sticky bottom-16 border-t bg-background p-3">
-        <div className="flex items-center gap-2">
+
+      <div className="sticky bottom-16 border-t border-border/60 bg-background/90 p-3 backdrop-blur">
+        <div className="flex items-center gap-2.5">
           <input
-            className="flex-1 rounded-full border px-4 py-2.5 text-[15px] outline-none focus:border-primary"
-            placeholder="问点什么…"
+            className="flex-1 rounded-full border bg-card px-4 py-2.5 text-[15px] outline-none transition-colors focus:border-primary"
+            placeholder="向神经索提问…"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && send()}
           />
           <button
-            className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-primary-foreground active:opacity-80 disabled:opacity-40"
+            className="btn-amber flex h-11 w-11 items-center justify-center rounded-full disabled:opacity-40"
             onClick={send}
             disabled={streaming || !input.trim()}
           >

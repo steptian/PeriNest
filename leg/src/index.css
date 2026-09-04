@@ -2,30 +2,157 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+   PeriNest · 琥珀标本馆设计系统
+   蜚蠊是琥珀中最古老的昆虫——整个视觉语言从这里生长：
+   琥珀金 / 树脂褐 / 米纸底 / 标本卡片 / 图鉴标注
+   ============================================================ */
+
 :root {
-  --background: 30 20% 99%;
-  --foreground: 20 14.3% 4.1%;
-  --border: 20 5.9% 90%;
-  --primary: 20 82% 44%;
-  --primary-foreground: 0 0% 98%;
-  --muted: 30 25% 95%;
-  --muted-foreground: 25 5.3% 44.7%;
+  /* 米纸（亮色底）：老图鉴纸张 */
+  --background: 40 33% 96%;
+  --foreground: 25 25% 12%;
+
+  /* 琥珀金：主色，白光下偏蜂蜜色 */
+  --primary: 28 88% 42%;
+  --primary-strong: 24 80% 34%;
+  --primary-foreground: 40 33% 98%;
+
+  /* 树脂线：比纸底深两档的暖灰褐 */
+  --border: 35 18% 82%;
+  --muted: 38 22% 91%;
+  --muted-foreground: 28 12% 42%;
+
+  /* 标本卡纸面 */
+  --card: 42 40% 99%;
+
+  /* 琥珀荧光：AI 流式时的高亮 */
+  --glow: 38 95% 55%;
 }
 
 .dark {
-  --background: 20 14% 8%;
-  --foreground: 20 20% 95%;
-  --border: 20 12% 22%;
-  --primary: 20 82% 52%;
-  --primary-foreground: 0 0% 98%;
-  --muted: 20 10% 16%;
-  --muted-foreground: 20 8% 65%;
+  /* 树脂深处（暗色底）：琥珀原石的暗棕 */
+  --background: 24 18% 8%;
+  --foreground: 38 30% 92%;
+
+  --primary: 32 90% 54%;
+  --primary-strong: 30 85% 62%;
+  --primary-foreground: 24 18% 6%;
+
+  --border: 26 8% 16%;   /* 深色下边线只作暗示，分层靠表面亮度差 */
+  --muted: 24 12% 14%;
+  --muted-foreground: 30 12% 64%;
+
+  --card: 25 13% 12%;    /* 表面比背景亮一档，代替描边分层 */
+
+  --glow: 38 100% 62%;
 }
 
 html { -webkit-tap-highlight-color: transparent; }
+
 body {
   @apply bg-background text-foreground antialiased;
   max-width: 480px;
   margin: 0 auto;
   min-height: 100vh;
+  font-feature-settings: "ss01";
+}
+
+/* 标本纸颗粒纹理：极细噪点营造纸面质感 */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* 琥珀光晕：页面顶部一抹树脂反光 */
+body::after {
+  content: "";
+  position: fixed;
+  top: -30%;
+  left: 50%;
+  width: 130%;
+  height: 55%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    hsl(var(--glow) / 0.10) 0%,
+    transparent 65%
+  );
+}
+
+/* ---------- 组件级样式 ---------- */
+
+/* 图鉴衬线：数字与英文标注用雕刻感衬线，中文回退系统衬线 */
+.font-specimen {
+  font-family: "Fraunces", "Songti SC", "Noto Serif SC", Georgia, serif;
+  font-optical-sizing: auto;
+}
+
+/* 标本卡片：纸面 + 左上角图鉴铆钉；深色下靠表面分层+环境阴影，边线只作极淡暗示 */
+.specimen-card {
+  position: relative;
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border) / 0.9);
+  border-radius: 14px;
+}
+.dark .specimen-card {
+  border-color: hsl(var(--border) / 0.45);
+  box-shadow: 0 10px 28px -14px rgb(0 0 0 / 0.6);
+}
+.specimen-card::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 5px;
+  height: 5px;
+  border-radius: 9999px;
+  border: 1px solid hsl(var(--primary) / 0.5);
+}
+
+/* 拉丁学名标注：图鉴页脚的小字 */
+.specimen-latin {
+  @apply text-[10px] uppercase tracking-[0.22em] text-muted-foreground;
+  font-family: "Fraunces", Georgia, serif;
+}
+
+/* 消息入场：标本落定动画 */
+@keyframes specimen-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+.msg-in { animation: specimen-in 0.35s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
+
+/* 流式呼吸光标：琥珀在闪烁 */
+@keyframes amber-pulse {
+  0%, 100% { opacity: 0.35; box-shadow: 0 0 0 0 hsl(var(--glow) / 0.0); }
+  50%      { opacity: 1;    box-shadow: 0 0 8px 1px hsl(var(--glow) / 0.55); }
+}
+.amber-caret {
+  display: inline-block;
+  width: 7px;
+  height: 15px;
+  margin-left: 2px;
+  vertical-align: -2px;
+  border-radius: 2px;
+  background: hsl(var(--primary));
+  animation: amber-pulse 1.1s ease-in-out infinite;
+}
+
+/* 琥珀按钮：实底带暖光 */
+.btn-amber {
+  background: linear-gradient(160deg, hsl(var(--primary-strong)), hsl(var(--primary)));
+  color: hsl(var(--primary-foreground));
+  box-shadow: 0 6px 18px -6px hsl(var(--primary) / 0.55), inset 0 1px 0 hsl(var(--glow) / 0.35);
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+.btn-amber:active {
+  transform: translateY(1px) scale(0.99);
+  box-shadow: 0 3px 10px -5px hsl(var(--primary) / 0.5), inset 0 1px 0 hsl(var(--glow) / 0.2);
 }

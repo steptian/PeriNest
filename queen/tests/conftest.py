@@ -23,14 +23,14 @@ async def client() -> AsyncGenerator[httpx.AsyncClient, None]:
 @pytest_asyncio.fixture(scope="function", loop_scope="session")
 async def auth_headers(client: httpx.AsyncClient) -> dict:
     """注册并签发 token，返回 Authorization 头。随机后缀保证幂等。"""
-    import time
+    import uuid
 
     from app.core.database import AsyncSessionLocal
     from app.core.security import create_access_token
     from app.schemas.request import RegisterRequest
     from app.services import user_service
 
-    uname = f"fx_{time.strftime('%H%M%S')}_{time.time_ns() % 10000}"
+    uname = f"fx_{uuid.uuid4().hex[:10]}"  # uuid 防碰撞，保证重复跑幂等
     async with AsyncSessionLocal() as db:
         user = await user_service.register(
             db,

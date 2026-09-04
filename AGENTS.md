@@ -10,6 +10,6 @@ links: docs/技术架构.md, deploy/DEPLOYMENT.md, http://localhost:8000/docs
 wiki: 
 
 ## 状态区
-status: v0.4.0 已发布（暗色+双语README+截图+MCP Server，CI绿）
-next: UI 视觉重设计（用户反馈太丑）
+status: v0.5.0 琥珀标本馆 UI 三端重设计已发版（用户反馈闭环）
+next: RAG 知识库(v0.6)；在线 demo 部署；业务模块定名
 updated: 2026-09-05

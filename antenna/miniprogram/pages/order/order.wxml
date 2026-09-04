@@ -1,9 +1,12 @@
-<view wx:if="{{orders.length === 0 && !loading}}" class="card text-muted">暂无订单</view>
-<view wx:for="{{orders}}" wx:key="id" class="card">
-  <view class="order-no">{{item.order_no}}</view>
-  <view class="row">
-    <text>状态：{{statusLabel[item.status]}}</text>
-    <text class="amount">￥{{item.total_amount}}</text>
+<view wx:if="{{orders.length === 0 && !loading}}" class="specimen-card text-empty">巢穴暂无标本</view>
+<view wx:for="{{orders}}" wx:key="id" class="specimen-card">
+  <view class="row-head">
+    <text class="specimen-latin">no.{{index + 1}}</text>
+    <text class="amount font-specimen">￥{{item.total_amount}}</text>
   </view>
-  <view class="text-muted">{{item.items.length}} 件商品</view>
+  <view class="row-main">
+    <text class="status badge-amber">{{statusLabel[item.status]}}</text>
+    <text class="count">{{item.items.length}} 件商品</text>
+  </view>
+  <view class="order-no font-specimen">{{item.order_no}}</view>
 </view>

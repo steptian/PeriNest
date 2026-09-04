@@ -1,3 +1,22 @@
-.order-no { font-family: monospace; font-size: 24rpx; color: #6b7280; margin-bottom: 8rpx; }
-.row { display: flex; justify-content: space-between; margin: 8rpx 0; }
-.amount { color: #c2410c; font-weight: bold; }
+.text-empty { text-align: center; color: var(--ink-soft); padding: 80rpx 0; }
+.row-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 16rpx;
+}
+.amount { color: var(--amber-light); font-size: 36rpx; font-weight: bold; }
+.row-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 12rpx 0;
+}
+.count { color: var(--ink-soft); font-size: 24rpx; }
+.order-no {
+  font-size: 20rpx;
+  color: var(--ink-soft);
+  border-top: 1px solid var(--line);
+  padding-top: 16rpx;
+  margin-top: 8rpx;
+}

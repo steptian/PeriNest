@@ -1,20 +1,71 @@
-/* PeriNest Antenna 全局样式 */
+/* PeriNest Antenna · 琥珀标本馆设计系统（与 Wing/Leg 同源）
+   小程序无法用 webfont，衬线走系统栈：Songti SC / serif */
+
 page {
-  background: #f5f5f5;
+  --amber: #b4560c;
+  --amber-light: #d97706;
+  --amber-glow: #f59e0b;
+  --paper: #f5f1e8;
+  --card: #fffdf7;
+  --ink: #2b2118;
+  --ink-soft: #8a7a68;
+  --line: #e5dcc8;
+
+  background: var(--paper);
+  color: var(--ink);
   font-size: 28rpx;
-  color: #1f2937;
 }
-.card {
-  background: #fff;
-  border-radius: 16rpx;
-  padding: 24rpx;
-  margin: 20rpx;
+
+/* 标本卡片 */
+.specimen-card {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 24rpx;
+  padding: 32rpx;
+  margin: 24rpx;
 }
-.btn-primary {
-  background: #c2410c;
-  color: #fff;
-  border-radius: 12rpx;
+.specimen-card::before {
+  content: "";
+  position: absolute;
+  top: 16rpx;
+  left: 16rpx;
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 50%;
+  border: 2rpx solid rgba(180, 86, 12, 0.5);
+}
+
+/* 衬线标本字：数字/英文 */
+.font-specimen {
+  font-family: "Songti SC", "Noto Serif SC", Georgia, serif;
+}
+
+/* 拉丁小标 */
+.specimen-latin {
+  font-family: Georgia, serif;
+  font-size: 18rpx;
+  letter-spacing: 6rpx;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* 琥珀主按钮 */
+.btn-amber {
+  background: linear-gradient(160deg, var(--amber), var(--amber-light));
+  color: #fff8ee;
+  border-radius: 20rpx;
   text-align: center;
-  padding: 20rpx 0;
+  padding: 24rpx 0;
+  font-weight: 500;
+  box-shadow: 0 12rpx 32rpx -12rpx rgba(180, 86, 12, 0.55);
 }
-.text-muted { color: #9ca3af; font-size: 24rpx; }
+
+/* 状态徽标 */
+.badge-amber {
+  border: 1px solid rgba(180, 86, 12, 0.4);
+  color: var(--amber-light);
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  padding: 4rpx 20rpx;
+}

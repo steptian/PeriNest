@@ -3,7 +3,7 @@
 English | [中文](README.md)
 
 > [![CI](https://github.com/steptian/PeriNest/actions/workflows/ci.yml/badge.svg)](https://github.com/steptian/PeriNest/actions/workflows/ci.yml)
-> ![version](https://img.shields.io/badge/version-0.4.0-c2410c) ![license](https://img.shields.io/badge/license-MIT-green) ![monorepo](https://img.shields.io/badge/monorepo-Queen·Wing·Antenna·Leg-166534)
+> ![version](https://img.shields.io/badge/version-0.5.0-c2410c) ![license](https://img.shields.io/badge/license-MIT-green) ![monorepo](https://img.shields.io/badge/monorepo-Queen·Wing·Antenna·Leg-166534)
 >
 > *Built to Survive, Designed to Adapt.*
 

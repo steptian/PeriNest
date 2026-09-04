@@ -9,25 +9,47 @@ export default function Dashboard() {
   });
 
   const total = orders.reduce((sum, o) => sum + Number(o.total_amount), 0);
+  const pending = orders.filter((o) => o.status === "pending").length;
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold">仪表盘</h2>
+    <div className="space-y-7">
+      <header className="flex items-end justify-between">
+        <div>
+          <p className="specimen-latin mb-1">specimen overview</p>
+          <h2 className="font-specimen text-3xl font-bold tracking-tight">巢穴概况</h2>
+        </div>
+        <span className="specimen-latin hidden md:block">periplaneta americana</span>
+      </header>
+
       <div className="grid grid-cols-3 gap-4">
-        <StatCard title="订单总数" value={String(orders.length)} />
-        <StatCard title="累计金额" value={fmtMoney(total)} />
-        <StatCard title="待支付" value={String(orders.filter((o) => o.status === "pending").length)} />
+        <Stat latin="count" title="标本总数" value={String(orders.length)} />
+        <Stat latin="value" title="累计金额" value={fmtMoney(total)} />
+        <Stat latin="pending" title="待支付" value={String(pending)} highlight={pending > 0} />
       </div>
+
       {isLoading && <p className="text-sm text-muted-foreground">加载中…</p>}
     </div>
   );
 }
 
-function StatCard({ title, value }: { title: string; value: string }) {
+function Stat({
+  latin,
+  title,
+  value,
+  highlight,
+}: {
+  latin: string;
+  title: string;
+  value: string;
+  highlight?: boolean;
+}) {
   return (
-    <div className="rounded-xl border p-4">
-      <div className="text-sm text-muted-foreground">{title}</div>
-      <div className="mt-1 text-2xl font-bold">{value}</div>
+    <div className="specimen-card px-5 py-4 row-in">
+      <span className="specimen-latin mb-1 block">{latin}</span>
+      <div className={`font-specimen text-3xl font-bold ${highlight ? "text-primary" : ""}`}>
+        {value}
+      </div>
+      <div className="mt-0.5 text-xs text-muted-foreground">{title}</div>
     </div>
   );
 }

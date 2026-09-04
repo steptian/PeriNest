@@ -1,13 +1,13 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { LayoutDashboard, LogOut, Moon, Package, Sun } from "lucide-react";
-import AiAssistant from "@/components/AiAssistant";
 import { Button } from "@/components/ui/button";
+import AiAssistant from "@/components/AiAssistant";
 import { useTheme } from "@/hooks/useTheme";
 import { useAuthStore } from "@/stores/auth";
 
 const navItems = [
-  { to: "/", label: "仪表盘", icon: LayoutDashboard },
-  { to: "/orders", label: "订单管理", icon: Package },
+  { to: "/", label: "仪表盘", latin: "overview", icon: LayoutDashboard },
+  { to: "/orders", label: "订单档案", latin: "specimens", icon: Package },
 ];
 
 export default function Layout() {
@@ -17,25 +17,42 @@ export default function Layout() {
 
   return (
     <div className="flex h-screen">
-      <aside className="w-56 shrink-0 border-r bg-muted/40 p-4 flex flex-col">
-        <h1 className="mb-6 px-2 text-lg font-bold">🪳 PeriNest</h1>
-        <nav className="flex-1 space-y-1">
-          {navItems.map(({ to, label, icon: Icon }) => (
+      {/* 侧边栏：档案柜 */}
+      <aside className="flex w-60 shrink-0 flex-col border-r border-border/70 bg-card/60 px-4 py-5">
+        <div className="mb-8 px-2">
+          <p className="specimen-latin mb-1">periplaneta · wing</p>
+          <h1 className="font-specimen text-xl font-bold tracking-tight">PeriNest</h1>
+          <p className="mt-0.5 text-[11px] italic text-muted-foreground">
+            built to survive
+          </p>
+        </div>
+        <nav className="flex-1 space-y-1.5">
+          {navItems.map(({ to, label, latin, icon: Icon }) => (
             <NavLink
               key={to}
               to={to}
               end={to === "/"}
               className={({ isActive }) =>
-                `flex items-center gap-2 rounded-lg px-3 py-2 text-sm ${
-                  isActive ? "bg-primary text-primary-foreground" : "hover:bg-muted"
+                `group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors ${
+                  isActive
+                    ? "btn-amber"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 }`
               }
             >
-              <Icon className="h-4 w-4" /> {label}
+              <Icon className="h-4 w-4" />
+              <span className="flex-1 text-sm">{label}</span>
+              <span
+                className={`specimen-latin !text-[8px] transition-opacity ${
+                  true ? "opacity-50" : "opacity-0"
+                }`}
+              >
+                {latin}
+              </span>
             </NavLink>
           ))}
         </nav>
-        <div className="border-t pt-3 text-xs text-muted-foreground">
+        <div className="border-t border-border/60 pt-3 text-xs text-muted-foreground">
           <div className="mb-2 flex items-center justify-between">
             <div className="truncate">{user?.username ?? "-"}</div>
             <button
@@ -46,13 +63,14 @@ export default function Layout() {
               {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
           </div>
-          <div className="mb-2 text-[10px] opacity-60">v{__APP_VERSION__}</div>
           <Button variant="ghost" size="sm" className="w-full" onClick={logout}>
-            <LogOut className="mr-1 h-4 w-4" /> 退出
+            <LogOut className="mr-1 h-4 w-4" /> 离巢
           </Button>
+          <p className="specimen-latin mt-3 !text-[8px]">v{__APP_VERSION__}</p>
         </div>
       </aside>
-      <main className="flex-1 overflow-auto p-6">
+
+      <main className="flex-1 overflow-auto p-7">
         <Outlet />
       </main>
       <AiAssistant />
