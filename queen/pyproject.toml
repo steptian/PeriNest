@@ -1,6 +1,7 @@
 [project]
 name = "perinest-queen"
 dynamic = ["version"]  # 唯一版本源：仓库根 ../VERSION 文件
+license = "MIT"
 description = "PeriNest Queen — 后端核心 (FastAPI + MySQL + Redis)"
 requires-python = ">=3.11"
 
