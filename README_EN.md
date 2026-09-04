@@ -22,6 +22,55 @@ Zero-Docker deployment: native venv + Systemd + Nginx.
 </p>
 <p align="center"><sub>Wing dashboard · Leg mobile AI streaming chat (light/dark themes)</sub></p>
 
+## 📖 The Nest Compendium · Every Name Is an Organ
+
+**The story begins with one question: why a cockroach?**
+
+Eagles need wind. Wolves need packs. Whales need oceans.
+**A cockroach needs nothing.**
+It is not fast, not strong, not beautiful — yet it outlived 300 million years
+and four mass extinctions with one survival system:
+a rock-solid core, sensitive antennae, a regenerable body, zero dependence on any environment.
+
+**PeriNest translates that survival system into software architecture.**
+Etymology: **Peri**planeta (the Latin genus of cockroaches) + **Nest**.
+
+### Anatomy of a Cockroach
+
+| Organ | What it does in the body | Why it owns this job |
+|:---|:---|:---|
+| **Queen** · backend | One per nest; bears all offspring; if she dies, the nest dies | The sole arbiter of business logic — hence strong consistency and Systemd's "regeneration" guard |
+| **Wing** · web admin | Flies high, sees far | Dashboards & operations; wings never digest food — **the frontend owns no business logic** |
+| **Antenna** · mini-program | The most sensitive nerve endings, sensing by touch | The WeChat probe: scan, LBS, push — all "touch" gestures |
+| **Leg** · H5 | Six legs, climbs any surface | Any browser, no install, no review — six legs, lose one, still walking |
+| **Nerve** · AI gateway | The nerve cord runs the whole body — even commands limbs after decapitation | AI runs through all four terminals; SSE streaming = nerve signals relaying segment by segment |
+| **Spiracle** · MCP | The organ that exchanges gas with the outside world | The MCP endpoint = the breathing pore for exchanging tools with the AI ecosystem (Claude/Cursor) |
+| **Core gland** · MySQL | Glands secrete and store life substances | Permanent business data — the nest's memory |
+| **Nectar** · Redis | Quick energy, never stored forever | Cache / sessions / locks — fast in, fast out, expiring by design |
+| **Pheromone** · Celery | Leaves chemical trails for others to follow | Async task queues: heavy work leaves a signal, workers follow the trail |
+| **Carapace** · Nginx | The exoskeleton is always the outermost layer | First line of defense: TLS termination, rate-limiting, static assets |
+
+### The Life Cycle: Incomplete Metamorphosis
+
+Cockroaches have no pupa stage — **each molt keeps the old form while growing the new.**
+That is PeriNest's release philosophy:
+
+`Egg` (dev) → `Nymph` (test) → `Pupa` (staging) → `Imago` (production)
+
+Every deploy is a molt: smooth upgrades, rollback ready, **never a rewrite from scratch.**
+
+### Why Amber UI?
+
+A cockroach's most romantic ending is being sealed in resin for 300 million years.
+So the interface is a **digital amber museum**: every AI reply is an `EXHIBIT`,
+dark mode is the depths of the resin, the paper tone is an old field guide,
+and the login page reads `since 300 Ma`.
+
+> *Built to Survive* — resilience: self-healing, rate-limits, zero dependencies.
+> *Designed to Adapt* — adaptation: four terminals, staged environments, evolving AI.
+
+---
+
 ## ✨ Why PeriNest
 
 **Not an empty skeleton — a production starting point with full-chain verification.**
