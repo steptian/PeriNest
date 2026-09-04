@@ -10,6 +10,6 @@ links: docs/技术架构.md, deploy/DEPLOYMENT.md, http://localhost:8000/docs
 wiki: 
 
 ## 状态区
-status: v0.3.0 AI Native(神经索网关+双端chat+CI) 四端全绿待发布
-next: push+tag v0.3.0；GitHub Actions 首跑观察徽章转绿
+status: v0.3.0 AI Native 已发布（神经索网关+Leg/Wing双端chat+CI双run全绿）
+next: 在线demo部署；业务域模块定名；微信appid接入
 updated: 2026-09-05
