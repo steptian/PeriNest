@@ -13,7 +13,7 @@ export default function BottomNav() {
   return (
     <>
       <Outlet />
-      <nav className="fixed bottom-0 left-1/2 z-10 flex w-full max-w-[480px] -translate-x-1/2 border-t bg-white/95 backdrop-blur">
+      <nav className="fixed bottom-0 left-1/2 z-10 flex w-full max-w-[480px] -translate-x-1/2 border-t bg-background/95 backdrop-blur">
         {tabs.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}

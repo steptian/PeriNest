@@ -12,6 +12,16 @@
 
 > Queen 的 `/health` 与 Wing 侧边栏版本号均自动读取 `VERSION` 文件，无需手动改。
 
+## [0.4.0] - 2026-09-05
+
+### Added
+- **暗色模式**：Wing/Leg 双端亮暗主题（CSS 变量 + localStorage 持久化 + 防首屏闪白）
+- **README 中英双语**：新增 README_EN.md，双语互链
+- **演示截图**：Playwright 设备视口自动截图（Wing 仪表盘 + Leg AI 对话，亮暗 4 张），scripts/take_screenshots.py 可复现
+- **🧲 MCP Server（Spiracle 气门）**：`/api/v1/mcp` JSON-RPC 端点，暴露 perinest_health / list_orders / ai_chat 三个 MCP 工具，Claude/Cursor 等 AI 客户端可直连；零额外依赖
+- **「停止重复造轮子」卖点区块**：明确模板价值主张（不造轮子清单表）
+- MCP 认证复用 JWT；测试 9/9（新增 MCP 全链路 3 测）
+
 ## [0.3.0] - 2026-09-04
 
 ### Added

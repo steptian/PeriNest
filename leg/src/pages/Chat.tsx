@@ -61,7 +61,7 @@ export default function Chat() {
               className={`max-w-[80%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-[15px] leading-relaxed ${
                 m.role === "user"
                   ? "rounded-br-sm bg-primary text-primary-foreground"
-                  : "rounded-bl-sm border bg-white"
+                  : "rounded-bl-sm border bg-background"
               }`}
             >
               {m.content || (streaming && i === messages.length - 1 ? "▍" : "")}
@@ -70,7 +70,7 @@ export default function Chat() {
         ))}
         <div ref={bottomRef} />
       </div>
-      <div className="sticky bottom-16 border-t bg-white p-3">
+      <div className="sticky bottom-16 border-t bg-background p-3">
         <div className="flex items-center gap-2">
           <input
             className="flex-1 rounded-full border px-4 py-2.5 text-[15px] outline-none focus:border-primary"

@@ -20,7 +20,7 @@ export default function Home() {
 
 function Card({ title, desc, to }: { title: string; desc: string; to: string }) {
   return (
-    <a href={to} className="block rounded-2xl border bg-white p-4 active:bg-muted">
+    <a href={to} className="block rounded-2xl border bg-background p-4 active:bg-muted">
       <div className="font-medium">{title}</div>
       <div className="mt-1 text-xs text-muted-foreground">{desc}</div>
     </a>

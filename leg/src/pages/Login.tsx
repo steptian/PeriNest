@@ -33,14 +33,14 @@ export default function Login() {
       <p className="mb-8 text-sm text-muted-foreground">Leg · 移动端 H5</p>
       <form onSubmit={onSubmit} className="space-y-3">
         <input
-          className="w-full rounded-xl border bg-white px-4 py-3 text-base"
+          className="w-full rounded-xl border bg-background px-4 py-3 text-base"
           placeholder="用户名"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
         />
         <input
           type="password"
-          className="w-full rounded-xl border bg-white px-4 py-3 text-base"
+          className="w-full rounded-xl border bg-background px-4 py-3 text-base"
           placeholder="密码"
           value={password}
           onChange={(e) => setPassword(e.target.value)}

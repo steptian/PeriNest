@@ -1,16 +1,46 @@
 # PeriNest（蜚蠊巢穴）
 
+[English](README_EN.md) | 中文
+
+
 > [![CI](https://github.com/steptian/PeriNest/actions/workflows/ci.yml/badge.svg)](https://github.com/steptian/PeriNest/actions/workflows/ci.yml)
-> ![version](https://img.shields.io/badge/version-0.3.0-c2410c) ![license](https://img.shields.io/badge/license-MIT-green) ![monorepo](https://img.shields.io/badge/monorepo-Queen·Wing·Antenna·Leg-166534)
+> ![version](https://img.shields.io/badge/version-0.4.0-c2410c) ![license](https://img.shields.io/badge/license-MIT-green) ![monorepo](https://img.shields.io/badge/monorepo-Queen·Wing·Antenna·Leg-166534)
 >
 > *Built to Survive, Designed to Adapt.* — 为生存而生，为适应而设计。
 
 四端 monorepo：**Queen**（后端核心）+ **Wing**（Web 管理端）+ **Antenna**（微信小程序）+ **Leg**（移动端 H5）。
 无 Docker 部署：原生 venv + Systemd + Nginx。
 
+## 📸 演示
+
+<p align="center">
+  <img src="assets/screenshots/wing-dashboard-light.png" width="48%" alt="Wing 管理端" />
+  <img src="assets/screenshots/leg-chat-light.png" width="20%" alt="Leg AI 对话" />
+</p>
+<p align="center">
+  <img src="assets/screenshots/wing-dashboard-dark.png" width="48%" alt="Wing 暗色模式" />
+  <img src="assets/screenshots/leg-chat-dark.png" width="20%" alt="Leg 暗色模式" />
+</p>
+<p align="center"><sub>Wing 管理端仪表盘 · Leg 移动端 AI 流式对话（亮/暗双主题）</sub></p>
+
 ## ✨ 为什么选 PeriNest
 
 **不是空壳模板，是全链路验证过的生产起点。**
+
+### 🛑 停止重复造轮子
+
+每次新项目都在重写注册登录、重配 JWT、重搭管理后台、重新接 AI 流式、重写部署脚本——**这些轮子 PeriNest 都造好了，而且验证过**：
+
+| 你不用再造的轮子 | PeriNest 已交付 |
+|:---|:---|
+| 注册/登录/JWT/鉴权 | 开箱即用，含微信 wx.login 双通道 |
+| 管理后台 + H5 + 小程序 | 四端一套仓库，同构 API 层 |
+| AI 流式对话（SSE） | Nerve 网关 + 双端 UI，mock 模式零 key 体验 |
+| 部署脚本/进程守护/Nginx | deploy/ 全套，无 Docker |
+| CI 流水线 | GitHub Actions 四 job 矩阵 |
+| 版本管理 | 单一 VERSION 源，三端自动同步 |
+
+**你的时间应该花在真正的业务上，而不是第一周就写吐的第 1000 次登录页。**
 
 ### 🧬 四端一体，看名字就懂架构
 
@@ -41,6 +71,7 @@ Queen 的 Pydantic Schema 自动生成 OpenAPI → `openapi-typescript` 一键�
 - **SSE 流式打字机**：`/api/v1/ai/chat/stream`，四端共享
 - Leg 端 AI 对话页 + Wing 端 AI 助手抽屉，**点开即聊**
 - 未配 key 自动进 mock 模式——**demo 与 CI 零成本跑真实链路**
+- 🧲 **MCP Server（Spiracle 气门）**：`/api/v1/mcp` 一键把订单查询、健康检查、AI 对话暴露为 MCP 工具——**Claude / Cursor 等 AI 客户端直连你的后端**，零额外依赖
 
 ### ⚡ 全异步链路，单机性能拉满
 

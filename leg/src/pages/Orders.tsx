@@ -13,13 +13,13 @@ export default function Orders() {
       <h2 className="mb-3 text-lg font-bold">我的订单</h2>
       {isLoading && <p className="text-sm text-muted-foreground">加载中…</p>}
       {!isLoading && orders.length === 0 && (
-        <div className="rounded-2xl border bg-white p-8 text-center text-sm text-muted-foreground">
+        <div className="rounded-2xl border bg-background p-8 text-center text-sm text-muted-foreground">
           暂无订单
         </div>
       )}
       <div className="space-y-3">
         {orders.map((o) => (
-          <div key={o.id} className="rounded-2xl border bg-white p-4">
+          <div key={o.id} className="rounded-2xl border bg-background p-4">
             <div className="flex items-center justify-between">
               <span className="rounded-full bg-muted px-2 py-0.5 text-xs">
                 {ORDER_STATUS_LABEL[o.status] ?? o.status}
