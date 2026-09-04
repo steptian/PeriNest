@@ -31,7 +31,7 @@
 ### 🔒 契约驱动，拼写错误活不过编译期
 
 Queen 的 Pydantic Schema 自动生成 OpenAPI → `openapi-typescript` 一键转 Wing 的 TS 类型。
-后端改字段，前端类型立刻变红。**三端联调不再靠吼。**
+后端改字段，前端类型立刻变红。**四端联调不再靠吼。**
 
 ### ⚡ 全异步链路，单机性能拉满
 
@@ -90,7 +90,9 @@ npm run dev                # http://localhost:5174
 
 ```bash
 cd queen && .venv/bin/python -m pytest tests/ -v   # 全链路冒烟
-cd wing && npm run build                            # TS 严格模式构建
+cd wing && npm run build                            # Web 管理端构建
+cd leg  && npm run build                            # H5 移动端构建
+cd antenna && ./node_modules/.bin/tsc --noEmit      # 小程序类型检查
 ```
 
 ## 架构文档
