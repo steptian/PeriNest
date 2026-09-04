@@ -10,6 +10,6 @@ links: docs/技术架构.md, deploy/DEPLOYMENT.md, http://localhost:8000/docs
 wiki: 
 
 ## 状态区
-status: v0.2.0 四端全绿已发布 GitHub(steptian/PeriNest, public)
-next: 业务域模块定名；接入真实微信 appid；git tag v0.1.0
-updated: 2026-09-04
+status: v0.3.0 AI Native(神经索网关+双端chat+CI) 四端全绿待发布
+next: push+tag v0.3.0；GitHub Actions 首跑观察徽章转绿
+updated: 2026-09-05

@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { LayoutDashboard, LogOut, Package } from "lucide-react";
+import AiAssistant from "@/components/AiAssistant";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/stores/auth";
 
@@ -43,6 +44,7 @@ export default function Layout() {
       <main className="flex-1 overflow-auto p-6">
         <Outlet />
       </main>
+      <AiAssistant />
     </div>
   );
 }

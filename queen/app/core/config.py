@@ -60,6 +60,19 @@ class QueenSettings(BaseSettings):
     WX_APPID: str = ""
     WX_SECRET: str = ""
 
+    # ---- Nerve 神经索 (AI 网关，OpenAI 兼容多 provider) ----
+    # 任何 OpenAI 兼容服务均可：DeepSeek/Kimi/Qwen/Ollama/vLLM...
+    # AI_API_KEY 留空时自动进入 mock 模式（返回模拟流，demo/CI 零成本可跑）
+    AI_API_BASE: str = "https://api.deepseek.com/v1"
+    AI_API_KEY: str = ""
+    AI_MODEL: str = "deepseek-chat"
+    AI_TIMEOUT_SECONDS: int = 60
+    AI_MOCK: bool = False  # 显式开启 mock；未配 key 时隐式生效
+
+    @property
+    def ai_mock_enabled(self) -> bool:
+        return self.AI_MOCK or not self.AI_API_KEY
+
     # ---- Pheromone (Celery broker，默认复用 Redis) ----
     CELERY_BROKER_URL: str = "redis://127.0.0.1:6379/1"
     CELERY_RESULT_BACKEND: str = "redis://127.0.0.1:6379/2"

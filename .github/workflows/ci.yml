@@ -1,0 +1,102 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  queen:
+    name: Queen (pytest, MySQL+Redis services)
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: perinest_db
+        ports: ["3306:3306"]
+        options: >-
+          --health-cmd="mysqladmin ping -proot"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+      redis:
+        image: redis:7
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+    defaults:
+      run:
+        working-directory: queen
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install
+        run: pip install .[dev]
+      - name: Env
+        run: |
+          cat > .env <<CONF
+          PERINEST_Q_DB_USER=root
+          PERINEST_Q_DB_PASSWORD=root
+          PERINEST_Q_DB_NAME=perinest_db
+          PERINEST_Q_SECRET_KEY=ci_secret
+          PERINEST_Q_CORS_ORIGINS=["http://localhost:5173"]
+          CONF
+      - name: Migrate
+        run: alembic upgrade head
+      - name: Test
+        run: pytest tests/ -v
+        env:
+          PERINEST_Q_AI_MOCK: "true"  # CI 走 mock 模式，零 key 零成本
+
+  wing:
+    name: Wing (tsc + vite build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: wing
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: wing/package-lock.json
+      - run: npm ci
+      - run: npm run build
+
+  leg:
+    name: Leg (tsc + vite build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: leg
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: leg/package-lock.json
+      - run: npm ci
+      - run: npm run build
+
+  antenna:
+    name: Antenna (tsc typecheck)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: antenna
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: antenna/package-lock.json
+      - run: npm ci
+      - run: npx tsc --noEmit

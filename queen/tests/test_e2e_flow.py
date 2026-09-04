@@ -1,88 +1,68 @@
-"""全链路冒烟测试：注册 → 登录 → me → 创建订单 → 查询订单。
+"""全链路冒烟测试：注册 → 登录 → me → 创建订单 → 查询订单（async 统一姿势）。
 
-依赖本机 MySQL (perinest_db) 与 Redis，验证 Core 腺体 + Nectar 全通。
+依赖本机 MySQL (perinest_db) 与 Redis。
 """
-from fastapi.testclient import TestClient
-
-from app.main import app
 
 
-def _client() -> TestClient:
-    return TestClient(app)
+async def test_full_user_order_flow(client, auth_headers):
+    # 1. me（auth_headers 已注册+签发 token）
+    me = await client.get("/api/v1/auth/me", headers=auth_headers)
+    assert me.status_code == 200, me.text
+    username = me.json()["username"]
+    assert username.startswith("fx_")
 
+    # 2. 登录接口直接验证
+    login = await client.post(
+        "/api/v1/auth/login",
+        json={"username": username, "password": "PeriNest!2026"},
+    )
+    assert login.status_code == 200, login.text
+    assert login.json()["access_token"]
 
-def test_full_user_order_flow():
-    with _client() as c:
-        # 1. 注册
-        # 随机后缀保证重复跑幂等
-        username = f"smoke_{__import__('time').strftime('%H%M%S')}"
-        reg = c.post(
-            "/api/v1/auth/register",
-            json={"username": username, "password": "PeriNest!2026", "email": f"{username}@example.com"},
-        )
-        assert reg.status_code in (201, 409), reg.text  # 409 = 已存在（重复跑）
-        user = reg.json()
-        assert user["username"] == username
+    # 3. 错误密码 → 401
+    bad = await client.post(
+        "/api/v1/auth/login",
+        json={"username": username, "password": "wrong_pass_123"},
+    )
+    assert bad.status_code == 401
 
-        # 2. 登录
-        login = c.post(
-            "/api/v1/auth/login",
-            json={"username": username, "password": "PeriNest!2026"},
-        )
-        assert login.status_code == 200, login.text
-        token = login.json()["access_token"]
-        assert token
-        headers = {"Authorization": f"Bearer {token}"}
+    # 4. 无 token → 401
+    noauth = await client.get("/api/v1/orders")
+    assert noauth.status_code == 401
 
-        # 3. me
-        me = c.get("/api/v1/auth/me", headers=headers)
-        assert me.status_code == 200, me.text
-        assert me.json()["username"] == username
+    # 5. 创建订单
+    order = await client.post(
+        "/api/v1/orders",
+        headers=auth_headers,
+        json={
+            "remark": "冒烟测试订单",
+            "items": [
+                {"sku_name": "测试商品A", "quantity": 2, "unit_price": 9.9},
+                {"sku_name": "测试商品B", "quantity": 1, "unit_price": 199.0},
+            ],
+        },
+    )
+    assert order.status_code == 201, order.text
+    data = order.json()
+    assert data["order_no"].startswith("PN")
+    assert data["status"] == "pending"
+    assert float(data["total_amount"]) == 218.8  # 9.9*2 + 199
+    assert len(data["items"]) == 2
+    order_id = data["id"]
 
-        # 4. 错误密码 → 401
-        bad = c.post(
-            "/api/v1/auth/login",
-            json={"username": username, "password": "wrong_pass_123"},
-        )
-        assert bad.status_code == 401
+    # 6. 列表 + 详情
+    lst = await client.get("/api/v1/orders", headers=auth_headers)
+    assert lst.status_code == 200
+    assert any(o["id"] == order_id for o in lst.json())
 
-        # 5. 无 token → 401
-        noauth = c.get("/api/v1/orders")
-        assert noauth.status_code == 401
+    detail = await client.get(f"/api/v1/orders/{order_id}", headers=auth_headers)
+    assert detail.status_code == 200
+    assert detail.json()["id"] == order_id
 
-        # 6. 创建订单
-        order = c.post(
-            "/api/v1/orders",
-            headers=headers,
-            json={
-                "remark": "冒烟测试订单",
-                "items": [
-                    {"sku_name": "测试商品A", "quantity": 2, "unit_price": 9.9},
-                    {"sku_name": "测试商品B", "quantity": 1, "unit_price": 199.0},
-                ],
-            },
-        )
-        assert order.status_code == 201, order.text
-        data = order.json()
-        assert data["order_no"].startswith("PN")
-        assert data["status"] == "pending"
-        assert float(data["total_amount"]) == 218.8  # 9.9*2 + 199
-        assert len(data["items"]) == 2
-        order_id = data["id"]
-
-        # 7. 查询订单列表 + 详情
-        lst = c.get("/api/v1/orders", headers=headers)
-        assert lst.status_code == 200
-        assert any(o["id"] == order_id for o in lst.json())
-
-        detail = c.get(f"/api/v1/orders/{order_id}", headers=headers)
-        assert detail.status_code == 200
-        assert detail.json()["id"] == order_id
-
-        # 8. 校验失败示例：数量为 0 → 422
-        invalid = c.post(
-            "/api/v1/orders",
-            headers=headers,
-            json={"items": [{"sku_name": "x", "quantity": 0, "unit_price": 1}]},
-        )
-        assert invalid.status_code == 422
+    # 7. 校验失败示例：数量为 0 → 422
+    invalid = await client.post(
+        "/api/v1/orders",
+        headers=auth_headers,
+        json={"items": [{"sku_name": "x", "quantity": 0, "unit_price": 1}]},
+    )
+    assert invalid.status_code == 422

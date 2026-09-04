@@ -10,7 +10,7 @@ celery_app = Celery(
     "perinest",
     broker=settings.CELERY_BROKER_URL,
     backend=settings.CELERY_RESULT_BACKEND,
-    include=["app.tasks.email_tasks", "app.tasks.report_tasks"],
+    include=["app.tasks.email_tasks", "app.tasks.report_tasks", "app.tasks.ai_tasks"],
 )
 
 celery_app.conf.update(

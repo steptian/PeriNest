@@ -1,6 +1,7 @@
 # PeriNest（蜚蠊巢穴）
 
-> ![version](https://img.shields.io/badge/version-0.2.0-c2410c) ![license](https://img.shields.io/badge/license-MIT-green) ![monorepo](https://img.shields.io/badge/monorepo-Queen·Wing·Antenna·Leg-166534)
+> [![CI](https://github.com/steptian/PeriNest/actions/workflows/ci.yml/badge.svg)](https://github.com/steptian/PeriNest/actions/workflows/ci.yml)
+> ![version](https://img.shields.io/badge/version-0.3.0-c2410c) ![license](https://img.shields.io/badge/license-MIT-green) ![monorepo](https://img.shields.io/badge/monorepo-Queen·Wing·Antenna·Leg-166534)
 >
 > *Built to Survive, Designed to Adapt.* — 为生存而生，为适应而设计。
 
@@ -32,6 +33,14 @@
 
 Queen 的 Pydantic Schema 自动生成 OpenAPI → `openapi-typescript` 一键转 Wing 的 TS 类型。
 后端改字段，前端类型立刻变红。**四端联调不再靠吼。**
+
+### 🧠 AI Native：自带神经索（Nerve）
+
+**不是"可以接 AI"，是开箱就在用 AI。**
+- 统一 AI 网关：一套 OpenAI 兼容适配，DeepSeek / Kimi / Qwen / Ollama 换个 base_url 即切
+- **SSE 流式打字机**：`/api/v1/ai/chat/stream`，四端共享
+- Leg 端 AI 对话页 + Wing 端 AI 助手抽屉，**点开即聊**
+- 未配 key 自动进 mock 模式——**demo 与 CI 零成本跑真实链路**
 
 ### ⚡ 全异步链路，单机性能拉满
 

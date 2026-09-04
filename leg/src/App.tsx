@@ -3,6 +3,7 @@ import BottomNav from "@/components/BottomNav";
 import Home from "@/pages/Home";
 import Login from "@/pages/Login";
 import Orders from "@/pages/Orders";
+import Chat from "@/pages/Chat";
 import Profile from "@/pages/Profile";
 import { useAuthStore } from "@/stores/auth";
 
@@ -28,6 +29,7 @@ export default function App() {
         >
           <Route index element={<Home />} />
           <Route path="orders" element={<Orders />} />
+          <Route path="chat" element={<Chat />} />
           <Route path="profile" element={<Profile />} />
         </Route>
       </Routes>

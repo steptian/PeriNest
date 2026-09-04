@@ -12,6 +12,19 @@
 
 > Queen 的 `/health` 与 Wing 侧边栏版本号均自动读取 `VERSION` 文件，无需手动改。
 
+## [0.3.0] - 2026-09-04
+
+### Added
+- **Nerve（神经索）AI 网关** — AI Native 时代开箱即用
+  - `/api/v1/ai/chat` + `/api/v1/ai/chat/stream`（SSE 流式打字机）
+  - OpenAI 兼容多 provider：DeepSeek / Kimi / Qwen / Ollama 换 base_url 即切
+  - 未配 key 自动 mock 模式，demo/CI 零成本
+- **Leg**：AI 对话页（移动端气泡 + 流式增量渲染），底部新增 AI tab
+- **Wing**：右下角 AI 助手抽屉
+- **Celery**：`ai_tasks.batch_summarize` 异步批量摘要示例
+- **GitHub Actions CI**：Queen（MySQL+Redis services + pytest 全链路）/ Wing / Leg / Antenna 四 job 矩阵
+- 测试体系重构：全部 async + session 单 event loop + ASGITransport（消除 TestClient 跨 loop 冲突），6/6 全绿
+
 ## [0.2.0] - 2026-09-04
 
 ### Added

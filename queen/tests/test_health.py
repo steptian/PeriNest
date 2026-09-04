@@ -1,23 +1,19 @@
-"""健康检查冒烟测试 — 不依赖 DB/Redis 的最小可跑测试。"""
-from fastapi.testclient import TestClient
-
-from app.main import app
+"""健康检查 + 契约存在性测试（async 统一姿势）。"""
 
 
-def test_health():
-    with TestClient(app) as client:
-        resp = client.get("/health")
-        assert resp.status_code == 200
-        data = resp.json()
-        assert data["status"] == "ok"
-        assert "version" in data
+async def test_health(client):
+    resp = await client.get("/health")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["status"] == "ok"
+    assert "version" in data
 
 
-def test_openapi_contract():
-    """契约存在性：/openapi.json 是三端联调的唯一数据源。"""
-    with TestClient(app) as client:
-        resp = client.get("/openapi.json")
-        assert resp.status_code == 200
-        paths = resp.json()["paths"]
-        assert "/api/v1/auth/login" in paths
-        assert "/api/v1/orders" in paths
+async def test_openapi_contract(client):
+    """契约存在性：/openapi.json 是四端联调的唯一数据源。"""
+    resp = await client.get("/openapi.json")
+    assert resp.status_code == 200
+    paths = resp.json()["paths"]
+    assert "/api/v1/auth/login" in paths
+    assert "/api/v1/orders" in paths
+    assert "/api/v1/ai/chat/stream" in paths

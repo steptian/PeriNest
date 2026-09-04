@@ -1,6 +1,6 @@
 /** PeriNest Antenna 应用入口 */
 // ⚠️ 唯一版本源是仓库根 VERSION 文件；小程序读不到仓库文件，发版时需手动同步（见 /CHANGELOG.md）
-const APP_VERSION = "0.2.0";
+const APP_VERSION = "0.3.0";
 
 App({
   globalData: {

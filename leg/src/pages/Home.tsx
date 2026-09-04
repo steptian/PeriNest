@@ -10,6 +10,7 @@ export default function Home() {
         <p className="mt-2 text-xs opacity-70">Built to Survive, Designed to Adapt.</p>
       </div>
       <div className="grid grid-cols-2 gap-3">
+        <Card title="🧠 AI 助手" desc="神经索流式对话" to="/chat" />
         <Card title="🛒 去下单" desc="浏览商品，创建订单" to="/orders" />
         <Card title="📦 我的订单" desc="查看全部订单状态" to="/orders" />
       </div>
