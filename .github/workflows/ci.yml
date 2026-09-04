@@ -35,6 +35,11 @@ jobs:
         with:
           python-version: "3.11"
           cache: pip
+      - name: Version consistency (root VERSION == pyproject)
+        run: |
+          V1=$(cat ../VERSION)
+          V2=$(grep -m1 '^version' pyproject.toml | cut -d'"' -f2)
+          [ "$V1" = "$V2" ] || { echo "版本不一致: VERSION=$V1 pyproject=$V2"; exit 1; }
       - name: Install
         run: pip install .[dev]
       - name: Env

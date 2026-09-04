@@ -6,7 +6,7 @@
 
 ## 发版流程（三步）
 
-1. 改根目录 `VERSION` 文件（唯一版本源）→ 同步 `antenna/miniprogram/app.ts` 的 `appVersion`（小程序读不到仓库文件，需手动同步）
+1. 改根目录 `VERSION` 文件（唯一版本源）→ 同步 `antenna/miniprogram/app.ts` 的 `appVersion` 与 `queen/pyproject.toml` 的 `version`（CI 有一致性校验）
 2. 在本文件顶部新增版本条目
 3. `git tag v<版本号> && git push --tags`
 

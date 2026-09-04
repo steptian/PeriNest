@@ -1,12 +1,10 @@
 [project]
 name = "perinest-queen"
-dynamic = ["version"]  # 唯一版本源：仓库根 ../VERSION 文件
+version = "0.3.0"  # 与根 VERSION 保持一致，CI 有校验
 license = "MIT"
 description = "PeriNest Queen — 后端核心 (FastAPI + MySQL + Redis)"
 requires-python = ">=3.11"
 
-[tool.setuptools.dynamic]
-version = { file = ["../VERSION"] }
 
 dependencies = [
     # Web 框架
@@ -44,6 +42,10 @@ dev = [
     "httpx>=0.27",           # TestClient
     "ruff>=0.4",
 ]
+
+[tool.setuptools.packages.find]
+include = ["app*"]  # 只打包 app/*，排除 alembic/logs/tests
+
 
 [tool.ruff]
 line-length = 100
