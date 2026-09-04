@@ -1,5 +1,6 @@
 <view class="card user-header">
   <text class="nickname">{{userInfo ? userInfo.nickName : "未登录"}}</text>
+  <view class="version">PeriNest Antenna v{{appVersion}}</view>
 </view>
 <view class="card" bindtap="logout">
   <text>退出登录</text>

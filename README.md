@@ -1,5 +1,7 @@
 # PeriNest（蜚蠊巢穴）
 
+> ![version](https://img.shields.io/badge/version-0.1.0-c2410c) ![license](https://img.shields.io/badge/monorepo-Queen·Wing·Antenna-166534)
+>
 > *Built to Survive, Designed to Adapt.* — 为生存而生，为适应而设计。
 
 三端 monorepo：**Queen**（后端核心）+ **Wing**（Web 管理端）+ **Antenna**（微信小程序）。

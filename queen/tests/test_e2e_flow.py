@@ -14,10 +14,11 @@ def _client() -> TestClient:
 def test_full_user_order_flow():
     with _client() as c:
         # 1. 注册
-        username = "smoke_user_001"
+        # 随机后缀保证重复跑幂等
+        username = f"smoke_{__import__('time').strftime('%H%M%S')}"
         reg = c.post(
             "/api/v1/auth/register",
-            json={"username": username, "password": "PeriNest!2026", "email": "smoke@example.com"},
+            json={"username": username, "password": "PeriNest!2026", "email": f"{username}@example.com"},
         )
         assert reg.status_code in (201, 409), reg.text  # 409 = 已存在（重复跑）
         user = reg.json()

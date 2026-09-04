@@ -1,10 +1,24 @@
-"""PeriNest Queen 核心配置 (Pydantic Settings)。
+"""PeriNest Queen 核心配置。
 
 所有配置通过环境变量注入，前缀 PERINEST_Q_，启动时加载 .env 文件。
+版本号单一源：仓库根目录 VERSION 文件（见 /CHANGELOG.md 发版流程）。
 """
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# 仓库根 = queen/app/core/config.py 上溯 3 级
+_REPO_ROOT = Path(__file__).resolve().parents[3]
+
+
+def read_repo_version() -> str:
+    """读根 VERSION 文件；读不到（如打包部署）则回退内置版本。"""
+    try:
+        return (_REPO_ROOT / "VERSION").read_text(encoding="utf-8").strip()
+    except OSError:
+        return "0.1.0"
+
 
 
 class QueenSettings(BaseSettings):
@@ -20,7 +34,7 @@ class QueenSettings(BaseSettings):
 
     # ---- 应用元信息 ----
     APP_NAME: str = "PeriNest Queen"
-    APP_VERSION: str = "0.1.0"
+    APP_VERSION: str = read_repo_version()  # 唯一版本源：根 VERSION 文件，可用环境变量覆盖
     DEBUG: bool = False
     API_V1_PREFIX: str = "/api/v1"
 

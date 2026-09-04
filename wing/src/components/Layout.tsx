@@ -33,7 +33,8 @@ export default function Layout() {
           ))}
         </nav>
         <div className="border-t pt-3 text-xs text-muted-foreground">
-          <div className="mb-2 truncate">{user?.username ?? "-"}</div>
+        <div className="mb-1 truncate">{user?.username ?? "-"}</div>
+          <div className="mb-2 text-[10px] opacity-60">v{__APP_VERSION__}</div>
           <Button variant="ghost" size="sm" className="w-full" onClick={logout}>
             <LogOut className="mr-1 h-4 w-4" /> 退出
           </Button>

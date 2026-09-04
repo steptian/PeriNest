@@ -1,5 +1,8 @@
 Page({
-  data: { userInfo: null as WechatMiniprogram.UserInfo | null },
+  data: {
+    userInfo: null as WechatMiniprogram.UserInfo | null,
+    appVersion: getApp().globalData.appVersion,
+  },
   onShow() {
     this.setData({ userInfo: getApp().globalData.userInfo });
   },
