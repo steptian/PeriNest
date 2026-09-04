@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html { -webkit-tap-highlight-color: transparent; }
+body {
+  @apply bg-background text-foreground antialiased;
+  max-width: 480px;   /* H5 手机视口，桌面居中 */
+  margin: 0 auto;
+  min-height: 100vh;
+  box-shadow: 0 0 40px rgb(0 0 0 / 0.06);
+}

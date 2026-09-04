@@ -8,7 +8,7 @@ REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
 echo "==> [1/6] 创建目录与用户"
 id -u www-data >/dev/null 2>&1 || useradd -r -s /usr/sbin/nologin www-data || true
-mkdir -p "$APP_ROOT"/queen/logs "$APP_ROOT"/wing/dist
+mkdir -p "$APP_ROOT"/queen/logs "$APP_ROOT"/wing/dist "$APP_ROOT"/leg/dist
 chown -R www-data:www-data "$APP_ROOT"
 
 echo "==> [2/6] 同步代码 (rsync，排除开发产物)"
@@ -17,6 +17,7 @@ rsync -a --delete \
   --exclude='dist' --exclude='logs/*' --exclude='__pycache__' \
   "$REPO_ROOT/queen/" "$APP_ROOT/queen/"
 rsync -a --delete --exclude='node_modules' "$REPO_ROOT/wing/dist/" "$APP_ROOT/wing/dist/"
+rsync -a --delete --exclude='node_modules' "$REPO_ROOT/leg/dist/" "$APP_ROOT/leg/dist/"
 
 echo "==> [3/6] 构建 Python 虚拟环境"
 cd "$APP_ROOT/queen"
@@ -31,6 +32,7 @@ cp "$REPO_ROOT/deploy/systemd/perinest-queen.service" /etc/systemd/system/
 cp "$REPO_ROOT/deploy/systemd/perinest-celery.service" /etc/systemd/system/
 cp "$REPO_ROOT/deploy/nginx/perinest-api.conf" /etc/nginx/conf.d/
 cp "$REPO_ROOT/deploy/nginx/perinest-wing.conf" /etc/nginx/conf.d/
+cp "$REPO_ROOT/deploy/nginx/perinest-leg.conf" /etc/nginx/conf.d/
 mkdir -p /var/log/perinest && chown -R www-data:www-data /var/log/perinest
 systemctl daemon-reload
 

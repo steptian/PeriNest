@@ -12,6 +12,16 @@
 
 > Queen 的 `/health` 与 Wing 侧边栏版本号均自动读取 `VERSION` 文件，无需手动改。
 
+## [0.2.0] - 2026-09-04
+
+### Added
+- **Leg（足）**：移动端 H5 端，第四端上线
+  - React 18 + TS + Vite + Tailwind，移动端优先（480px 视口 + 底部 Tab 导航）
+  - 登录 / 首页 / 订单 / 个人中心四页，与 Wing 同栈同模式，Queen 零改动
+  - 构建期从根 VERSION 注入版本号，个人中心可见
+- 开源协议：MIT License（README 徽章 + LICENSE + 三端 package 字段）
+- deploy：新增 Leg 静态托管 Nginx 配置
+
 ## [0.1.0] - 2026-09-04
 
 ### Added

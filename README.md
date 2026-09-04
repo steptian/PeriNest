@@ -1,19 +1,19 @@
 # PeriNest（蜚蠊巢穴）
 
-> ![version](https://img.shields.io/badge/version-0.1.0-c2410c) ![license](https://img.shields.io/badge/license-MIT-green) ![monorepo](https://img.shields.io/badge/monorepo-Queen·Wing·Antenna-166534)
+> ![version](https://img.shields.io/badge/version-0.2.0-c2410c) ![license](https://img.shields.io/badge/license-MIT-green) ![monorepo](https://img.shields.io/badge/monorepo-Queen·Wing·Antenna·Leg-166534)
 >
 > *Built to Survive, Designed to Adapt.* — 为生存而生，为适应而设计。
 
-三端 monorepo：**Queen**（后端核心）+ **Wing**（Web 管理端）+ **Antenna**（微信小程序）。
+四端 monorepo：**Queen**（后端核心）+ **Wing**（Web 管理端）+ **Antenna**（微信小程序）+ **Leg**（移动端 H5）。
 无 Docker 部署：原生 venv + Systemd + Nginx。
 
 ## ✨ 为什么选 PeriNest
 
 **不是空壳模板，是全链路验证过的生产起点。**
 
-### 🧬 三端一体，看名字就懂架构
+### 🧬 四端一体，看名字就懂架构
 
-一套 monorepo 装下全部：**Queen**（后端裁决核心）、**Wing**（Web 管理端）、**Antenna**（微信小程序）。
+一套 monorepo 装下全部：**Queen**（后端裁决核心）、**Wing**（Web 管理端）、**Antenna**（微信小程序）、**Leg**（移动端 H5）。
 生态隐喻贯穿代码、目录、文档——新人读一遍命名，架构图已在脑中。
 
 ### 📦 零 Docker 依赖，1C1G 服务器也能跑
@@ -72,6 +72,14 @@ uvicorn app.main:app --reload
 cd wing
 npm install
 npm run dev                # http://localhost:5173
+```
+
+### Leg（H5 移动端）
+
+```bash
+cd leg
+npm install
+npm run dev                # http://localhost:5174
 ```
 
 ### Antenna（小程序）
