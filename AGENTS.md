@@ -10,6 +10,6 @@ links: docs/技术架构.md, deploy/DEPLOYMENT.md, http://localhost:8000/docs
 wiki: 
 
 ## 状态区
-status: 骨架就绪，全链路验证通过（pytest 3/3、wing build、alembic 迁移均通过）
-next: git init 首次提交；业务域模块定名；接入真实微信 appid
+status: 骨架完成并已发布 GitHub(steptian/PeriNest, private)；三端验证全绿
+next: 业务域模块定名；接入真实微信 appid；git tag v0.1.0
 updated: 2026-09-04
