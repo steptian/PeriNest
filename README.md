@@ -41,3 +41,12 @@ cd wing && npm run build                            # TS 严格模式构建
 ## 架构文档
 
 见 `docs/技术架构.md`。部署见 `deploy/DEPLOYMENT.md`。
+
+---
+
+## ☕ 请作者喝杯茶
+
+如果这个项目对你有帮助，欢迎扫码打赏，让巢穴生生不息 🪳
+
+![微信收款码](assets/reward-qr.png)
+
