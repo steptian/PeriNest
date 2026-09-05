@@ -26,7 +26,7 @@ Zero-Docker deployment: native venv + Systemd + Nginx.
 ## 🪳 The Nest Imago
 
 <p align="center">
-  <img src="assets/periplaneta-imago.svg" alt="PeriNest nest imago: a cockroach in amber, twelve organs map to system modules" width="760" />
+  <img src="assets/periplaneta-imago-glass.svg" alt="PeriNest nest imago: a glass-perspective cockroach, eleven organs map to system modules" width="760" />
 </p>
 
 <p align="center"><i>Periplaneta · since 300 Ma</i><br/>

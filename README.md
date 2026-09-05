@@ -27,7 +27,7 @@
 ## 🪳 巢穴意象
 
 <p align="center">
-  <img src="assets/periplaneta-imago.svg" alt="PeriNest 巢穴意象：琥珀中的蜚蠊，十二器官对应系统模块" width="760" />
+  <img src="assets/periplaneta-imago-glass.svg" alt="PeriNest 巢穴意象：玻璃透视的蜚蠊，十一器官对应系统模块" width="760" />
 </p>
 
 <p align="center"><i>Periplaneta · since 300 Ma</i><br/>
