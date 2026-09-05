@@ -4,7 +4,7 @@ import { useAuthStore } from "@/stores/auth";
 
 export function useMe() {
   const token = useAuthStore((s) => s.token);
-  return useQuery({ queryKey: ["me"], queryFn: authApi.me, enabled: !!token });
+  return useQuery({ queryKey: ["me"], queryFn: () => authApi.me(), enabled: !!token });
 }
 
 export function useLogin() {
