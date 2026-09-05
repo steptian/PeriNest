@@ -1,5 +1,5 @@
 "use strict";
-const APP_VERSION = "0.9.0";
+const APP_VERSION = "0.9.1";
 App({
     globalData: {
         appVersion: APP_VERSION,

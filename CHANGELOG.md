@@ -12,6 +12,18 @@
 
 > Queen 的 `/health` 与 Wing 侧边栏版本号均自动读取 `VERSION` 文件，无需手动改。
 
+## [0.9.1] - 2026-09-05
+
+### Improved
+- **分块器三级化（借鉴 ack-agent 生产验证）**：段落 → 单段超长按句 → 句超长硬截；
+  相邻块携带 60 字 overlap 并从最近语义边界（句读/换行）回退——边界语义不再被切断
+- **embedding 分批+并发**：真 API 路径按批（默认 32）× 并发（默认 4）请求，
+  响应按 index 还原顺序；EMBEDDING_BATCH_MAX/EMBEDDING_CONCURRENCY 环境变量可覆盖
+
+### Decision
+- **不采纳 wiki 编译层**：ack-agent 实证失败模式（后台孤儿+密度不足+依赖 agent 框架）
+  记入 docs/agent/01；触发条件与重启形态已注明（同步编译进 ingest 主路径，非后台队列）
+
 ## [0.9.0] - 2026-09-05
 
 ### Added

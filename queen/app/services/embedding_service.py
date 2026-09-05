@@ -5,6 +5,7 @@
 """
 import hashlib
 import math
+import os
 
 import httpx
 import structlog
@@ -42,26 +43,49 @@ def _tokenize(text: str) -> list[str]:
     return tokens
 
 
+# 分批 + 并发（借鉴 ack-agent 生产实测：并发 5 提速约 4 倍）。
+# BATCH_MAX 按 provider 硬限制调（DashScope=10）；OpenAI 兼容面 32 保守。
+_EMBED_BATCH_MAX = int(os.environ.get("EMBEDDING_BATCH_MAX", "32"))
+_EMBED_CONCURRENCY = int(os.environ.get("EMBEDDING_CONCURRENCY", "4"))
+
+
+async def _embed_batch(client: httpx.AsyncClient, batch: list[str]) -> list[list[float]]:
+    """单批请求。响应按 index 排序还原顺序（OpenAI 兼容规范 data[].index）。"""
+    resp = await client.post(
+        f"{settings.EMBEDDING_API_BASE.rstrip('/')}/embeddings",
+        headers={"Authorization": f"Bearer {settings.EMBEDDING_API_KEY}"},
+        json={"model": settings.EMBEDDING_MODEL, "input": batch},
+    )
+    resp.raise_for_status()
+    data = sorted(resp.json()["data"], key=lambda item: item["index"])
+    vectors = [item["embedding"] for item in data]
+    if len(vectors) != len(batch):
+        raise ValueError(f"embedding 数量不匹配: {len(vectors)} != {len(batch)}")
+    return vectors
+
+
 async def embed_texts(texts: list[str]) -> tuple[list[list[float]], bool]:
-    """批量 embedding。返回 (向量列表, 是否 mock)。"""
+    """批量 embedding（分批+并发）。返回 (向量列表, 是否 mock)。"""
     if settings.embedding_mock_enabled:
         return [_hash_embed(t, settings.EMBEDDING_DIM) for t in texts], True
 
+    import asyncio
+
     try:
+        sem = asyncio.Semaphore(_EMBED_CONCURRENCY)
+        batches = [texts[i : i + _EMBED_BATCH_MAX] for i in range(0, len(texts), _EMBED_BATCH_MAX)]
+        results: list[list[list[float]]] = [[] for _ in batches]
+
         async with httpx.AsyncClient(
             timeout=settings.EMBEDDING_TIMEOUT_SECONDS
         ) as client:
-            resp = await client.post(
-                f"{settings.EMBEDDING_API_BASE.rstrip('/')}/embeddings",
-                headers={"Authorization": f"Bearer {settings.EMBEDDING_API_KEY}"},
-                json={"model": settings.EMBEDDING_MODEL, "input": texts},
-            )
-            resp.raise_for_status()
-            data = resp.json()
-            vectors = [item["embedding"] for item in data["data"]]
-            if len(vectors) != len(texts):
-                raise ValueError(f"embedding 数量不匹配: {len(vectors)} != {len(texts)}")
-            return vectors, False
+
+            async def run(i: int, batch: list[str]) -> None:
+                async with sem:
+                    results[i] = await _embed_batch(client, batch)
+
+            await asyncio.gather(*(run(i, b) for i, b in enumerate(batches)))
+        return [vec for batch in results for vec in batch], False
     except Exception:
         # fail 透明：真 embedding 挂了不静默降级（否则线上悄悄变伪向量，
         # 检索质量无声劣化）——记日志后抛出，由调用方落 failed 状态

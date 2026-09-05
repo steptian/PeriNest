@@ -43,6 +43,18 @@ Nginx(Carapace) → gunicorn/uvicorn → main.py 中间件(trace_id) → api/v1/
 - **依赖**：Redis ≥ 8.2（Vector Sets）；Redis 7 无此结构——部署文档见 03
 - 坑：向量操作走独立二进制连接（decode_responses=False），不能复用主池（主池 True 会破坏 FP32 传输）
 
+### 不采纳：wiki 编译层（2026-09-05 决策，v0.9.1 记录）
+
+ack-agent（旭化成 RAG）验证过的失败模式，Crop 不走这条路：
+- **后台孤儿**：wiki 编译是异步夜间任务，编译与否问答零感知（search_kb 照常可用）→ 实际
+  29 份 raw 仅产出 10 页（sources 覆盖 17%），log 停更 3 个月、lint 只跑过 1 次
+- **密度不足**：概念页/版本对比页只在跨文档综合场景兑现价值，日常问答 80% 是单文档
+  条文查询，chunk 检索又快又稳——均匀编译成本在低密度下是负投入
+- **实现形态**：其 wiki 化依赖 pi coding agent 跑 agent-service（LLM 读文档→工具写回），
+  PeriNest 暂不引入 agent 框架形态，LLM 面保持 Nerve 网关 httpx 直调
+- **触发条件**（满足才重启设计）：用户出现真实的跨文档综合查询需求，且愿意为编译
+  延迟买单；届时做「同步编译进 ingest 主路径」（编译产物检索强制可见），不做后台队列
+
 ## Celery（Pheromone）
 
 - 实例：`queen/app/tasks/celery_app.py:9`；任务：email/report/ai_tasks

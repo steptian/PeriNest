@@ -14,27 +14,55 @@ from app.services.embedding_service import embed_texts, pack_vector
 
 logger = structlog.get_logger(__name__)
 
-CHUNK_TARGET_CHARS = 600  # 段落聚合目标块大小
+CHUNK_TARGET_CHARS = 600  # 聚合目标块大小
+CHUNK_OVERLAP_CHARS = 60  # 相邻块重叠，从最近语义边界回退（借鉴 ack-agent chunker）
+
+
+def _split_sentences(para: str, limit: int) -> list[str]:
+    """超长段落按句切（中英文句读），仍超长的句子强制截断。"""
+    import re
+
+    parts = re.split(r"(?<=[。；？！.!?;])\s*", para)
+    sentences: list[str] = []
+    for part in parts:
+        while len(part) > limit:
+            sentences.append(part[:limit])
+            part = part[limit:]
+        if part.strip():
+            sentences.append(part)
+    return sentences
+
+
+def _overlap_tail(text: str, overlap: int) -> str:
+    """取块尾 overlap 字符，并回退到最近语义边界（换行/句读），保证衔接处完整。"""
+    tail = text[-overlap:]
+    cut = max(tail.rfind("\n"), tail.rfind("。"), tail.rfind("；"), tail.rfind("."))
+    return tail[cut + 1 :] if cut > 0 else tail
 
 
 def split_chunks(content: str, target: int = CHUNK_TARGET_CHARS) -> list[str]:
-    """段落聚合分块：空行分段，段落顺序装填，超过 target 截断开新块。"""
+    """三级分块（借鉴 ack-agent 生产验证）：段落 → 单段超长按句 → 句超长硬截，
+    相邻块携带 overlap（语义边界回退），避免边界语义被切断检索不到。"""
     paragraphs = [p.strip() for p in content.split("\n\n") if p.strip()]
+    units: list[str] = []
+    for para in paragraphs:
+        if len(para) <= target:
+            units.append(para)
+        else:
+            units.extend(_split_sentences(para, target))
+
     chunks: list[str] = []
     buf = ""
-    for para in paragraphs:
-        if len(buf) + len(para) + 2 <= target:
-            buf = f"{buf}\n\n{para}" if buf else para
+    for unit in units:
+        if not buf:
+            buf = unit
+        elif len(buf) + len(unit) + 1 <= target:
+            buf = f"{buf}\n{unit}"
         else:
-            if buf:
-                chunks.append(buf)
-            # 单段超长：硬切
-            while len(para) > target:
-                chunks.append(para[:target])
-                para = para[target:]
-            buf = para
-    if buf:
-        chunks.append(buf)
+            chunks.append(buf.strip())
+            buf = f"{_overlap_tail(buf, CHUNK_OVERLAP_CHARS)}\n{unit}" if CHUNK_OVERLAP_CHARS else unit
+    if buf.strip():
+        chunks.append(buf.strip())
     return chunks or [content[:target]]
 
 

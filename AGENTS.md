@@ -11,6 +11,6 @@ wiki: docs/agent/
 wiki: 
 
 ## 状态区
-status: v0.9.0 Crop 嗦囊(RAG)已上线：MySQL 权威+Redis8 VectorSets 投影，MCP crop_search/ingest，fail-closed 契约(StrictRequest)，make check 32测试+29锚点全绿
+status: v0.9.1 Crop 嗦囊(RAG)稳定：三级分块+overlap、embedding 分批并发、wiki 编译层不采纳(ack 实证教训入档)，make check 32测试+29锚点全绿
 next: Leg/Antenna 检索页(v2)；大文件 Celery 异步 ingest；在线 demo 部署；业务模块定名
 updated: 2026-09-05
