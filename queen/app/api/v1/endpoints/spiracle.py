@@ -141,6 +141,11 @@ def _tool_definitions() -> list[dict]:
             "inputSchema": {"type": "object", "properties": {"user_id": {"type": "integer"}, "perm": {"type": "string"}, "effect": {"type": "string"}}, "required": ["user_id", "perm", "effect"]},
         },
         {
+            "name": "admin_role_manage",
+            "description": "动态角色管理（需 users:write）：action=list/create/update/delete；admin 角色锁定，有用户引用的角色不可删",
+            "inputSchema": {"type": "object", "properties": {"action": {"type": "string"}, "key": {"type": "string"}, "name": {"type": "string"}, "perms": {"type": "array", "items": {"type": "string"}}}, "required": ["action"]},
+        },
+        {
             "name": "ai_chat",
             "description": "调用 PeriNest AI 网关（Nerve）进行一次对话（非流式）",
             "inputSchema": {
@@ -333,6 +338,36 @@ async def _call_tool(name: str, args: dict, user, db) -> dict:
         db.add(PermOverride(user_id=target.id, perm=perm, effect=effect, created_by=user.id))
         await db.flush()
         return _text({"user": target.username, "perm": perm, "effect": effect, "ok": True})
+
+    if name == "admin_role_manage":
+        if d := await _perm_denied(user, db, f"{USERS}:write"):
+            return d
+        from app.services import role_service
+        action = str(args.get("action", "list"))
+        try:
+            if action == "list":
+                roles = await role_service.list_roles(db)
+                counts = await role_service.role_user_counts(db)
+                return _text({"roles": [
+                    {"key": r.key, "name": r.name, "locked": r.is_locked,
+                     "perms": [p.perm for p in r.perms],
+                     "user_count": counts.get(r.key, 0)} for r in roles]})
+            if action == "create":
+                role = await role_service.create_role(
+                    db, str(args.get("key", "")), str(args.get("name", "")),
+                    list(args.get("perms", [])), user.id)
+                return _text({"created": role.key, "ok": True})
+            if action == "update":
+                await role_service.update_role(
+                    db, str(args.get("key", "")), args.get("name"),
+                    args.get("perms"), user.id)
+                return _text({"updated": args.get("key"), "ok": True})
+            if action == "delete":
+                await role_service.delete_role(db, str(args.get("key", "")), user.id)
+                return _text({"deleted": args.get("key"), "ok": True})
+            return _denied("action 须为 list/create/update/delete")
+        except role_service.RoleError as e:
+            return _denied(str(e))
 
     if name == "ai_chat":
         text = await ai_service.chat([

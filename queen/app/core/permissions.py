@@ -55,19 +55,15 @@ READ = "read"
 WRITE = "write"
 _READ_METHODS = {"GET", "HEAD", "OPTIONS"}
 
-ROLE_PERMISSIONS: dict[str, list[str]] = {
-    "admin": ALL_PERMS,
-    "operator": [f"{USERS}:{READ}", ORDERS, FEEDBACK, AI],
+# 内置角色种子（alembic 迁移写入 pn_role/pn_role_perm；此后运行时可配置，
+# 矩阵页直接编辑——角色定义不再写死在代码中）
+DEFAULT_ROLE_SEEDS: dict[str, tuple[str, list[str], bool]] = {
+    # key: (显示名, 权限点, 锁定)
+    "admin": ("管理员", ALL_PERMS, True),
+    "operator": ("运营", [f"{USERS}:{READ}", ORDERS, FEEDBACK, AI], False),
     # 终端用户：能"用"订单/反馈/AI 域；"只见自己的"由 Service 层归属过滤强制
-    "wing": [ORDERS, FEEDBACK, AI],
-    "antenna": [ORDERS, FEEDBACK, AI],
-}
-
-ROLE_NAMES = {
-    "admin": "管理员",
-    "operator": "运营",
-    "wing": "终端用户(Web)",
-    "antenna": "终端用户(微信)",
+    "wing": ("终端用户", [ORDERS, FEEDBACK, AI], False),
+    "antenna": ("终端用户(微信)", [ORDERS, FEEDBACK, AI], False),
 }
 
 
@@ -91,8 +87,29 @@ def _check_perm(perms: list[str], domain: str, action: str) -> bool:
 
 
 def base_permissions(role: str) -> list[str]:
-    """角色 → 权限点；未知角色无权限（fail closed）。"""
-    return ROLE_PERMISSIONS.get(role, [])
+    """内置种子的角色权限（仅用于迁移/兜底展示）。"""
+    return DEFAULT_ROLE_SEEDS.get(role, (None, [], False))[1]
+
+
+async def role_permissions(db, role_key: str) -> list[str]:
+    """运行时角色权限：从 pn_role_perm 读取；未知角色无权限（fail closed）。"""
+    from sqlalchemy import select as _sel
+
+    from app.models.role import RolePerm
+
+    rows = await db.execute(
+        _sel(RolePerm.perm).where(RolePerm.role_key == role_key)
+    )
+    return [r[0] for r in rows.all()]
+
+
+async def role_name(db, role_key: str) -> str:
+    from sqlalchemy import select as _sel
+
+    from app.models.role import Role
+
+    row = await db.execute(_sel(Role.name).where(Role.key == role_key))
+    return row.scalar_one_or_none() or role_key
 
 
 def apply_overrides(base_perms: list[str], overrides) -> list[str]:
@@ -108,9 +125,9 @@ def apply_overrides(base_perms: list[str], overrides) -> list[str]:
 
 async def effective_permissions(user: User, db: AsyncSession) -> list[str]:
     """账号最终权限 = 角色模板 ⊕ 账号覆盖。鉴权与前端下发的唯一入口。"""
-    base = base_permissions(user.role)
+    base = await role_permissions(db, user.role)
     if user.role == "admin":
-        return base  # admin 锁死，不可覆盖
+        return base  # admin 锁死（pn_role.is_locked），不可覆盖
     from app.models.perm_override import PermOverride
 
     rows = (
@@ -135,11 +152,12 @@ def require_permission(perm: str):
         need_action = action or (READ if request.method in _READ_METHODS else WRITE)
         perms = await effective_permissions(user, db)
         if not _check_perm(perms, domain, need_action):
+            role_label = DEFAULT_ROLE_SEEDS.get(user.role, (user.role, [], False))[0]
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=(
                     f"无权限：需要「{domain}:{need_action}」"
-                    f"（当前角色：{ROLE_NAMES.get(user.role, user.role)}）"
+                    f"（当前角色：{role_label}）"
                 ),
             )
         return user

@@ -93,8 +93,10 @@ async def list_users(
 
 
 async def update_user_role(db: AsyncSession, target: User, new_role: str, actor: User) -> User:
-    """改角色。守卫：admin 不可被非 admin 改动；不可改动 admin 的角色（防自锁）。"""
-    if new_role not in ("admin", "operator", "wing", "antenna"):
+    """改角色。守卫：角色须存在于 pn_role；admin 角色不可被改动（防自锁）。"""
+    from app.models.role import Role as _R
+
+    if await db.get(_R, new_role) is None:
         raise ValueError(f"未知角色: {new_role}")
     if target.role == "admin":
         raise PermissionError("admin 账号角色锁死，不可变更")

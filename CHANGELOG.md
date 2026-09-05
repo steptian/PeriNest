@@ -12,6 +12,26 @@
 
 > Queen 的 `/health` 与 Wing 侧边栏版本号均自动读取 `VERSION` 文件，无需手动改。
 
+## [0.8.0] - 2026-09-05
+
+### Changed
+- **角色定义动态化**（用户决策推翻此前"代码级事实源"取舍）：pn_role/pn_role_perm 两表，
+  运行时可配置，矩阵页直接增删改
+  - 内置角色种子仅作初始化（DEFAULT_ROLE_SEEDS，alembic 写入），此后全部走 DB
+  - 守卫保留：admin 角色锁定（防自锁）· 有用户引用不可删 · 非法权限点拒绝
+  - 修掉遗留硬编码：update_user_role 角色白名单改查库校验
+  - 坑：SQLAlchemy unit-of-work 中 INSERT 先于 DELETE——全量替换角色权限
+    必须先 flush 删除，否则撞唯一键
+- **矩阵页可编辑化**：域按钮三态切换（无→只读→读写）、新增/编辑/删除角色
+  （带确认弹窗）、每角色用户数展示
+- **成员角色下拉动态化**：从 /roles 运行时拉取（不再写死）
+- **编辑成员回显 bug 修复**：EditModal 复用挂载导致 state 不重置——
+  key={user.id} 强制重挂载
+
+### Added
+- roles CRUD 四端点 + MCP admin_role_manage 合一工具（parity 对账）
+- 动态角色全链路测试（创建→授权→只读验证→更新→锁定守卫→引用守卫→删除）
+
 ## [0.7.1] - 2026-09-05
 
 ### Added

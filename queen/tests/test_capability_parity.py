@@ -27,6 +27,7 @@ PARITY_MAP: dict[str, list[str]] = {
     f"{API_PREFIX}/users/{{user_id}}/role": ["admin_set_user_role"],
     f"{API_PREFIX}/users/{{user_id}}/status": ["admin_set_user_status"],
     f"{API_PREFIX}/users/{{user_id}}/perms": ["admin_set_perm_override"],
+    f"{API_PREFIX}/roles/{{role_key}}": ["admin_role_manage"],
     f"{API_PREFIX}/ai/chat": ["ai_chat"],
 }
 
@@ -38,7 +39,7 @@ EXEMPT: dict[str, str] = {
     f"{API_PREFIX}/mcp": "MCP 端点是 AI 面自身的入口，不构成用户操作能力",
     f"{API_PREFIX}/ai/chat/stream": "SSE 流式通道，MCP 的 ai_chat 已覆盖其非流式语义",
     f"{API_PREFIX}/users/{{user_id}}": "用户详情读与资料编辑(邮箱,界面级低频操作)，admin_list_users 列表已含全部字段",
-    f"{API_PREFIX}/roles": "矩阵元数据只读展示（代码级事实源的文档视图）；AI 自知权限走 get_me 的 permissions",
+    f"{API_PREFIX}/roles": "GET 元数据展示，AI 侧由 admin_role_manage(action=list) 覆盖",
     f"{API_PREFIX}/users/{{user_id}}/perms/{{perm}}": "UI 便利端点；PUT /perms 幂等覆盖（grant/deny 重设）可实现同等语义",
     f"{API_PREFIX}/users/{{user_id}}/permissions": "权限查询，get_me 的 permissions 字段已覆盖该语义",
     f"{API_PREFIX}/auth/me/permissions": "权限自查，get_me 工具已内嵌 permissions 返回",

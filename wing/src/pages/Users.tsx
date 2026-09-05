@@ -8,15 +8,13 @@ import { api } from "@/api/client";
 import { rbacApi, usersApi, type UserWithLogin } from "@/api/users";
 import { fmtTime } from "@/utils/format";
 
-const ROLES = [
-  { value: "admin", label: "管理员" },
-  { value: "operator", label: "运营" },
-  { value: "wing", label: "终端(Web)" },
-  { value: "antenna", label: "终端(微信)" },
-];
 const PAGE_SIZE = 20;
 
 export default function Users() {
+  // 角色下拉动态化：运行时从 /roles 拉（角色定义不再写死）
+  const { data: roleData } = useQuery({ queryKey: ["roles"], queryFn: rbacApi.roles });
+  const ROLES = (roleData?.roles ?? []).map((r) => ({ value: r.role, label: r.name, locked: r.locked }));
+
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
@@ -113,7 +111,7 @@ export default function Users() {
                       value={u.role}
                       onChange={(e) => roleMut.mutate({ id: u.id, role: e.target.value })}
                     >
-                      {ROLES.filter((r) => r.value !== "admin").map((r) => (
+                      {ROLES.filter((r) => !r.locked).map((r) => (
                         <option key={r.value} value={r.value}>{r.label}</option>
                       ))}
                     </select>
@@ -156,7 +154,7 @@ export default function Users() {
         onSubmit={(v) => createMut.mutate(v)}
       />
       {/* 编辑弹窗 */}
-      <EditModal user={editing} onClose={() => setEditing(null)} onChanged={invalidate} />
+      <EditModal key={editing?.id ?? "none"} user={editing} onClose={() => setEditing(null)} onChanged={invalidate} />
       {/* 禁用确认 */}
       <ConfirmDialog
         open={!!disabling}
@@ -173,6 +171,8 @@ export default function Users() {
 function CreateModal({
   open, loading, onClose, onSubmit,
 }: { open: boolean; loading: boolean; onClose: () => void; onSubmit: (v: { username: string; password: string; email?: string; role: string }) => void }) {
+  const { data: roleData } = useQuery({ queryKey: ["roles"], queryFn: rbacApi.roles });
+  const ROLES = (roleData?.roles ?? []).map((r) => ({ value: r.role, label: r.name, locked: r.locked }));
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
@@ -193,7 +193,7 @@ function CreateModal({
         <div>
           <span className="specimen-latin mb-1.5 block">role · 角色</span>
           <select className="w-full rounded-xl border bg-card px-3.5 py-2.5 text-sm outline-none focus:border-primary" value={role} onChange={(e) => setRole(e.target.value)}>
-            {ROLES.filter((r) => r.value !== "admin").map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
+            {ROLES.filter((r) => !r.locked).map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
           </select>
           <p className="mt-1.5 text-xs text-muted-foreground">admin 由引导流程创建（make admin），此处不可选。</p>
         </div>
@@ -209,6 +209,8 @@ function CreateModal({
 }
 
 function EditModal({ user, onClose, onChanged }: { user: UserWithLogin | null; onClose: () => void; onChanged: () => void }) {
+  const { data: roleData } = useQuery({ queryKey: ["roles"], queryFn: rbacApi.roles });
+  const ROLES = (roleData?.roles ?? []).map((r) => ({ value: r.role, label: r.name, locked: r.locked }));
   const [email, setEmail] = useState(user?.email ?? "");
   const [role, setRole] = useState(user?.role ?? "wing");
   const [err, setErr] = useState("");
@@ -263,8 +265,8 @@ function EditModal({ user, onClose, onChanged }: { user: UserWithLogin | null; o
         <div>
           <span className="specimen-latin mb-1.5 block">role · 角色</span>
           <select className="w-full rounded-xl border bg-card px-3.5 py-2.5 text-sm outline-none focus:border-primary" value={role} onChange={(e) => setRole(e.target.value)}>
-            {ROLES.filter((r) => r.value !== "admin" || user.role === "admin").map((r) => (
-              <option key={r.value} value={r.value} disabled={r.value === "admin"}>{r.label}{r.value === "admin" ? "（锁定）" : ""}</option>
+            {ROLES.filter((r) => !r.locked || r.value === user.role).map((r) => (
+              <option key={r.value} value={r.value} disabled={r.locked}>{r.label}{r.locked ? "（锁定）" : ""}</option>
             ))}
           </select>
         </div>

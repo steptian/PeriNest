@@ -28,8 +28,10 @@ export const usersApi = {
 export interface RoleInfo {
   role: string;
   name: string;
+  description: string | null;
   permissions: string[];
   locked: boolean;
+  user_count: number;
 }
 
 export interface PermOverview {

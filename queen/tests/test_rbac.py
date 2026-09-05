@@ -12,7 +12,7 @@ from sqlalchemy import select
 
 from app.core.database import AsyncSessionLocal
 from app.core.permissions import (
-    ROLE_PERMISSIONS, apply_overrides, base_permissions, effective_permissions,
+    DEFAULT_ROLE_SEEDS, apply_overrides, base_permissions, effective_permissions,
 )
 from app.core.security import create_access_token
 from app.models.perm_override import PermOverride
@@ -23,12 +23,13 @@ from app.services import user_service
 # ---------- 矩阵单元测试 ----------
 
 def test_matrix_shape():
-    """矩阵核心形状：admin 全域、operator 读用户、wing/antenna 仅 ai。"""
-    assert ROLE_PERMISSIONS["admin"] == ["users", "orders", "feedback", "ai", "system"]
-    assert "users:read" in ROLE_PERMISSIONS["operator"]
-    assert "users" not in ROLE_PERMISSIONS["operator"]  # 只读不可写
-    assert ROLE_PERMISSIONS["wing"] == ["orders", "feedback", "ai"]
-    assert ROLE_PERMISSIONS["antenna"] == ["orders", "feedback", "ai"]
+    """种子矩阵核心形状：admin 全域、operator 读用户、wing/antenna 终端域。"""
+    assert DEFAULT_ROLE_SEEDS["admin"][1] == ["users", "orders", "feedback", "ai", "system"]
+    assert "users:read" in DEFAULT_ROLE_SEEDS["operator"][1]
+    assert "users" not in DEFAULT_ROLE_SEEDS["operator"][1]  # 只读不可写
+    assert DEFAULT_ROLE_SEEDS["wing"][1] == ["orders", "feedback", "ai"]
+    assert DEFAULT_ROLE_SEEDS["antenna"][1] == ["orders", "feedback", "ai"]
+    assert DEFAULT_ROLE_SEEDS["admin"][2] is True  # admin 锁定
 
 
 def test_fail_closed():
@@ -188,3 +189,52 @@ async def test_admin_create_user_and_order_filter(client):
     assert resp.headers["x-total-count"] == "0" and resp.json() == []
     resp = await client.get("/api/v1/orders", headers=admin["headers"], params={"status": "pending", "limit": 5})
     assert int(resp.headers["x-total-count"]) >= 1
+
+
+async def test_dynamic_role_crud(client):
+    """动态角色：创建→生效→更新→删除守卫全链路。"""
+    admin = await _mk_user("admin")
+    role_key = f"auditor_{uuid.uuid4().hex[:6]}"  # 随机 key 保证重复跑幂等
+
+    # 1. 创建角色（只读订单+反馈）
+    resp = await client.post("/api/v1/roles", headers=admin["headers"],
+        json={"key": role_key, "name": "审计员", "perms": ["orders:read", "feedback:read"]})
+    assert resp.status_code == 201
+
+    # 2. 授予用户并验证生效权限
+    target = await _mk_user("wing")
+    resp = await client.patch(f"/api/v1/users/{target['id']}/role", headers=admin["headers"], json={"role": role_key})
+    assert resp.status_code == 200
+    resp = await client.get("/api/v1/auth/me/permissions", headers=target["headers"])
+    perms = resp.json()["permissions"]
+    assert "orders:read" in perms and "orders" not in perms  # 只读无写
+
+    # 3. auditor 只读用户可看订单列表，不能创建（orders:write 缺失）
+    resp = await client.get("/api/v1/orders", headers=target["headers"])
+    assert resp.status_code == 200
+    resp = await client.post("/api/v1/orders", headers=target["headers"],
+        json={"items": [{"sku_name": "x", "quantity": 1, "unit_price": 1}]})
+    assert resp.status_code == 403
+
+    # 4. 更新角色权限（加 orders 写）
+    resp = await client.patch(f"/api/v1/roles/{role_key}", headers=admin["headers"],
+        json={"perms": ["orders", "feedback:read"]})
+    assert resp.status_code == 200
+    resp = await client.get("/api/v1/auth/me/permissions", headers=target["headers"])
+    assert "orders" in resp.json()["permissions"]
+
+    # 5. admin 角色锁定不可改权限
+    resp = await client.patch("/api/v1/roles/admin", headers=admin["headers"], json={"perms": ["ai"]})
+    assert resp.status_code == 422
+
+    # 6. 有用户引用不可删；迁走后可删
+    resp = await client.delete(f"/api/v1/roles/{role_key}", headers=admin["headers"])
+    assert resp.status_code == 422 and "引用" in resp.json()["detail"]
+    await client.patch(f"/api/v1/users/{target['id']}/role", headers=admin["headers"], json={"role": "wing"})
+    resp = await client.delete(f"/api/v1/roles/{role_key}", headers=admin["headers"])
+    assert resp.status_code == 200
+
+    # 7. 非法权限点拒绝
+    resp = await client.post("/api/v1/roles", headers=admin["headers"],
+        json={"key": "bad", "name": "x", "perms": ["nonexist"]})
+    assert resp.status_code == 422

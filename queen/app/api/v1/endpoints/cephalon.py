@@ -79,23 +79,87 @@ roles_router = APIRouter(prefix="/roles", tags=["roles"])
 
 @roles_router.get("")
 async def list_roles(
+    db: DBSession,
     _admin: User = Depends(require_permission(f"{USERS}:read")),
 ) -> dict:
-    """角色×权限矩阵总览（只读——矩阵是代码级事实源，变更走 git，不走 UI）。"""
-    from app.core.permissions import ALL_PERMS, ROLE_NAMES, ROLE_PERMISSIONS
+    """角色×权限矩阵总览（动态：角色定义存 pn_role，矩阵页可编辑）。"""
+    from app.core.permissions import ALL_PERMS
+    from app.services import role_service
 
+    roles = await role_service.list_roles(db)
+    counts = await role_service.role_user_counts(db)
     return {
         "domains": ALL_PERMS,
         "roles": [
             {
-                "role": r,
-                "name": ROLE_NAMES.get(r, r),
-                "permissions": perms,
-                "locked": r == "admin",
+                "role": r.key,
+                "name": r.name,
+                "description": r.description,
+                "permissions": [p.perm for p in r.perms],
+                "locked": r.is_locked,
+                "user_count": counts.get(r.key, 0),
             }
-            for r, perms in ROLE_PERMISSIONS.items()
+            for r in roles
         ],
     }
+
+
+class RoleCreateRequest(BaseModel):
+    key: str
+    name: str
+    perms: list[str]
+    description: str | None = None
+
+
+class RoleUpdateRequest(BaseModel):
+    name: str | None = None
+    perms: list[str] | None = None
+
+
+@roles_router.post("", status_code=status.HTTP_201_CREATED)
+async def create_role(
+    req: RoleCreateRequest,
+    db: DBSession,
+    admin: User = Depends(require_permission(f"{USERS}:write")),
+) -> dict:
+    from app.services import role_service
+
+    try:
+        role = await role_service.create_role(db, req.key, req.name, req.perms, admin.id, req.description)
+    except role_service.RoleError as e:
+        raise HTTPException(status_code=422, detail=str(e)) from e
+    return {"role": role.key, "name": role.name, "ok": True}
+
+
+@roles_router.patch("/{role_key}")
+async def update_role(
+    role_key: str,
+    req: RoleUpdateRequest,
+    db: DBSession,
+    admin: User = Depends(require_permission(f"{USERS}:write")),
+) -> dict:
+    from app.services import role_service
+
+    try:
+        await role_service.update_role(db, role_key, req.name, req.perms, admin.id)
+    except role_service.RoleError as e:
+        raise HTTPException(status_code=422, detail=str(e)) from e
+    return {"ok": True}
+
+
+@roles_router.delete("/{role_key}")
+async def delete_role(
+    role_key: str,
+    db: DBSession,
+    admin: User = Depends(require_permission(f"{USERS}:write")),
+) -> dict:
+    from app.services import role_service
+
+    try:
+        await role_service.delete_role(db, role_key, admin.id)
+    except role_service.RoleError as e:
+        raise HTTPException(status_code=422, detail=str(e)) from e
+    return {"ok": True}
 
 
 # ---------- 用户管理（admin 写 / operator 读） ----------
