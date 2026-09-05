@@ -1,6 +1,6 @@
 # PeriNest
 
-> 🤖 Agent 规则：收工时更新下方状态区三行（status/next/updated）。规格见 ~/.agents/AGENTS-SPEC.md
+> 🤖 Agent 规则：**改动代码前必读 `docs/agent/AGENTS.md`**（命名陷阱 + 新接口共生体强制流程）；自检跑 `make check`；收工更新状态区三行。规格见 ~/.agents/AGENTS-SPEC.md
 
 what: 四端 monorepo：Queen(FastAPI+MySQL+Redis+Celery 后端) + Wing(React18+Vite 管理端) + Antenna(微信原生小程序) + Leg(移动端 H5)，无 Docker 部署（venv+Systemd+Nginx），MIT 开源
 where: /Users/steptian/Documents/iLike/Python/feilian/PeriNest
