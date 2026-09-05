@@ -157,3 +157,46 @@ async def test_cercus_callback_refresh_disabled():
     from app.api.v1.endpoints.cercus import _refresh_one_contact
 
     await _refresh_one_contact("wmExt_nonexistent", "modify")  # 应静默返回
+
+
+async def test_cercus_redis_cache_roundtrip():
+    """Nectar 缓存层回环：set/get/delete + fail-open（缓存不影响功能）。"""
+    from app.services import wecom_service as ws
+
+    await ws._cache_set("cercus:test:key", '{"a":1}', 60)
+    assert await ws._cache_get("cercus:test:key") == '{"a":1}'
+    await ws._cache_set("cercus:test:k2", "x", 60)
+    await ws._cache_delete("cercus:test:*")
+    assert await ws._cache_get("cercus:test:key") is None
+    assert await ws._cache_get("cercus:test:k2") is None
+
+
+async def test_wecom_token_cached_in_redis():
+    """token 走 Redis 共享缓存：monkeypatch 企微响应后两次调用只打一次外网。"""
+    from unittest.mock import AsyncMock, patch
+
+    import app.services.wecom_service as ws
+    from app.core.config import settings
+
+    if settings.wecom_enabled:
+        pytest.skip("本地配置了真实企微，跳过 mock 测试")
+
+    calls = {"n": 0}
+
+    async def fake_get(self, url, **kw):
+        calls["n"] += 1
+        class R:
+            def json(self):
+                return {"access_token": f"tok_{calls['n']}"}
+        return R()
+
+    # 临时启用（未配凭证路径）
+    with patch.object(settings, "WECOM_CORP_ID", "wwtest"), \
+         patch.object(settings, "WECOM_CORP_SECRET", "sec"), \
+         patch.object(settings, "WECOM_AGENT_ID", 1):
+        with patch.object(ws.httpx.AsyncClient, "get", new=fake_get):
+            t1 = await ws.get_access_token()
+            t2 = await ws.get_access_token()
+    assert t1 == t2 == "tok_1"
+    assert calls["n"] == 1  # 第二次命中 Redis 缓存
+    await ws._cache_delete("cercus:token")

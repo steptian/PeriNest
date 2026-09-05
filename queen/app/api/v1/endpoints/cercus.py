@@ -359,6 +359,7 @@ async def _refresh_one_contact(external_userid: str, change: str) -> None:
                 await db.commit()
             logger.info("cercus_contact_deleted", external_userid=external_userid)
             return
+        await wecom_service.invalidate_contact_cache(external_userid)  # 先失效再拉新
         try:
             detail = await wecom_service.get_external_contact(external_userid)
         except Exception as e:

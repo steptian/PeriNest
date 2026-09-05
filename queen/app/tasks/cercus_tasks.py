@@ -59,6 +59,9 @@ def sync_all_staff(staff_userids: list[str] | None = None) -> dict:
                             setattr(contact, k, r[k])
                         total += 1
                 await db.commit()
+            from app.services import wecom_service as _ws
+
+            await _ws.invalidate_contact_cache()  # 全量后失效详情缓存
             logger.info("cercus_sync_done", staffs=len(staff_userids), contacts=total)
             return {"ok": True, "staffs": len(staff_userids), "contacts": total}
 

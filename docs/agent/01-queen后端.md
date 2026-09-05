@@ -58,6 +58,7 @@ ack-agent（旭化成 RAG）验证过的失败模式，Crop 不走这条路：
 ## Cercus 尾须（企微私域）
 
 - 基建：`queen/app/services/wecom_service.py`（token 缓存/外部联系人/JS-SDK 签名/OAuth，WECOM_* 五 env 未配自动禁用 503）+ `queen/app/services/wecom_crypto.py` 回调加解密（AES-256-CBC+PKCS7+sha1，自 JJKK 移植）
+- Nectar 缓存层（Redis 共享，fail-open）：access_token/jsapi_ticket TTL 7000s（多 worker+celery 共用，进程内缓存会撞企微限频）、联系人详情 300s 短缓存（吸收侧边栏高频）；回调刷新/全量同步后精确失效
 - 数据：pn_wecom_contact 镜像（tags/kv 运营扩展位，**企微为权威源**，sync 只刷新镜像字段不动 tags/kv）+ pn_wecom_followup append-only 时间线
 - 回调精确刷新（v2）：change_external_contact → `_refresh_one_contact`（✅ `queen/app/api/v1/endpoints/cercus.py` delete 删镜像不级联运营数据；失败仅记日志）
 - 定时同步（v2）：`queen/app/tasks/cercus_tasks.py:17` sync_all_staff（celery beat 每日 06:30；员工集=存量 ∪ WECOM_SYNC_STAFF 种子）
