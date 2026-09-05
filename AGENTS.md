@@ -6,10 +6,11 @@ what: 四端 monorepo：Queen(FastAPI+MySQL+Redis+Celery 后端) + Wing(React18+
 where: /Users/steptian/Documents/iLike/Python/feilian/PeriNest
 agents: pi
 domain: FastAPI / React / 微信小程序 / MySQL 8 / Redis 7 / Celery / Nginx
-links: docs/技术架构.md, deploy/DEPLOYMENT.md, http://localhost:8000/docs
+links: docs/技术架构.md, deploy/DEPLOYMENT.md, https://github.com/steptian/PeriNest
+wiki: docs/agent/
 wiki: 
 
 ## 状态区
-status: v0.5.0 琥珀标本馆 UI 三端重设计已发版（用户反馈闭环）
-next: RAG 知识库(v0.6)；在线 demo 部署；业务模块定名
+status: v0.6.0 共生体原则已发布；知识库(docs/agent)已建立，25 锚点校验全过
+next: RAG 知识库(Crop 嗉囊)；在线 demo 部署；业务模块定名
 updated: 2026-09-05
