@@ -8,19 +8,19 @@
   <view class="specimen-latin">neural cord · ask</view>
   <view class="section-title font-specimen">问神经索</view>
   <view class="hint">断头仍传导——AI 助手以你的身份待命</view>
-  <navigator url="/pages/chat/chat" class="btn-amber main-cta">开始提问</navigator>
+  <navigator url="/pages/chat/chat" open-type="switchTab" class="btn-amber main-cta">开始提问</navigator>
 </view>
 
 <view class="specimen-card">
   <view class="specimen-latin">recent specimens</view>
   <view class="section-title font-specimen">最近订单</view>
   <block wx:if="{{recentOrders.length}}">
-    <view wx:for="{{recentOrders}}" wx:key="id" class="order-row">
+    <view wx:for="{{recentOrders}}" wx:key="id" class="order-row" bindtap="goOrders">
       <view class="order-no font-specimen">#{{item.order_no}}</view>
       <view class="badge-amber">{{item.statusLabel}}</view>
       <view class="order-amount font-specimen">¥{{item.total_amount}}</view>
     </view>
-    <navigator url="/pages/order/order" class="more-link">查看全部 →</navigator>
+    <navigator url="/pages/order/order" open-type="switchTab" class="more-link">查看全部 →</navigator>
   </block>
   <view wx:else class="empty-text">嗉囊空空——还没有标本入巢</view>
 </view>

@@ -28,6 +28,9 @@ Page({
       today: `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`,
     });
   },
+  goOrders() {
+    wx.switchTab({ url: "/pages/order/order" });
+  },
   async refresh() {
     try {
       const me = await request<Me>("/auth/me");
