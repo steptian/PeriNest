@@ -7,7 +7,7 @@ check: ## 全链路自检（改代码后的标准验证，parity 违规本地秒
 	cd queen && .venv/bin/python -m pytest tests/ -q
 	cd wing && npm run build > /dev/null && echo "wing build ✅"
 	cd leg && npm run build > /dev/null && echo "leg build ✅"
-	cd antenna && ./node_modules/.bin/tsc --noEmit && echo "antenna tsc ✅"
+	cd antenna && ./node_modules/.bin/tsc && echo "antenna 编译+类型检查 ✅"
 	bash scripts/verify-anchors.sh docs/agent .
 
 dev: ## 起三服务 queen:8000 wing:5173 leg:5174（日志 /tmp/perinest-*.log）
