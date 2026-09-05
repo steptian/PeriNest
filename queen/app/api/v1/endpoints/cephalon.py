@@ -4,7 +4,7 @@ import logging
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from pydantic import BaseModel
-from sqlalchemy import delete
+from sqlalchemy import delete, select
 
 from app.api.deps import CurrentUser, DBSession
 from app.core.config import settings
@@ -74,6 +74,30 @@ async def my_permissions(user: CurrentUser, db: DBSession) -> dict:
     return {"role": user.role, "permissions": await effective_permissions(user, db)}
 
 
+roles_router = APIRouter(prefix="/roles", tags=["roles"])
+
+
+@roles_router.get("")
+async def list_roles(
+    _admin: User = Depends(require_permission(f"{USERS}:read")),
+) -> dict:
+    """角色×权限矩阵总览（只读——矩阵是代码级事实源，变更走 git，不走 UI）。"""
+    from app.core.permissions import ALL_PERMS, ROLE_NAMES, ROLE_PERMISSIONS
+
+    return {
+        "domains": ALL_PERMS,
+        "roles": [
+            {
+                "role": r,
+                "name": ROLE_NAMES.get(r, r),
+                "permissions": perms,
+                "locked": r == "admin",
+            }
+            for r, perms in ROLE_PERMISSIONS.items()
+        ],
+    }
+
+
 # ---------- 用户管理（admin 写 / operator 读） ----------
 
 class UserRoleRequest(BaseModel):
@@ -102,6 +126,12 @@ async def list_users(
     users, total = await user_service.list_users(db, keyword, limit, offset, is_active)
     response.headers["X-Total-Count"] = str(total)  # 分页元数据走响应头
     return [UserResponse.model_validate(u) for u in users]
+
+
+
+
+class UserUpdateRequest(BaseModel):
+    email: str | None = None
 
 
 class UserCreateRequest(BaseModel):
@@ -157,14 +187,64 @@ async def get_user_permissions(
     db: DBSession,
     _admin: User = Depends(require_permission(f"{USERS}:read")),
 ) -> dict:
+    """权限全景：角色模板 + 账号覆盖明细 + 最终权限。"""
+    from app.core.permissions import base_permissions
     user = await user_service.get_by_id(db, user_id)
     if user is None:
         raise HTTPException(status_code=404, detail="用户不存在")
+    overrides = (
+        await db.execute(select(PermOverride).where(PermOverride.user_id == user_id))
+    ).scalars().all()
     return {
         "user_id": user.id,
         "role": user.role,
+        "base_permissions": base_permissions(user.role),
+        "overrides": [{"perm": o.perm, "effect": o.effect} for o in overrides],
         "permissions": await effective_permissions(user, db),
     }
+
+
+@admin_router.delete("/{user_id}/perms/{perm}")
+async def delete_perm_override(
+    user_id: int,
+    perm: str,
+    db: DBSession,
+    admin: User = Depends(require_permission(f"{USERS}:write")),
+) -> dict:
+    """删除单条账号级覆盖（恢复角色模板默认）。"""
+    user = await user_service.get_by_id(db, user_id)
+    if user is None:
+        raise HTTPException(status_code=404, detail="用户不存在")
+    await db.execute(
+        delete(PermOverride).where(
+            PermOverride.user_id == user_id, PermOverride.perm == perm
+        )
+    )
+    await db.flush()
+    from app.models.sys_log import SysLog
+    db.add(SysLog(user_id=admin.id, level="WARN", source="rbac",
+                  message=f"删除用户 {user.username} 权限覆盖 {perm}"))
+    await db.flush()
+    return {"user_id": user_id, "perm": perm, "deleted": True}
+
+
+@admin_router.patch("/{user_id}", response_model=UserResponse)
+async def update_user_profile(
+    user_id: int,
+    req: UserUpdateRequest,
+    db: DBSession,
+    _admin: User = Depends(require_permission(f"{USERS}:write")),
+):
+    """编辑成员基本资料（邮箱）。"""
+    user = await user_service.get_by_id(db, user_id)
+    if user is None:
+        raise HTTPException(status_code=404, detail="用户不存在")
+    if req.email is not None:
+        user.email = req.email
+        db.add(user)
+        await db.flush()
+    await db.refresh(user)
+    return user
 
 
 @admin_router.patch("/{user_id}/role", response_model=UserResponse)

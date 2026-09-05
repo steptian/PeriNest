@@ -5,7 +5,7 @@ import ConfirmDialog from "@/components/ConfirmDialog";
 import Modal from "@/components/Modal";
 import Pagination from "@/components/Pagination";
 import { api } from "@/api/client";
-import { usersApi, type UserWithLogin } from "@/api/users";
+import { rbacApi, usersApi, type UserWithLogin } from "@/api/users";
 import { fmtTime } from "@/utils/format";
 
 const ROLES = [
@@ -209,27 +209,57 @@ function CreateModal({
 }
 
 function EditModal({ user, onClose, onChanged }: { user: UserWithLogin | null; onClose: () => void; onChanged: () => void }) {
+  const [email, setEmail] = useState(user?.email ?? "");
   const [role, setRole] = useState(user?.role ?? "wing");
   const [err, setErr] = useState("");
   const [saving, setSaving] = useState(false);
-  if (!user) return null;
+  const qc = useQueryClient();
+
+  const { data: perm } = useQuery({
+    queryKey: ["perm-overview", user?.id],
+    queryFn: () => rbacApi.permOverview(user!.id),
+    enabled: !!user && user.role !== "admin",
+  });
+
+  const [newPerm, setNewPerm] = useState("");
+  const [newEffect, setNewEffect] = useState<"grant" | "deny">("grant");
+
   const save = async () => {
     setSaving(true); setErr("");
     try {
-      await usersApi.setRole(user.id, role);
+      if (email !== (user?.email ?? "")) await rbacApi.updateProfile(user!.id, email || null);
+      if (role !== user?.role) await usersApi.setRole(user!.id, role);
       onChanged(); onClose();
     } catch (e) {
       const detail = (e as { response?: { data?: { detail?: string } } }).response?.data?.detail;
       setErr(typeof detail === "string" ? detail : "保存失败");
     } finally { setSaving(false); }
   };
+
+  const addOverride = async () => {
+    if (!newPerm) return;
+    try {
+      await usersApi.setPermOverride(user!.id, newPerm, newEffect);
+      qc.invalidateQueries({ queryKey: ["perm-overview", user?.id] });
+      setNewPerm("");
+    } catch (e) { setErr("覆盖失败：权限点格式应为 域 或 域:read/write"); }
+  };
+  const removeOverride = async (perm: string) => {
+    await rbacApi.deleteOverride(user!.id, perm);
+    qc.invalidateQueries({ queryKey: ["perm-overview", user?.id] });
+  };
+
+  if (!user) return null;
   return (
-    <Modal open title={`编辑成员 · ${user.username}`} onClose={onClose}>
-      <div className="space-y-4">
+    <Modal open title={`编辑成员 · ${user.username}`} onClose={onClose} width="w-[560px]">
+      <div className="space-y-5">
         <div className="rounded-xl bg-muted/50 p-3.5 text-xs text-muted-foreground">
           <div>ID：{user.id} · 注册于 {fmtTime(user.created_at)}</div>
           <div>最后登录：{user.last_login_at ? fmtTime(user.last_login_at) : "从未"} {user.last_login_ip ?? ""}</div>
         </div>
+
+        <LabeledInput label="email · 邮箱" value={email} onChange={setEmail} placeholder="a@example.com" />
+
         <div>
           <span className="specimen-latin mb-1.5 block">role · 角色</span>
           <select className="w-full rounded-xl border bg-card px-3.5 py-2.5 text-sm outline-none focus:border-primary" value={role} onChange={(e) => setRole(e.target.value)}>
@@ -238,6 +268,47 @@ function EditModal({ user, onClose, onChanged }: { user: UserWithLogin | null; o
             ))}
           </select>
         </div>
+
+        {user.role !== "admin" && perm && (
+          <div className="rounded-xl border p-4">
+            <span className="specimen-latin mb-2 block">permissions · 权限覆盖</span>
+            <div className="mb-3 flex flex-wrap gap-1.5">
+              {perm.permissions.map((p) => (
+                <span key={p} className="rounded-full border border-primary/40 px-2.5 py-0.5 text-[11px] text-primary">{p}</span>
+              ))}
+            </div>
+            <p className="mb-2 text-xs text-muted-foreground">
+              角色模板 {perm.base_permissions.length} 项 ⊕ 覆盖 {perm.overrides.length} 项 = 最终 {perm.permissions.length} 项（deny 优先）
+            </p>
+            {perm.overrides.length > 0 && (
+              <div className="mb-3 space-y-1.5">
+                {perm.overrides.map((o) => (
+                  <div key={o.perm} className="flex items-center justify-between rounded-lg bg-muted/60 px-3 py-1.5 text-xs">
+                    <span>
+                      <span className={o.effect === "deny" ? "text-red-500" : "text-emerald-600"}>{o.effect}</span>{" "}
+                      <span className="font-mono">{o.perm}</span>
+                    </span>
+                    <button className="text-muted-foreground hover:text-red-500" onClick={() => removeOverride(o.perm)}>移除</button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="flex gap-2">
+              <input
+                className="flex-1 rounded-lg border bg-card px-3 py-1.5 text-xs outline-none focus:border-primary"
+                placeholder="权限点，如 orders / orders:read / system"
+                value={newPerm}
+                onChange={(e) => setNewPerm(e.target.value)}
+              />
+              <select className="rounded-lg border bg-card px-2 py-1.5 text-xs" value={newEffect} onChange={(e) => setNewEffect(e.target.value as "grant" | "deny")}>
+                <option value="grant">grant 授予</option>
+                <option value="deny">deny 撤销</option>
+              </select>
+              <button className="btn-amber rounded-lg px-3 text-xs" onClick={addOverride}>添加</button>
+            </div>
+          </div>
+        )}
+
         {err && <p className="text-sm text-red-500">{err}</p>}
         <div className="flex justify-end gap-2.5">
           <button className="rounded-xl border px-4 py-2 text-sm hover:bg-muted" onClick={onClose}>取消</button>

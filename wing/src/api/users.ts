@@ -24,3 +24,28 @@ export const usersApi = {
   setPermOverride: (userId: number, perm: string, effect: "grant" | "deny") =>
     api.put(`/users/${userId}/perms`, { perm, effect }).then((r) => r.data),
 };
+
+export interface RoleInfo {
+  role: string;
+  name: string;
+  permissions: string[];
+  locked: boolean;
+}
+
+export interface PermOverview {
+  user_id: number;
+  role: string;
+  base_permissions: string[];
+  overrides: { perm: string; effect: string }[];
+  permissions: string[];
+}
+
+export const rbacApi = {
+  roles: () => api.get<{ domains: string[]; roles: RoleInfo[] }>("/roles").then((r) => r.data),
+  permOverview: (userId: number) =>
+    api.get<PermOverview>(`/users/${userId}/permissions`).then((r) => r.data),
+  deleteOverride: (userId: number, perm: string) =>
+    api.delete(`/users/${userId}/perms/${perm}`).then((r) => r.data),
+  updateProfile: (userId: number, email: string | null) =>
+    api.patch<UserResponse>(`/users/${userId}`, { email }).then((r) => r.data),
+};

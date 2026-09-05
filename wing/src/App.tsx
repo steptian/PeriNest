@@ -5,6 +5,7 @@ import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Orders from "./pages/Orders";
 import Users from "./pages/Users";
+import Roles from "./pages/Roles";
 import { useAuthStore } from "./stores/auth";
 
 function RequireAuth({ children }: { children: JSX.Element }) {
@@ -28,6 +29,7 @@ export default function App() {
           <Route index element={<Dashboard />} />
           <Route path="orders" element={<Orders />} />
           <Route path="users" element={<Users />} />
+          <Route path="roles" element={<Roles />} />
         </Route>
       </Routes>
     </BrowserRouter>

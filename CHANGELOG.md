@@ -12,6 +12,18 @@
 
 > Queen 的 `/health` 与 Wing 侧边栏版本号均自动读取 `VERSION` 文件，无需手动改。
 
+## [0.7.1] - 2026-09-05
+
+### Added
+- **权限矩阵总览页**（Wing）：角色×域可视化矩阵（读写/只读标记）、admin 锁定标识、
+  两条铁律说明——矩阵是代码级事实源，变更走 git 不走 UI（Z-SH 生产哲学）
+- **成员编辑弹窗 v2**：邮箱资料 + 角色 + **权限覆盖管理**（生效权限标签、
+  模板⊕覆盖统计、grant/deny 列表、添加/移除覆盖）一站式
+- 后端：GET /roles 矩阵元数据 · PATCH /users/{id} 资料编辑 ·
+  GET /users/{id}/permissions 全景（base+overrides+effective）·
+  DELETE /users/{id}/perms/{perm} 移除单条覆盖
+- parity 新增 3 条豁免（roles 元数据/UI 便利端点/资料编辑），理由均登记
+
 ## [0.7.0] - 2026-09-05
 
 ### Added
