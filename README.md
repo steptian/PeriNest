@@ -4,7 +4,7 @@
 
 
 > [![CI](https://github.com/steptian/PeriNest/actions/workflows/ci.yml/badge.svg)](https://github.com/steptian/PeriNest/actions/workflows/ci.yml)
-> ![version](https://img.shields.io/badge/version-0.5.0-c2410c) ![license](https://img.shields.io/badge/license-MIT-green) ![monorepo](https://img.shields.io/badge/monorepo-Queen·Wing·Antenna·Leg-166534)
+> ![version](https://img.shields.io/badge/version-0.6.0-c2410c) ![license](https://img.shields.io/badge/license-MIT-green) ![monorepo](https://img.shields.io/badge/monorepo-Queen·Wing·Antenna·Leg-166534)
 >
 > *Built to Survive, Designed to Adapt.* — 为生存而生，为适应而设计。
 
@@ -110,14 +110,17 @@
 Queen 的 Pydantic Schema 自动生成 OpenAPI → `openapi-typescript` 一键转 Wing 的 TS 类型。
 后端改字段，前端类型立刻变红。**四端联调不再靠吼。**
 
-### 🧠 AI Native：自带神经索（Nerve）
+### 🧠 AI Native：AI 是一等公民（共生体原则）
 
-**不是"可以接 AI"，是开箱就在用 AI。**
+**AI Native 不是"系统里有个 AI 入口"——是 AI 以你的身份替你工作。**
+蜚蠊体内的共生菌群以宿主的食物为食、替宿主消化；PeriNest 的 AI 以**授权用户的权限**访问数据、替用户执行操作：
+- **能力对称**：你在界面上能做的，AI 经 MCP 都能做（CI 强制对账，缺口即红）
+- **权限同源**：AI 的边界 = 你的边界，永远无法越权（越权返回结构化拒绝，绝不静默）
 - 统一 AI 网关：一套 OpenAI 兼容适配，DeepSeek / Kimi / Qwen / Ollama 换个 base_url 即切
 - **SSE 流式打字机**：`/api/v1/ai/chat/stream`，四端共享
 - Leg 端 AI 对话页 + Wing 端 AI 助手抽屉，**点开即聊**
 - 未配 key 自动进 mock 模式——**demo 与 CI 零成本跑真实链路**
-- 🧲 **MCP Server（Spiracle 气门）**：`/api/v1/mcp` 一键把订单查询、健康检查、AI 对话暴露为 MCP 工具——**Claude / Cursor 等 AI 客户端直连你的后端**，零额外依赖
+- 🧲 **MCP Server（Spiracle 气门）**：7 个工具覆盖用户操作面（身份/订单查改/反馈/AI）——**Claude / Cursor 直连你的后端替你干活**，零额外依赖
 
 ### ⚡ 全异步链路，单机性能拉满
 

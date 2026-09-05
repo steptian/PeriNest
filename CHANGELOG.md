@@ -12,6 +12,22 @@
 
 > Queen 的 `/health` 与 Wing 侧边栏版本号均自动读取 `VERSION` 文件，无需手动改。
 
+## [0.6.0] - 2026-09-05
+
+### Added
+- **共生体原则——AI 成为一等公民**
+  - 原则定义：AI 以授权用户身份行事，权限边界=用户边界，能力面=用户操作面
+  - **能力对称性测试**（test_capability_parity）：OpenAPI 与 MCP tools 强制对账，
+    新端点未做 AI 面决策（加工具或登记豁免理由）→ CI 红——原则由测试执行，不靠自觉
+  - MCP 工具面 3→7：get_me（AI 自知替谁工作）/ list_orders（含 scope 声明）/
+    get_order（越权结构化拒绝）/ create_order（AI 代下单归属本人）/
+    submit_feedback（署名归属）/ ai_chat / perinest_health
+  - **权限漏洞修复**：原 list_orders 工具未按用户过滤（普通用户经 AI 可见全库订单），
+    现与 REST 行为完全一致
+  - 共生体验证测试 4 项：身份声明/scope 隔离/越权拒绝/写操作归属
+- 架构文档第 9 章：AI 友好五原则 + 新接口开发 checklist
+- 测试 15/15 全绿
+
 ## [0.5.0] - 2026-09-05
 
 ### Changed

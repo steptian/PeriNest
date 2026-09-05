@@ -3,7 +3,7 @@
 English | [中文](README.md)
 
 > [![CI](https://github.com/steptian/PeriNest/actions/workflows/ci.yml/badge.svg)](https://github.com/steptian/PeriNest/actions/workflows/ci.yml)
-> ![version](https://img.shields.io/badge/version-0.5.0-c2410c) ![license](https://img.shields.io/badge/license-MIT-green) ![monorepo](https://img.shields.io/badge/monorepo-Queen·Wing·Antenna·Leg-166534)
+> ![version](https://img.shields.io/badge/version-0.6.0-c2410c) ![license](https://img.shields.io/badge/license-MIT-green) ![monorepo](https://img.shields.io/badge/monorepo-Queen·Wing·Antenna·Leg-166534)
 >
 > *Built to Survive, Designed to Adapt.*
 
@@ -107,13 +107,19 @@ Native venv + Systemd (3s auto-restart) + Nginx (SSL / rate-limit / static asset
 - Strict-mode tsc builds with zero errors
 - WeChat wx.login dual-channel ready
 
-### 🧠 AI Native: The Nerve Cord Is Built In
+### 🧠 AI Native: AI Is a First-Class Citizen (Symbiont Principle)
+
+**AI-native is not "an AI entry point in the system" — it's AI working *as you*.**
+Cockroaches carry real symbiotic bacteria: they feed on what the host eats and digest for it.
+PeriNest's AI accesses data with **the authorizing user's permissions** and acts on their behalf:
+- **Capability parity**: whatever you can do in the UI, AI can do via MCP (CI-enforced, gaps turn red)
+- **Shared permission source**: AI's boundary = your boundary — cross-access returns a structured denial, never silent
 
 - Unified AI gateway: one OpenAI-compatible adapter for DeepSeek / Kimi / Qwen / Ollama
 - **SSE streaming typewriter**: `/api/v1/ai/chat/stream`, shared by all terminals
 - Leg chat page + Wing assistant drawer — **chat the moment you open it**
 - No API key? Auto mock mode — **CI and demos run the real chain at zero cost**
-- 🧲 **MCP Server (Spiracle)**: `/api/v1/mcp` exposes order queries, health checks, and AI chat as MCP tools — **Claude / Cursor connect straight to your backend**, zero extra dependencies
+- 🧲 **MCP Server (Spiracle)**: 7 tools covering the user surface (identity / orders CRUD / feedback / AI) — **Claude / Cursor connect and work for you**, zero extra dependencies
 
 ### 🔒 Contract-Driven
 

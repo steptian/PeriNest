@@ -41,8 +41,8 @@ async def test_mcp_tools_list_and_call(client, auth_headers):
         json={"jsonrpc": "2.0", "id": 4, "method": "tools/call",
               "params": {"name": "list_orders", "arguments": {"limit": 5}}},
     )
-    orders = json.loads(resp.json()["result"]["content"][0]["text"])
-    assert isinstance(orders, list)
+    payload = json.loads(resp.json()["result"]["content"][0]["text"])
+    assert "orders" in payload and "scope" in payload  # 共生体原则：scope 显式声明权限范围
 
     # 4. 未知方法 → -32601
     resp = await client.post(
