@@ -27,7 +27,7 @@
 ## 🗺 架构一图流
 
 <p align="center">
-  <img src="assets/architecture.svg" alt="PeriNest 巢穴架构图" width="100%" />
+  <img src="assets/architecture-0.6.svg" alt="PeriNest 巢穴架构图" width="100%" />
 </p>
 <p align="center"><sub>四端入口 → Carapace 背甲 → Queen 虫母（五器官）→ 巢穴基础设施 · 右侧经气门接入 AI 生态</sub></p>
 

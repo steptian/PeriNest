@@ -26,7 +26,7 @@ Zero-Docker deployment: native venv + Systemd + Nginx.
 ## 🗺 Architecture at a Glance
 
 <p align="center">
-  <img src="assets/architecture.svg" alt="PeriNest nest architecture" width="100%" />
+  <img src="assets/architecture-0.6.svg" alt="PeriNest nest architecture" width="100%" />
 </p>
 <p align="center"><sub>4 terminals → Carapace (Nginx) → Queen (five organs) → nest infrastructure · AI ecosystem via the spiracle</sub></p>
 
