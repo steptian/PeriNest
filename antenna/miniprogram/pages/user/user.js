@@ -1,13 +1,21 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const request_1 = require("../../utils/request");
 Page({
     data: {
-        userInfo: null,
         appVersion: getApp().globalData.appVersion,
         isLoggedIn: false,
+        username: "",
     },
     onShow() {
         const app = getApp();
-        this.setData({ userInfo: app.globalData.userInfo, isLoggedIn: !!app.globalData.token });
+        const token = app.globalData.token;
+        this.setData({ isLoggedIn: !!token, username: "" });
+        if (token) {
+            (0, request_1.request)("/auth/me")
+                .then((me) => this.setData({ username: me.username }))
+                .catch(() => { });
+        }
     },
     async logout() {
         wx.removeStorageSync("perinest_token");

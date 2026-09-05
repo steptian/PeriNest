@@ -1,7 +1,7 @@
 <view class="specimen-card user-header">
-  <view class="avatar btn-amber font-specimen">{{userInfo ? userInfo.nickName[0] : "·"}}</view>
-  <view class="nickname font-specimen">{{userInfo ? userInfo.nickName : "未入巢"}}</view>
-  <view class="specimen-latin">{{userInfo ? "specimen keeper" : "not logged in"}}</view>
+  <view class="avatar btn-amber font-specimen">{{isLoggedIn ? (username ? username[0] : "·") : "·"}}</view>
+  <view class="nickname font-specimen">{{isLoggedIn ? (username || "已入巢成员") : "未入巢"}}</view>
+  <view class="specimen-latin">{{isLoggedIn ? "specimen keeper" : "not logged in"}}</view>
   <view class="version font-specimen">PeriNest Antenna v{{appVersion}}</view>
 </view>
 <navigator wx:if="{{!isLoggedIn}}" url="/pages/login/login" class="specimen-card" style="text-align: center;">
