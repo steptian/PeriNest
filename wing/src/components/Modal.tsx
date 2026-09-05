@@ -7,7 +7,7 @@ export default function Modal({
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={onClose}>
-      <div className={`specimen-card max-h-[85vh] overflow-y-auto p-6 ${width}`} onClick={(e) => e.stopPropagation()}>
+      <div className={`panel-solid max-h-[85vh] overflow-y-auto rounded-xl p-6 ${width}`} onClick={(e) => e.stopPropagation()}>
         <div className="mb-5 flex items-center justify-between">
           <h3 className="font-specimen text-lg font-bold">{title}</h3>
           <button className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted" onClick={onClose} aria-label="关闭"><X className="h-4 w-4" /></button>

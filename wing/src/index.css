@@ -77,7 +77,19 @@ body::before {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-/* 琥珀玻璃表面：卡片/侧栏/弹层/抽屉通用。
+/* 实底工作面：弹窗/抽屉/表单等输入密集区——可读性优先于氛围，
+   与半透明输入框的对比不突兀（玻璃留给展示层容器） */
+.panel-solid {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border) / 0.9);
+  box-shadow: 0 16px 44px -18px hsl(25 40% 10% / 0.35);
+}
+.dark .panel-solid {
+  border-color: hsl(var(--border) / 0.5);
+  box-shadow: 0 16px 44px -18px rgb(0 0 0 / 0.7);
+}
+
+/* 琥珀玻璃表面：卡片/侧栏/展示容器通用。
    性能边界：只用于表面层，不嵌套（子层 blur 不到原始背景） */
 .glass {
   background: hsl(var(--glass-bg));

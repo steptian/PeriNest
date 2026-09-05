@@ -11,7 +11,7 @@ export default function ConfirmDialog({
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={onCancel}>
-      <div className="specimen-card w-96 p-6" onClick={(e) => e.stopPropagation()}>
+      <div className="panel-solid w-96 rounded-xl p-6" onClick={(e) => e.stopPropagation()}>
         <div className="mb-3 flex items-center gap-2">
           {danger && <AlertTriangle className="h-5 w-5 text-red-500" />}
           <h3 className="font-specimen text-lg font-bold">{title}</h3>
