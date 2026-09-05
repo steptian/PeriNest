@@ -1,4 +1,8 @@
-<view wx:if="{{orders.length === 0 && !loading}}" class="specimen-card text-empty">巢穴暂无标本</view>
+<view wx:if="{{orders.length === 0 && !loading}}" class="empty-container">
+  <image class="empty-icon" src="/images/icons/empty-box.png" mode="aspectFit" />
+  <text class="empty-text">巢穴暂无标本</text>
+  <navigator url="/pages/chat/chat" class="empty-btn">去神经索聊聊</navigator>
+</view>
 <view wx:for="{{orders}}" wx:key="id" class="specimen-card">
   <view class="row-head">
     <text class="specimen-latin">no.{{index + 1}}</text>

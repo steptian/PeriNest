@@ -2,7 +2,8 @@
   "pages": [
     "pages/index/index",
     "pages/order/order",
-    "pages/user/user"
+    "pages/user/user",
+    "pages/chat/chat"
   ],
   "window": {
     "navigationBarTitleText": "PeriNest",
@@ -16,15 +17,27 @@
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "首页"
+        "text": "巢穴",
+        "iconPath": "images/icons/tab-home.png",
+        "selectedIconPath": "images/icons/tab-home-active.png"
       },
       {
         "pagePath": "pages/order/order",
-        "text": "订单"
+        "text": "订单",
+        "iconPath": "images/icons/tab-order.png",
+        "selectedIconPath": "images/icons/tab-order-active.png"
+      },
+      {
+        "pagePath": "pages/chat/chat",
+        "text": "神经索",
+        "iconPath": "images/icons/tab-nerve.png",
+        "selectedIconPath": "images/icons/tab-nerve-active.png"
       },
       {
         "pagePath": "pages/user/user",
-        "text": "我的"
+        "text": "我的",
+        "iconPath": "images/icons/tab-me.png",
+        "selectedIconPath": "images/icons/tab-me-active.png"
       }
     ]
   },

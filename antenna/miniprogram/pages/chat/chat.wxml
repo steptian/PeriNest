@@ -1,0 +1,14 @@
+<scroll-view scroll-y scroll-into-view="{{bottomId}}" class="chat-scroll">
+  <view wx:for="{{messages}}" wx:key="index" class="msg-row {{item.role === 'user' ? 'msg-right' : ''}}">
+    <view class="msg {{item.role === 'user' ? 'msg-user' : 'msg-ai'}}">
+      <text class="specimen-latin" wx:if="{{item.role === 'assistant'}}">exhibit {{index + 1}}</text>
+      <text class="msg-text">{{item.content}}</text>
+    </view>
+  </view>
+  <view id="bottom"></view>
+</scroll-view>
+<view class="chat-input-bar">
+  <input class="chat-input" placeholder="向神经索提问…" value="{{input}}" bindinput="onInput"
+    bindconfirm="send" confirm-type="send" />
+  <button class="empty-btn chat-send" bindtap="send" loading="{{streaming}}">发送</button>
+</view>

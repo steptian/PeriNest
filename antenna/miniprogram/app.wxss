@@ -69,3 +69,22 @@ page {
   font-size: 22rpx;
   padding: 4rpx 20rpx;
 }
+
+/* 空态占位（Z-SH 模式）：图标 + 文案 + 可选动作按钮 */
+.empty-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 0;
+}
+.empty-icon { width: 160rpx; height: 160rpx; margin-bottom: 32rpx; opacity: 0.7; }
+.empty-text { font-size: 26rpx; color: var(--ink-soft); margin-bottom: 40rpx; }
+.empty-btn {
+  background: linear-gradient(160deg, var(--amber), var(--amber-light));
+  color: #fff8ee;
+  border-radius: 999rpx;
+  padding: 16rpx 56rpx;
+  font-size: 26rpx;
+  box-shadow: 0 12rpx 32rpx -12rpx rgba(180, 86, 12, 0.5);
+}
