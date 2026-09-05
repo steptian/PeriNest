@@ -24,3 +24,6 @@ shots: ## 重拍 README 演示截图（需先 make dev）
 
 admin: ## 首次引导：提权/创建 admin，用法 make admin USER=xxx [PASS=yyy]
 	cd queen && .venv/bin/python scripts/seed_admin.py $(USER) $(if $(PASS),--password $(PASS))
+
+antenna-build: ## 小程序 TS 预编译（js 落盘，上传前必跑；工具内也可直接用）
+	cd antenna && ./node_modules/.bin/tsc
