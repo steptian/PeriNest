@@ -12,7 +12,8 @@ export function useLogin() {
   return useMutation({
     mutationFn: (payload: LoginPayload) => authApi.login(payload),
     onSuccess: async (data) => {
-      const user = await authApi.me();
+      // 时序：token 未入 store 前显式携带
+      const user = await authApi.me(data.access_token);
       setAuth(data.access_token, user);
     },
   });

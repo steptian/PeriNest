@@ -17,7 +17,8 @@ export default function Login() {
     setErr("");
     try {
       const { access_token } = await authApi.login({ username, password });
-      const user = await authApi.me();
+      // 时序：此刻 token 尚未入 store，me 必须显式携带，否则拦截器读不到 → 401
+      const user = await authApi.me(access_token);
       setAuth(access_token, user);
       navigate("/", { replace: true });
     } catch {

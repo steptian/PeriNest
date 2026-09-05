@@ -10,5 +10,7 @@ export interface UserResponse {
 export const authApi = {
   login: (payload: LoginPayload) =>
     api.post<TokenResponse>("/auth/login", payload).then((r) => r.data),
-  me: () => api.get<UserResponse>("/auth/me").then((r) => r.data),
+  me: (token?: string) =>
+    api.get<UserResponse>("/auth/me", token ? { headers: { Authorization: `Bearer ${token}` } } : undefined)
+      .then((r) => r.data),
 };
