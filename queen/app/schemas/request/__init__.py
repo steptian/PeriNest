@@ -69,3 +69,25 @@ class CropSearchRequest(StrictRequest):
 
     query: str = Field(min_length=1, max_length=2000)
     top_k: int = Field(default=5, ge=1, le=20)
+
+
+class ChatMessage(StrictRequest):
+    """AI 对话单条消息（Nerve 网关对外契约）。"""
+
+    role: str = Field(pattern="^(system|user|assistant)$")
+    content: str = Field(max_length=8000)
+
+
+class AskMessage(StrictRequest):
+    """嗉囊问答的对话历史消息：只允许对话角色，不允许自带 system（防提示注入）。"""
+
+    role: str = Field(pattern="^(user|assistant)$")
+    content: str = Field(max_length=8000)
+
+
+class CropAskRequest(StrictRequest):
+    """嗉囊问答：知识库多轮问答（AI 检索工具循环）。"""
+
+    query: str = Field(min_length=1, max_length=2000)
+    history: list[AskMessage] = Field(default_factory=list, max_length=20)
+    top_k: int = Field(default=5, ge=1, le=10)

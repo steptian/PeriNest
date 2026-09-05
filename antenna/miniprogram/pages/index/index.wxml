@@ -12,6 +12,13 @@
 </view>
 
 <view class="specimen-card">
+  <view class="specimen-latin">crop · knowledge</view>
+  <view class="section-title font-specimen">问嗉囊</view>
+  <view class="hint">先吞后消化——共生体替你翻找知识库，附引用来源</view>
+  <navigator url="/pages/knowledge/knowledge" class="btn-amber main-cta">进入知识库</navigator>
+</view>
+
+<view class="specimen-card">
   <view class="specimen-latin">recent specimens</view>
   <view class="section-title font-specimen">最近订单</view>
   <block wx:if="{{recentOrders.length}}">

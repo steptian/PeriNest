@@ -38,3 +38,51 @@ export const cropApi = {
   rebuild: () => api.post<{ rebuilt: number }>("/crop/projection/rebuild").then((r) => r.data),
   health: () => api.get<{ vector_set: string; count: number }>("/crop/health").then((r) => r.data),
 };
+
+/** —— 知识库问答（agentic RAG：AI 多轮检索后作答）—— */
+
+export interface AskEvent {
+  tool_call?: { name: string; round: number; query: string };
+  delta?: string;
+  citations?: CropSearchHit[];
+  done?: boolean;
+  error?: string;
+}
+
+export async function askStream(
+  query: string,
+  onEvent: (ev: AskEvent) => void,
+  history: { role: "user" | "assistant"; content: string }[] = [],
+): Promise<void> {
+  const { useAuthStore } = await import("@/stores/auth");
+  const token = useAuthStore.getState().token;
+  const resp = await fetch(`${import.meta.env.VITE_QUEEN_API}/crop/ask/stream`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+      "X-Client": "Wing",
+    },
+    body: JSON.stringify({ query, history }),
+  });
+  if (!resp.ok || !resp.body) throw new Error(`HTTP ${resp.status}`);
+
+  const reader = resp.body.getReader();
+  const decoder = new TextDecoder();
+  let buf = "";
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += decoder.decode(value, { stream: true });
+    const lines = buf.split("\n");
+    buf = lines.pop() ?? "";
+    for (const line of lines) {
+      if (!line.startsWith("data:")) continue;
+      try {
+        onEvent(JSON.parse(line.slice(5).trim()) as AskEvent);
+      } catch {
+        /* 忽略半包 */
+      }
+    }
+  }
+}

@@ -31,6 +31,8 @@
 ## ⚡ 改一个功能，去哪找代码
 
 - 加 REST 接口：`queen/app/api/v1/endpoints/<模块>.py` → service 层写逻辑 → **同步 MCP 工具**（见 04）
+- 加 AI 工具能力：service 函数 → `agent_tools.py` 注册表加一条 → PARITY_MAP 对账（见 04 工具注册表节）
+- 改知识库问答：`crop_service.ask_stream`（编排/prompt）+ `ai_service.stream_chat_with_tools`（循环引擎）
 - 改前端：Wing `wing/src/pages/`、Leg `leg/src/pages/`（同构，改一端看另一端）
 - 改版本说明：只改根 `CHANGELOG.md`（三端 UI 自动消费 `/system/version`，勿手改前端）
 - 改设计令牌：三端 index.css/wxss 的 --glass-* 与 --primary 同步改（见 02 玻璃设计系统节）
@@ -57,3 +59,4 @@
 
 - Antenna 端未真机验证（仅 tsc）⚠️
 - gunicorn.conf.py 生产参数未压测调优 ⚠️
+- **pi SDK 工作台形态**（方案③，v0.11 排队）：照 ack-agent agent-service（pi coding agent SDK + express + skills + session 池）为管理员/开发者建「能编程自长能力」的工作台，与终端用户封闭工具面分层；触发条件=出现真实多步操作需求；现有 tool-call 循环引擎同构可迁移

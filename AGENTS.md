@@ -11,6 +11,6 @@ wiki: docs/agent/
 wiki: 
 
 ## 状态区
-status: v0.10.1+ 未发版累积：Nectar 缓存/运行时配置中心(14 键+企微归拢)/配置页三 tab/文件吞入+预览源文件/弹窗实底化；47 测试+冒烟 38 全绿
-next: 发 v0.11.0 收口；在线 demo 部署；业务模块定名
+status: v0.11.0 待发：Crop 嗦囊 agentic 问答（tool-call 循环+混合检索 RRF+crop_ask MCP+三端问答 UI）+ 权限 has_permission 修复；53 测试+冒烟 40 全绿
+next: 发 v0.11.0（VERSION+CHANGELOG+tag）；Antenna 真机验证；在线 demo 部署
 updated: 2026-09-05

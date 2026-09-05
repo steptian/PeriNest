@@ -4,6 +4,7 @@
     "pages/order/order",
     "pages/user/user",
     "pages/chat/chat",
+    "pages/knowledge/knowledge",
     "pages/login/login",
     "pages/changelog/changelog"
   ],
@@ -31,6 +32,7 @@
       },
       {
         "pagePath": "pages/chat/chat",
+    "pages/knowledge/knowledge",
         "text": "神经索",
         "iconPath": "images/icons/tab-nerve.png",
         "selectedIconPath": "images/icons/tab-nerve-active.png"

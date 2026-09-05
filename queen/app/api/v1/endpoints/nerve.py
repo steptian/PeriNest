@@ -12,15 +12,10 @@ from pydantic import Field
 
 from app.api.deps import CurrentUser
 from app.core.permissions import AI, require_permission
-from app.schemas.request import StrictRequest
+from app.schemas.request import ChatMessage, StrictRequest
 from app.services.ai_service import ai_service
 
 router = APIRouter(prefix="/ai", tags=["ai"])
-
-
-class ChatMessage(StrictRequest):
-    role: str = Field(pattern="^(system|user|assistant)$")
-    content: str = Field(max_length=8000)
 
 
 class ChatRequest(StrictRequest):

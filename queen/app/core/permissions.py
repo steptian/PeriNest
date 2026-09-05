@@ -125,6 +125,14 @@ def apply_overrides(base_perms: list[str], overrides) -> list[str]:
     return result
 
 
+def has_permission(perms: list[str], perm: str) -> bool:
+    """公共判定："crop:read" 在域简写（"crop"）/ 全称 / write 隐含 read 下均成立。
+
+    供工具面下发（agent_tools）等非 HTTP 依赖场景复用，与 require_permission 同语义。
+    """
+    domain, action = _parse_perm(perm)
+    return _check_perm(perms, domain, action or READ)
+
 async def effective_permissions(user: User, db: AsyncSession) -> list[str]:
     """账号最终权限 = 角色模板 ⊕ 账号覆盖。鉴权与前端下发的唯一入口。"""
     base = await role_permissions(db, user.role)

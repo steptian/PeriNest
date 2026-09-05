@@ -1,13 +1,39 @@
-"""Crop (嗉囊) — RAG 知识库端点：先吞后消化。
+"""Crop (嗦囊) — RAG 知识库端点：先吞后消化。
 
 - POST   /crop/documents          上传文本知识（crop:write）
 - GET    /crop/documents          文档列表（crop:read）
 - GET    /crop/documents/{id}     详情+chunks（crop:read）
 - DELETE /crop/documents/{id}     删除（crop:write）
 - POST   /crop/search             语义检索（crop:read，四端共享）
+- POST   /crop/ask                知识库问答：AI 多轮检索后作答（crop:read）
+- POST   /crop/ask/stream         流式问答 SSE（crop:read）
 - POST   /crop/projection/rebuild 重建 Redis 投影（crop:write，运维备手）
 - GET    /crop/health             投影健康（crop:read）
 """
+import json
+
+from urllib.parse import quote
+
+from fastapi import APIRouter, Depends, File, HTTPException, Query, Response, UploadFile, status
+from fastapi.responses import StreamingResponse
+
+from app.api.deps import CurrentUser, DBSession
+from app.models.user import User
+from app.core.permissions import CROP, require_permission
+from app.schemas.request import CropAskRequest, CropDocumentCreate, CropSearchRequest
+from app.schemas.response import (
+    CropChunkResponse,
+    CropDocumentResponse,
+    CropSearchResponse,
+)
+from app.services import crop_service
+from app.services.ai_service import AIServiceUnavailable
+
+router = APIRouter(prefix="/crop", tags=["crop"])
+
+
+def _sse(data: dict) -> str:
+    return f"data: {json.dumps(data, ensure_ascii=False)}\n\n"
 from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, Response, UploadFile, status
@@ -149,6 +175,53 @@ async def search(
     hits, mock = await crop_service.search(db, req.query, req.top_k)
     return CropSearchResponse(query=req.query, mock=mock, hits=hits)
 
+
+
+@router.post("/ask")
+async def ask(
+    req: CropAskRequest,
+    db: DBSession,
+    user: User = Depends(require_permission(f"{CROP}:read")),
+) -> dict:
+    """知识库问答：AI 自主多轮检索后作答（带引用）——agentic RAG。
+
+    无真实 LLM 时 503（fail-closed：知识库问答不 mock 假答案）。
+    权限语义：crop:read 即可问（AI 是实现细节，工具面按用户权限下发）。
+    """
+    try:
+        answer, citations = await crop_service.ask(
+            db, user, req.query, req.history, req.top_k
+        )
+    except AIServiceUnavailable as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    return {"answer": answer, "citations": citations}
+
+
+@router.post("/ask/stream")
+async def ask_stream(
+    req: CropAskRequest,
+    db: DBSession,
+    user: User = Depends(require_permission(f"{CROP}:read")),
+) -> StreamingResponse:
+    """流式问答 SSE。事件：{tool_call} → {delta}* → {citations} → {done}。"""
+
+    async def gen():
+        try:
+            async for ev in crop_service.ask_stream(
+                db, user, req.query, req.history, req.top_k
+            ):
+                yield _sse(ev)
+            yield _sse({"done": True})
+        except AIServiceUnavailable as e:
+            yield _sse({"error": str(e)})
+        except Exception as e:  # noqa: BLE001 — SSE 通道内异常必须转文本下发，不能断流
+            yield _sse({"error": f"问答服务异常: {e}"})
+
+    return StreamingResponse(
+        gen(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
 
 @router.post("/projection/rebuild")
 async def rebuild_projection(

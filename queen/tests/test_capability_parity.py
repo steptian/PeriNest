@@ -33,6 +33,7 @@ PARITY_MAP: dict[str, list[str]] = {
     f"{API_PREFIX}/crop/search": ["crop_search"],
     f"{API_PREFIX}/cercus/contacts": ["wecom_contact_search"],   # POST 检索能力（写操作见豁免）
     f"{API_PREFIX}/cercus/sidebar/profile": ["wecom_contact_search"],  # 同一检索语义（by external_userid）
+    f"{API_PREFIX}/crop/ask": ["crop_ask"],   # 知识库问答（agentic 检索）
 }
 
 # ---- 豁免清单：天然不需要 MCP 化的端点，理由必填 ----
@@ -51,6 +52,7 @@ EXEMPT: dict[str, str] = {
     "/healthz": "存活探针，非用户操作面",
     f"{API_PREFIX}/crop/documents/upload": "文件上传为 UI 入口（multipart），AI 侧 crop_ingest 文本吞入已覆盖同等能力",
     f"{API_PREFIX}/crop/documents/{{doc_id}}/file": "源文件流预览/下载为浏览器行为，检索能力由 crop_search 覆盖",
+    f"{API_PREFIX}/crop/ask/stream": "SSE 流式通道，MCP 的 crop_ask 已覆盖其非流式语义",
     f"{API_PREFIX}/crop/documents/{{doc_id}}": "知识库详情浏览（含 chunk 全文），管理面低频操作，AI 侧 crop_search 检索已覆盖知识获取语义",
     f"{API_PREFIX}/crop/projection/rebuild": "运维端点：重建 Redis 向量投影，基础设施操作非用户能力",
     f"{API_PREFIX}/crop/health": "观测端点：投影健康检查，非用户操作面",

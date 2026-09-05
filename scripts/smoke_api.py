@@ -140,6 +140,17 @@ async def main():
             check("crop 投影重建", r.status_code == 200 and r.json()["rebuilt"] > 0, r.text[:100])
             r = await c.post(f"{API}/crop/search", headers=h, json={"query": "琥珀"})
             check("重建后检索恢复", r.status_code == 200 and len(r.json()["hits"]) >= min(hit_before, 1))
+            # ---- 知识库问答（agentic RAG；未配 LLM key 时 503 fail-closed 也算语义正确）----
+            r = await c.post(f"{API}/crop/ask", headers=h, json={"query": "琥珀标本馆的设计语言是什么？"})
+            if r.status_code == 200:
+                data = r.json()
+                check("crop ask 回答非空", len(data.get("answer", "")) > 0)
+                check("crop ask 带引用", len(data.get("citations", [])) >= 1)
+            elif r.status_code == 503:
+                check("crop ask fail-closed（未配 LLM 503）", "未配置" in r.json().get("detail", ""))
+                print("    ↱ 未配 LLM key——ask 断言为 fail-closed 语义")
+            else:
+                check("crop ask 200/503", False, f"HTTP {r.status_code}: {r.text[:120]}")
             # 删除
             r = await c.delete(f"{API}/crop/documents/{doc['id']}", headers=admin_h or h)
             check("crop 删除", r.status_code == 200)
@@ -158,7 +169,7 @@ async def main():
         r = await c.post(f"{API}/mcp", headers=h, json={"jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {}})
         tools = {t["name"] for t in r.json()["result"]["tools"]}
         expected = {"get_me", "list_orders", "get_order", "create_order", "submit_feedback",
-                    "ai_chat", "crop_search", "crop_ingest", "wecom_contact_search", "perinest_health"}
+                    "ai_chat", "crop_search", "crop_ingest", "crop_ask", "wecom_contact_search", "perinest_health"}
         check(f"MCP tools/list（{len(tools)} 个）", expected <= tools, str(tools))
 
         def rpc_call(name, args):

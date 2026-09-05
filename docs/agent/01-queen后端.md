@@ -41,8 +41,11 @@ Nginx(Carapace) → gunicorn/uvicorn → main.py 中间件(trace_id) → api/v1/
 - **文件吞入**（v0.10.1+）：`POST /crop/documents/upload`（multipart）——txt/md 直读（UTF-8/GBK）、pdf 走 pypdf 文字层、docx 走 python-docx；≤10MB；**扫描件/加密 PDF 明确 422**（OCR 不在模板范围，ack 有生产方案待抄）；提取复用 create_document 全流程；依赖 pypdf/python-docx/python-multipart（✅ pyproject）
 - **源文件与预览**：原件三件套落库（original_filename/file_mime/file_blob MEDIUMBLOB，文本粘贴型无原件）；`GET /crop/documents/{id}/file` 原样流回（inline，Content-Disposition UTF-8 文件名）；Wing 预览 Modal=chunk 分块浏览+「查看源文件」（fetch blob→objectURL，**鉴权保持 header 不泄 query token**）；`source_type` 扩 pdf/docx（✅ `queen/app/schemas/request/__init__.py` pattern）
 - 分块三级化（✅ `queen/app/services/crop_service.py:43`）：段落→单段超长按句→句超长硬截；相邻块 60 字 overlap 从语义边界回退（`queen/app/services/crop_service.py:36` _overlap_tail）。v1 同步 ingest，大文件 Celery 化留 v2
-- 端点（`queen/app/api/v1/endpoints/crop.py`）：documents CRUD + search + projection/rebuild + health；权限 crop:read（四端角色默认）/ crop:write（admin/运营）
-- MCP：`crop_search`（检索）/`crop_ingest`（吞入），PARITY_MAP 已登记；列表/详情/删除/运维端点走 EXEMPT（理由见 `queen/tests/test_capability_parity.py:35`）
+- **混合检索**（v0.11+，✅ `queen/app/services/crop_service.py:257` search）：向量 KNN + MySQL 关键词 LIKE 召回（查询拆短语 ≥2 字，通配符转义）→ **RRF 融合**（k=60，score=RRF 分）；纯向量对编号/术语类查询弱，关键词兑底后**投影丢失不再全盲**（回归 `queen/tests/test_crop.py` test_crop_hybrid_search_keyword_fallback）
+- **知识库问答 ask（agentic RAG，v0.11+）**：`POST /crop/ask`（非流式）+ `/crop/ask/stream`（SSE：tool_call→delta*→citations→done），权限 crop:read（AI 是实现细节不是能力面）。引擎 = `ai_service.stream_chat_with_tools`（✅ `queen/app/services/ai_service.py`）：OpenAI tool-calls 循环 ≤4 轮（末轮不给工具逼直答），工具结果截断 4000 字符防 context 爆炸；编排层 `crop_service.ask_stream`（✅ `queen/app/services/crop_service.py`）闭包内收集跨轮 citations。**工具面=用户操作面**：`agent_tools.tools_for_user` 按有效权限动态下发（首版 crop_search+get_me，写操作不开放）
+- ⚠️ 权限匹配必须走 `permissions.has_permission`（域简写"crop"/全称/write 隐含 read 同语义）——裸 `in` 匹配会把 admin（种子是域简写）的 crop_search 误杀（v0.11 踩过，回归 `queen/tests/test_crop.py` test_tools_for_admin_includes_crop_search）
+- ⚠️ **ask 无 mock 降级**（用户拍板 fail-closed）：未配 LLM key 时非流式 503 / SSE error 事件——知识库问答绝不 mock 假答案；链路完整性靠生产冒烟真实 provider 验证
+- MCP：`crop_search`（检索）/`crop_ingest`（吞入）/`crop_ask`（问答，v0.11+），PARITY_MAP 已登记；列表/详情/删除/运维/ask/stream 端点走 EXEMPT（理由见 `queen/tests/test_capability_parity.py:35`）
 - **依赖**：Redis ≥ 8.2（Vector Sets）；Redis 7 无此结构——部署文档见 03
 - 坑：向量操作走独立二进制连接（decode_responses=False），不能复用主池（主池 True 会破坏 FP32 传输）
 

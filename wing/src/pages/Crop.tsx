@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { BookOpenText, FileDown, FileUp, FlaskConical, RefreshCw, Trash2, Upload } from "lucide-react";
+import { BookOpenText, FileDown, FileUp, FlaskConical, MessagesSquare, RefreshCw, Trash2, Upload } from "lucide-react";
 import Modal from "@/components/Modal";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { Button } from "@/components/ui/button";
-import { cropApi, type CropDocument, type CropSearchHit } from "@/api/crop";
+import { askStream, cropApi, type CropDocument, type CropSearchHit } from "@/api/crop";
 import { fmtTime } from "@/utils/format";
 
 const PAGE_SIZE = 15;
@@ -21,6 +21,13 @@ export default function Crop() {
   const [query, setQuery] = useState("");
   const [hits, setHits] = useState<CropSearchHit[] | null>(null);
   const [mockNote, setMockNote] = useState(false);
+  // —— 问嗦囊（agentic 问答）——
+  const [askQuery, setAskQuery] = useState("");
+  const [asking, setAsking] = useState(false);
+  const [askAnswer, setAskAnswer] = useState("");
+  const [askSteps, setAskSteps] = useState<string[]>([]);
+  const [askCitations, setAskCitations] = useState<CropSearchHit[]>([]);
+  const [askError, setAskError] = useState("");
 
   const { data: docs = [], isLoading } = useQuery({
     queryKey: ["crop", "docs", page],
@@ -54,6 +61,28 @@ export default function Crop() {
     mutationFn: () => cropApi.search(query, 5),
     onSuccess: (d) => { setHits(d.hits); setMockNote(d.mock); },
   });
+
+  async function runAsk(q: string) {
+    if (!q.trim() || asking) return;
+    setAsking(true); setAskSteps([]); setAskAnswer(""); setAskCitations([]); setAskError("");
+    try {
+      await askStream(q, (ev) => {
+        if (ev.tool_call) {
+          setAskSteps((s) => [...s, `检索知识库：${ev.tool_call?.query}（第 ${ev.tool_call?.round} 轮）`]);
+        } else if (ev.delta) {
+          setAskAnswer((a) => a + ev.delta);
+        } else if (ev.citations) {
+          setAskCitations(ev.citations);
+        } else if (ev.error) {
+          setAskError(ev.error);
+        }
+      });
+    } catch (e) {
+      setAskError(e instanceof Error ? e.message : "问答服务异常");
+    } finally {
+      setAsking(false);
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -121,6 +150,64 @@ export default function Crop() {
                 <p className="line-clamp-3 text-sm leading-relaxed">{h.content}</p>
               </div>
             ))}
+          </div>
+        )}
+      </div>
+
+      {/* 问嗦囊：AI 多轮检索后作答（agentic RAG） */}
+      <div className="glass rounded-2xl p-4">
+        <div className="mb-2 flex items-center gap-2 text-sm font-medium">
+          <MessagesSquare className="h-4 w-4 text-primary" /> 问嗦囊
+          <span className="text-xs font-normal text-muted-foreground">（AI 自主检索知识库后作答，附引用）</span>
+        </div>
+        <div className="flex gap-2">
+          <input
+            value={askQuery}
+            onChange={(e) => setAskQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && askQuery.trim() && !asking) {
+                setAskQuery(askQuery); void runAsk(askQuery);
+              }
+            }}
+            placeholder="试试：这个项目的设计语言是什么？"
+            className="flex-1 rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
+          />
+          <Button
+            size="sm"
+            onClick={() => void runAsk(askQuery)}
+            disabled={!askQuery.trim() || asking}
+          >
+            {asking ? "思考中…" : "提问"}
+          </Button>
+        </div>
+        {(askSteps.length > 0 || askAnswer || askError) && (
+          <div className="mt-3 space-y-2">
+            {askSteps.map((s, i) => (
+              <p key={i} className="text-xs text-muted-foreground">
+                <FlaskConical className="mr-1 inline h-3 w-3" />
+                {s}
+              </p>
+            ))}
+            {askError && (
+              <p className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+                {askError}
+              </p>
+            )}
+            {askAnswer && (
+              <div className="rounded-xl border border-border/60 bg-background/60 p-3">
+                <p className="whitespace-pre-wrap text-sm leading-relaxed">{askAnswer}</p>
+              </div>
+            )}
+            {askCitations.length > 0 && (
+              <div className="space-y-1.5">
+                <p className="specimen-latin !text-[9px] text-muted-foreground">citations · 引用来源</p>
+                {askCitations.map((h) => (
+                  <p key={h.chunk_id} className="text-xs text-muted-foreground">
+                    《{h.document_title}》#{h.seq} · {h.content.slice(0, 60)}…
+                  </p>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>

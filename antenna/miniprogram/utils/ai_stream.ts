@@ -1,14 +1,25 @@
 /** 神经索流式对话 — wx.request enableChunked 分块解析 SSE */
 const BASE_URL = () => getApp().globalData.apiBase;
 
+export interface StreamOpts {
+  /** 事件完整下发（crop_ask 等多事件协议用）；不传则只处理 delta/error */
+  onEvent?: (data: Record<string, unknown>) => void;
+  /** SSE 端点路径（默认 /ai/chat/stream） */
+  url?: string;
+  /** 请求体（默认 { messages }） */
+  data?: Record<string, unknown>;
+}
+
+/** 通用 SSE 流式请求：神经索对话 / 嗦囊问答共用。 */
 export function streamChat(
   messages: { role: string; content: string }[],
-  onDelta: (t: string) => void
+  onDelta: (t: string) => void,
+  opts: StreamOpts = {}
 ): Promise<void> {
   return new Promise((resolve, reject) => {
     let buf = "";
     const task = wx.request({
-      url: `${BASE_URL()}/ai/chat/stream`,
+      url: `${BASE_URL()}${opts.url ?? "/ai/chat/stream"}`,
       method: "POST",
       enableChunked: true,
       header: {
@@ -16,7 +27,7 @@ export function streamChat(
         "X-Client": "Antenna",
         Authorization: `Bearer ${getApp().globalData.token}`,
       },
-      data: { messages },
+      data: opts.data ?? { messages },
       success: () => resolve(),
       fail: (err) => reject(new Error(err.errMsg)),
     });
@@ -30,6 +41,7 @@ export function streamChat(
           if (!line.startsWith("data:")) continue;
           try {
             const data = JSON.parse(line.slice(5).trim());
+            if (opts.onEvent) { opts.onEvent(data); continue; }
             if (data.delta) onDelta(data.delta);
             if (data.error) reject(new Error(data.error));
           } catch { /* 忽略半包 */ }

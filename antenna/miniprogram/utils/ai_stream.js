@@ -2,11 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.streamChat = streamChat;
 const BASE_URL = () => getApp().globalData.apiBase;
-function streamChat(messages, onDelta) {
+function streamChat(messages, onDelta, opts = {}) {
     return new Promise((resolve, reject) => {
         let buf = "";
         const task = wx.request({
-            url: `${BASE_URL()}/ai/chat/stream`,
+            url: `${BASE_URL()}${opts.url ?? "/ai/chat/stream"}`,
             method: "POST",
             enableChunked: true,
             header: {
@@ -14,7 +14,7 @@ function streamChat(messages, onDelta) {
                 "X-Client": "Antenna",
                 Authorization: `Bearer ${getApp().globalData.token}`,
             },
-            data: { messages },
+            data: opts.data ?? { messages },
             success: () => resolve(),
             fail: (err) => reject(new Error(err.errMsg)),
         });
@@ -29,6 +29,10 @@ function streamChat(messages, onDelta) {
                         continue;
                     try {
                         const data = JSON.parse(line.slice(5).trim());
+                        if (opts.onEvent) {
+                            opts.onEvent(data);
+                            continue;
+                        }
                         if (data.delta)
                             onDelta(data.delta);
                         if (data.error)

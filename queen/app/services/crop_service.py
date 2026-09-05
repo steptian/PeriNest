@@ -4,10 +4,11 @@
 分块策略 v1：按段落聚合，~600 字一块，中文优先。
 """
 import structlog
-from sqlalchemy import delete, func, select
+from sqlalchemy import delete, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.crop import CropChunk, CropDocument
+from app.models.user import User
 from app.schemas.request import CropDocumentCreate
 from app.services import crop_vector_store
 from app.services.embedding_service import embed_texts, pack_vector
@@ -242,29 +243,72 @@ async def delete_document(db: AsyncSession, doc_id: int) -> bool:
     return True
 
 
+def _query_terms(query: str) -> list[str]:
+    """查询拆短语：按空白/标点切，取 ≥2 字片段（关键词召回用），最多 5 个。"""
+    import re
+
+    segs = [s for s in re.split(r"[\s，。；、,.;?？!！\n\r]+", query) if len(s) >= 2]
+    return segs[:5] or ([query] if query.strip() else [])
+
+
+_LIKE_ESCAPES = str.maketrans({"\\": "\\\\", "%": "\\%", "_": "\\_"})
+
+
 async def search(
     db: AsyncSession, query: str, top_k: int = 5
 ) -> tuple[list[dict], bool]:
-    """检索：embed query → Redis KNN → 回 MySQL 取 chunk+文档拼装。"""
+    """混合检索：向量 KNN + MySQL 关键词召回 → RRF 融合。
+
+    纯向量对编号/术语类查询弱（embedding 对「GB4452」这类 token 不敏感），
+    关键词 LIKE 兑底；RRF（k=60）融合两路排名，score 字段 = RRF 分（越大越相关）。
+    """
     from app.schemas.response import CropSearchHit
 
     vectors, mock = await embed_texts([query])
     packed = pack_vector(vectors[0])
-    hits = await crop_vector_store.search(packed, top_k)
-    if not hits:
+    vec_hits = await crop_vector_store.search(packed, top_k)
+
+    # 关键词召回（chunk 量级 demo 规模，LIKE 零成本；通配符转义防语义漂移）
+    terms = _query_terms(query)
+    kw_ids: list[int] = []
+    if terms:
+        cond = or_(
+            *(
+                CropChunk.content.like(f"%{t.translate(_LIKE_ESCAPES)}%", escape="\\")
+                for t in terms
+            )
+        )
+        kw_ids = list(
+            (
+                await db.execute(
+                    select(CropChunk.id)
+                    .where(cond)
+                    .order_by(CropChunk.id.desc())
+                    .limit(top_k)
+                )
+            ).scalars().all()
+        )
+
+    if not vec_hits and not kw_ids:
         return [], mock
 
-    chunk_ids = [cid for cid, _ in hits]
+    rrf: dict[int, float] = {}
+    for rank, (cid, _sim) in enumerate(vec_hits):
+        rrf[cid] = rrf.get(cid, 0.0) + 1.0 / (60 + rank + 1)
+    for rank, cid in enumerate(kw_ids):
+        rrf[cid] = rrf.get(cid, 0.0) + 1.0 / (60 + rank + 1)
+    ranked = sorted(rrf.items(), key=lambda kv: kv[1], reverse=True)[:top_k]
+
     rows = (
         await db.execute(
             select(CropChunk, CropDocument)
             .join(CropDocument, CropChunk.document_id == CropDocument.id)
-            .where(CropChunk.id.in_(chunk_ids))
+            .where(CropChunk.id.in_([cid for cid, _ in ranked]))
         )
     ).all()
     by_id = {chunk.id: (chunk, doc) for chunk, doc in rows}
     results: list[CropSearchHit] = []
-    for cid, score in hits:  # 保持相似度排序
+    for cid, score in ranked:  # 保持融合排序
         pair = by_id.get(cid)
         if pair is None:
             continue  # 投影与权威短暂不一致（重建窗口），跳过
@@ -293,3 +337,93 @@ async def rebuild_projection(db: AsyncSession) -> int:
 async def projection_health() -> dict:
     """投影健康（管理端观测）。"""
     return {"vector_set": crop_vector_store.VECTOR_KEY, "count": await crop_vector_store.card()}
+
+
+ASK_SYSTEM_PROMPT = (
+    "你是 PeriNest 的知识库共生体（Crop 嗉囊：先吞后消化）。回答规则：\n"
+    "1. 只基于 crop_search 工具检索到的知识库内容回答；知识库没有的，明确说「知识库中没有相关内容」，禁止编造。\n"
+    "2. 检索结果不理想时，换同义词或更短的关键词再检索（最多 3 轮），之后必须作答。\n"
+    "3. 回答末尾另起一行列出引用，格式「来源：《文档标题》#分块序号」，只列实际用到的。\n"
+    "4. 与用户提问同语言，简洁、结构化。\n"
+    "5. 直接给出答案正文，不要输出检索计划、工具调用过程或身份确认等元描述。"
+)
+MAX_ASK_TURNS = 4  # 工具循环轮次上限（最后一轮不给工具，逼直答）
+
+
+async def ask_stream(
+    db: AsyncSession,
+    user: User,
+    query: str,
+    history: list,
+    top_k: int = 5,
+):
+    """知识库问答：agentic 检索循环（方案②）——AI 自主决定检索什么、检索几轮。
+
+    yield SSE 事件：{"tool_call": {...}} | {"delta": "..."} | {"citations": [...]}。
+    无真实 LLM 抛 AIServiceUnavailable（fail-closed：不 mock 假答案）。
+    工具面按用户权限动态下发（工具面=用户操作面，共生体原则）。
+    """
+    from app.core.permissions import effective_permissions, has_permission
+    from app.services import agent_tools
+    from app.services.ai_service import ai_service
+
+    perms = await effective_permissions(user, db)
+    tools = agent_tools.tools_for_user(perms)
+    specs = [t.openai_spec() for t in tools]
+    handlers = {t.name: t for t in tools}
+    citations: dict[int, dict] = {}  # chunk_id -> hit，跨轮去重
+    round_no = 0
+
+    async def execute_tool(name: str, args: dict) -> dict:
+        tool = handlers.get(name)
+        if tool is None:
+            return {"error": f"unknown tool: {name}"}
+        if tool.perm is not None and not has_permission(perms, tool.perm):
+            return {"denied": True, "reason": f"缺少权限 {tool.perm}"}
+        result = await tool.handler(db, user, args)
+        if name == "crop_search":
+            for h in result.get("hits", []):
+                citations[h["chunk_id"]] = h
+        return result
+
+    messages: list[dict] = [
+        {"role": "system", "content": ASK_SYSTEM_PROMPT},
+        *({"role": m.role, "content": m.content} for m in history),
+        {"role": "user", "content": query},
+    ]
+
+    async for ev in ai_service.stream_chat_with_tools(
+        messages, specs, execute_tool, max_turns=MAX_ASK_TURNS
+    ):
+        if ev["type"] == "tool_call":
+            if ev["name"] == "crop_search":
+                round_no += 1
+                yield {
+                    "tool_call": {
+                        "name": ev["name"],
+                        "round": round_no,
+                        "query": str(ev["args"].get("query", "")),
+                    }
+                }
+            # 其余工具（get_me）内部消化，不下发前端（协议面最小）
+        elif ev["type"] == "delta":
+            yield {"delta": ev["text"]}
+
+    ranked = sorted(
+        citations.values(), key=lambda h: h["score"], reverse=True
+    )[:top_k]
+    yield {"citations": ranked}
+
+
+async def ask(
+    db: AsyncSession, user: User, query: str, history: list, top_k: int = 5
+) -> tuple[str, list[dict]]:
+    """非流式问答：聚合 ask_stream，返回 (answer, citations)。"""
+    parts: list[str] = []
+    citations: list[dict] = []
+    async for ev in ask_stream(db, user, query, history, top_k):
+        if "delta" in ev:
+            parts.append(ev["delta"])
+        elif "citations" in ev:
+            citations = ev["citations"]
+    return "".join(parts), citations

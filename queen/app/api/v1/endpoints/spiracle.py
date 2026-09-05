@@ -182,7 +182,7 @@ def _tool_definitions() -> list[dict]:
         },
         {
             "name": "crop_ingest",
-            "description": "把一份文本知识存入知识库（需 crop:write 权限，admin/运营具备）。AI 替授权用户吞入嗉囊",
+            "description": "把一份文本知识存入知识库（需 crop:write 权限，admin/运营具备）。AI 替授权用户吞入嗦囊",
             "inputSchema": {
                 "type": "object",
                 "properties": {
@@ -191,6 +191,21 @@ def _tool_definitions() -> list[dict]:
                     "source_type": {"type": "string", "default": "text"},
                 },
                 "required": ["title", "content"],
+            },
+        },
+        {
+            "name": "crop_ask",
+            "description": (
+                "向知识库（Crop 嗦囊）提问：AI 自动多轮检索后基于知识作答并附引用来源。"
+                "需 crop:read 权限（四端角色默认具备）。适合需要综合多篇文档或不确定关键词的场景；"
+                "已知精确关键词时 crop_search 更快更省。"
+            ),
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "要问知识库的问题"},
+                },
+                "required": ["query"],
             },
         },
     ]
@@ -461,6 +476,19 @@ async def _call_tool(name: str, args: dict, user, db) -> dict:
         doc = await crop_service.create_document(db, req, user.id)
         await db.commit()
         return _text({"ingested": True, "document_id": doc.id, "chunks": doc.chunk_count, "status": doc.status})
+
+    if name == "crop_ask":
+        if denied := await _perm_denied(user, db, "crop:read"):
+            return denied
+        from app.services import crop_service
+        from app.services.ai_service import AIServiceUnavailable
+        try:
+            answer, citations = await crop_service.ask(
+                db, user, str(args.get("query", "")), [], 5
+            )
+        except AIServiceUnavailable as e:
+            return _denied(str(e))
+        return _text({"answer": answer, "citations": citations})
 
     raise ValueError(f"unknown tool: {name}")
 
