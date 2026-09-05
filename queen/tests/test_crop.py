@@ -179,3 +179,55 @@ async def test_crop_unknown_field_rejected(client, auth_headers):
         json={"query": "x", "topk": 5},
     )
     assert resp.status_code == 422
+
+
+async def test_crop_upload_txt_and_rejects(client, auth_headers):
+    """文件吞入：txt 直通入库可检索；不支持格式 415→422；wing 403。"""
+    headers, _ = await _mk_admin(client)
+
+    # txt 直通
+    r = await client.post(
+        "/api/v1/crop/documents/upload",
+        headers=headers,
+        files={"file": ("冒烟手册.txt", "琥珀标本馆设计语言：琥珀金树脂棕。嗦囊负责知识检索。".encode(), "text/plain")},
+        params={"title": "上传测试-txt"},
+    )
+    assert r.status_code == 201, r.text[:150]
+    doc = r.json()
+    assert doc["source_type"] == "text" and doc["status"] == "ready"
+    r = await client.post("/api/v1/crop/search", headers=headers, json={"query": "树脂棕"})
+    assert any(h["document_id"] == doc["id"] for h in r.json()["hits"])
+
+    # 不支持格式
+    r = await client.post(
+        "/api/v1/crop/documents/upload", headers=headers,
+        files={"file": ("老文档.doc", b"\xd0\xcf\x11\xe0", "application/msword")},
+    )
+    assert r.status_code == 422
+    assert "不支持" in r.json()["detail"]
+
+    # wing 权限门
+    r = await client.post(
+        "/api/v1/crop/documents/upload", headers=auth_headers,
+        files={"file": ("x.txt", b"hello world", "text/plain")},
+    )
+    assert r.status_code == 403
+
+
+async def test_crop_upload_docx(client, tmp_path):
+    """docx 提取：用 python-docx 现造一个再上传。"""
+    import docx as docxlib
+
+    p = tmp_path / "手册.docx"
+    d = docxlib.Document()
+    d.add_paragraph("琥珀标本馆是 PeriNest 的设计语言。")
+    d.add_paragraph("嗦囊模块负责知识的吞入与检索。")
+    d.save(str(p))
+
+    headers, _ = await _mk_admin(client)
+    r = await client.post(
+        "/api/v1/crop/documents/upload", headers=headers,
+        files={"file": ("手册.docx", p.read_bytes(), "application/vnd.openxmlformats-officedocument.wordprocessingml.document")},
+    )
+    assert r.status_code == 201, r.text[:150]
+    assert r.json()["source_type"] == "docx"

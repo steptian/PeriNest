@@ -8,7 +8,7 @@
 - POST   /crop/projection/rebuild 重建 Redis 投影（crop:write，运维备手）
 - GET    /crop/health             投影健康（crop:read）
 """
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, Response, UploadFile, status
 
 from app.api.deps import CurrentUser, DBSession
 from app.models.user import User
@@ -34,6 +34,33 @@ async def create_document(
     db: DBSession,
     user: User = Depends(require_permission(f"{CROP}:write")),
 ):
+    doc = await crop_service.create_document(db, req, user.id)
+    await db.commit()
+    return CropDocumentResponse.model_validate(doc)
+
+
+@router.post(
+    "/documents/upload",
+    status_code=status.HTTP_201_CREATED,
+    response_model=CropDocumentResponse,
+)
+async def upload_document(
+    db: DBSession,
+    user: User = Depends(require_permission(f"{CROP}:write")),
+    file: UploadFile = File(description="txt/md/pdf/docx，≤10MB"),
+    title: str = Query(default="", max_length=255),
+):
+    """文件吞入：按格式提取文字层 → 复用 create_document（分块+向量+投影）。
+
+    扫描件 PDF（无文字层）/ 加密文件明确 422——OCR 不在模板范围。
+    """
+    raw = await file.read()
+    try:
+        text, source_type = crop_service.extract_text(file.filename or "", raw)
+    except crop_service.UploadUnsupported as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    doc_title = title.strip() or (file.filename or "未命名").rsplit(".", 1)[0]
+    req = CropDocumentCreate(title=doc_title, content=text, source_type=source_type)
     doc = await crop_service.create_document(db, req, user.id)
     await db.commit()
     return CropDocumentResponse.model_validate(doc)

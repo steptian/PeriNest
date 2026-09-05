@@ -15,6 +15,71 @@ from app.services.embedding_service import embed_texts, pack_vector
 logger = structlog.get_logger(__name__)
 
 CHUNK_TARGET_CHARS = 600  # 聚合目标块大小
+
+# 支持的吞入文件格式（模板务实版：文字层提取，扫描件/OCR 不做——
+# ack-agent 有生产级 OCR 方案，需要时再抄）
+UPLOAD_MAX_BYTES = 10 * 1024 * 1024
+UPLOAD_TYPES = {
+    ".txt": "text",
+    ".md": "markdown",
+    ".markdown": "markdown",
+    ".pdf": "pdf",
+    ".docx": "docx",
+}
+
+
+class UploadUnsupported(Exception):
+    """不支持的文件格式/损坏文件。"""
+
+
+def extract_text(filename: str, raw: bytes) -> tuple[str, str]:
+    """按扩展名提取文本。返回 (文本, source_type)。失败抛 UploadUnsupported。"""
+    import io
+
+    name = filename.lower()
+    ext = next((e for e in UPLOAD_TYPES if name.endswith(e)), None)
+    if ext is None:
+        raise UploadUnsupported(f"不支持的格式「{filename}」——支持 {'/'.join(UPLOAD_TYPES)}")
+    if len(raw) > UPLOAD_MAX_BYTES:
+        raise UploadUnsupported("文件超过 10MB 限制")
+    source_type = UPLOAD_TYPES[ext]
+
+    if ext in (".txt", ".md", ".markdown"):
+        try:
+            return raw.decode("utf-8"), source_type
+        except UnicodeDecodeError:
+            try:
+                return raw.decode("gbk"), source_type
+            except UnicodeDecodeError as e:
+                raise UploadUnsupported("文本编码无法识别（支持 UTF-8/GBK）") from e
+
+    if ext == ".pdf":
+        try:
+            from pypdf import PdfReader
+
+            reader = PdfReader(io.BytesIO(raw))
+            pages = [(page.extract_text() or "").strip() for page in reader.pages]
+            text = "\n\n".join(p for p in pages if p)
+        except Exception as e:
+            raise UploadUnsupported(f"PDF 解析失败（加密/损坏）：{e}") from e
+        if len(text) < 10:
+            raise UploadUnsupported("PDF 无文字层（扫描件）——请粘贴文本或先 OCR")
+        return text, source_type
+
+    if ext == ".docx":
+        try:
+            import docx
+
+            doc = docx.Document(io.BytesIO(raw))
+            paras = [p.text.strip() for p in doc.paragraphs if p.text.strip()]
+            text = "\n\n".join(paras)
+        except Exception as e:
+            raise UploadUnsupported(f"docx 解析失败（加密/损坏）：{e}") from e
+        if len(text) < 10:
+            raise UploadUnsupported("docx 无可提取文本")
+        return text, source_type
+
+    raise UploadUnsupported(ext)  # unreachable
 CHUNK_OVERLAP_CHARS = 60  # 相邻块重叠，从最近语义边界回退（借鉴 ack-agent chunker）
 
 

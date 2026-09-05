@@ -15,6 +15,14 @@ export const cropApi = {
     api.get<CropDocument[]>("/crop/documents", { params: { limit, offset } }).then((r) => r.data),
   detail: (id: number) =>
     api.get<{ document: CropDocument; chunks: { document_id: number; seq: number; content: string }[] }>(`/crop/documents/${id}`).then((r) => r.data),
+  upload: (file: File, title?: string) => {
+    const form = new FormData();
+    form.append("file", file);
+    return api.post<CropDocument>("/crop/documents/upload", form, {
+      params: title ? { title } : {},
+      headers: { "Content-Type": "multipart/form-data" },
+    }).then((r) => r.data);
+  },
   create: (title: string, content: string, source_type = "text") =>
     api.post<CropDocument>("/crop/documents", { title, content, source_type }).then((r) => r.data),
   remove: (id: number) => api.delete(`/crop/documents/${id}`).then((r) => r.data),

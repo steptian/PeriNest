@@ -117,6 +117,22 @@ async def main():
             # 权限门：wing 无 crop:write
             r = await c.post(f"{API}/crop/documents", headers=h, json={"title": "x", "content": "y" * 20})
             check("crop write 权限门（wing 403）", r.status_code == 403)
+            # 文件吞入（txt 直通 + 拒绝不支持格式）
+            r = await c.post(
+                f"{API}/crop/documents/upload", headers=admin_h,
+                files={"file": ("smoke.md", "# 冒烟 markdown\n\n文件吞入链路验证。".encode(), "text/markdown")},
+            )
+            check("crop 文件上传（md）", r.status_code == 201 and r.json()["source_type"] == "markdown", r.text[:120])
+            if r.status_code == 201:
+                up_doc = r.json()
+                r2 = await c.post(f"{API}/crop/search", headers=h, json={"query": "文件吞入"})
+                check("上传后检索命中", any(x["document_id"] == up_doc["id"] for x in r2.json()["hits"]))
+                await c.delete(f"{API}/crop/documents/{up_doc['id']}", headers=admin_h)
+            r = await c.post(
+                f"{API}/crop/documents/upload", headers=admin_h,
+                files={"file": ("x.xls", b"binary", "application/excel")},
+            )
+            check("不支持格式 422", r.status_code == 422)
             # 投影重建 + 检索恢复（admin）
             r0 = await c.post(f"{API}/crop/search", headers=h, json={"query": "琥珀"})
             hit_before = len(r0.json()["hits"])

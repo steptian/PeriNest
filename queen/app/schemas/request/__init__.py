@@ -61,7 +61,7 @@ class CropDocumentCreate(StrictRequest):
 
     title: str = Field(min_length=1, max_length=255)
     content: str = Field(min_length=10, max_length=200_000)
-    source_type: str = Field(default="text", pattern="^(text|markdown)$")
+    source_type: str = Field(default="text", pattern="^(text|markdown|pdf|docx)$")
 
 
 class CropSearchRequest(StrictRequest):

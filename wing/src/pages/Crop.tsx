@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { BookOpenText, FlaskConical, RefreshCw, Trash2, Upload } from "lucide-react";
+import { BookOpenText, FileUp, FlaskConical, RefreshCw, Trash2, Upload } from "lucide-react";
 import Modal from "@/components/Modal";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,10 @@ export default function Crop() {
     queryFn: cropApi.health,
   });
 
+  const uploadFile = useMutation({
+    mutationFn: (f: File) => cropApi.upload(f, title.trim() || undefined),
+    onSuccess: () => { setUploadOpen(false); setTitle(""); qc.invalidateQueries({ queryKey: ["crop"] }); },
+  });
   const upload = useMutation({
     mutationFn: () => cropApi.create(title, content),
     onSuccess: () => {
@@ -174,6 +178,21 @@ export default function Crop() {
       {/* 上传 Modal */}
       <Modal open={uploadOpen} onClose={() => setUploadOpen(false)} title="吞入知识">
         <div className="space-y-3">
+          <label className="flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed border-border bg-background/60 px-4 py-5 text-center transition-colors hover:border-primary/50">
+            <FileUp className="h-5 w-5 text-primary/70" />
+            <span className="text-sm">点击选择文件</span>
+            <span className="text-[11px] text-muted-foreground">txt / md / pdf / docx · ≤10MB（扫描件 PDF 请先粘贴文本）</span>
+            <input
+              type="file" accept=".txt,.md,.markdown,.pdf,.docx" className="hidden"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadFile.mutate(f); }}
+            />
+          </label>
+          {uploadFile.isPending && <p className="text-xs text-muted-foreground">消化中（提取+向量化）…</p>}
+          {uploadFile.isError && <p className="text-xs text-red-500">{String(uploadFile.error).slice(0, 160)}</p>}
+          <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+            <span className="specimen-latin !text-[8px]">or paste</span>
+            <span className="h-px flex-1 bg-border" />
+          </div>
           <input
             value={title} onChange={(e) => setTitle(e.target.value)}
             placeholder="标题（如：产品手册 v2）"

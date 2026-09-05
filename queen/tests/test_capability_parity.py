@@ -49,6 +49,7 @@ EXEMPT: dict[str, str] = {
     f"{API_PREFIX}/auth/me/permissions": "权限自查，get_me 工具已内嵌 permissions 返回",
     "/health": "基础设施探针，非用户操作面",
     "/healthz": "存活探针，非用户操作面",
+    f"{API_PREFIX}/crop/documents/upload": "文件上传为 UI 入口（multipart），AI 侧 crop_ingest 文本吞入已覆盖同等能力",
     f"{API_PREFIX}/crop/documents/{{doc_id}}": "知识库详情浏览（含 chunk 全文），管理面低频操作，AI 侧 crop_search 检索已覆盖知识获取语义",
     f"{API_PREFIX}/crop/projection/rebuild": "运维端点：重建 Redis 向量投影，基础设施操作非用户能力",
     f"{API_PREFIX}/crop/health": "观测端点：投影健康检查，非用户操作面",
