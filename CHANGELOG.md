@@ -12,6 +12,37 @@
 
 > Queen 的 `/health` 与 Wing 侧边栏版本号均自动读取 `VERSION` 文件，无需手动改。
 
+## [0.9.2] - 2026-09-05
+
+### Added
+- **三端琥珀毛玻璃设计语言**：--glass-* 四令牌 + 背景光斑氛围层 +
+  @supports 降级（安卓老内核回实底）；specimen-card 玻璃化，输入框保持实底
+- **logo 定稿并五处应用**：assets/favicon.svg（琥珀蜚蠊+心跳动画）→
+  双端 favicon、Wing 侧栏、双语 README、三端登录页（小程序转透明 PNG）
+- **四端统一版本说明**：CHANGELOG.md 唯一源 → /system/version API →
+  Wing Modal / Leg VersionSheet / Antenna changelog 页
+- **Wing**：侧栏优雅收放（骑边把手+localStorage 持久化）；仪表盘六种
+  图表（分段条/柱状/sparkline/环形/SKU 排行/雷达，零依赖）；
+  离巢二次确认（标本馆风格 ConfirmDialog）
+- **Leg 向 Antenna 看齐**：首页最近订单+图鉴脚注、Chat 多行自动扩展输入
+- **Antenna**：首页充实（欢迎卡/问神经索 CTA/最近订单/图鉴脚注）、
+  changelog 页、「我的」页身份走 /auth/me 后端权威
+
+### Fixed
+- Antenna「我的」页登录态与显示不一致（userInfo 全项目无写入点，永显示
+  「未入巢」）——改 /auth/me 权威拉取
+- Antenna 首页跳转静默失败（tabBar 页必须 open-type=switchTab）
+- 发送按钮文本垂直不居中（微信 button 默认盒高，height=line-height 修）
+- Leg favicon link 未插入（replace 锚未匹配且无 assert 静默失败）
+- dev 环境：uvicorn 加 --host 0.0.0.0（真机预览）+ --reload（改端点即生效）；
+  apiBase 改局域网 IP
+- take_screenshots.py selector 修复（Leg input→textarea 后失配）
+- 小程序 logo 白底（qlmanage 强制铺白，Chromium omit_background 重转）
+
+### Assets
+- 意象图定稿更名 periplaneta-imago.svg（琥珀中间稿改 -amber 保留）；
+  README 双语收款码缩至 200px
+
 ## [0.9.1] - 2026-09-05
 
 ### Improved
