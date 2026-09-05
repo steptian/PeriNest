@@ -61,6 +61,8 @@ EXEMPT: dict[str, str] = {
     f"{API_PREFIX}/cercus/health": "模块观测端点，非用户操作面",
     f"{API_PREFIX}/cercus/callback": "企微服务器回调入口（免鉴权+验签），非用户操作能力",
     f"{API_PREFIX}/cercus/wecom/oauth-login": "身份获得入口（企微 code 换 token），逻辑先于任何授权——与 /auth/login 同性质",
+    f"{API_PREFIX}/system/ai-config": "运维配置面（system 域 admin 专用），非用户操作能力；AI 可用性由 perinest_health 的 ai_mock 状态反映",
+    f"{API_PREFIX}/system/ai-config/test": "配置连通性探针（运维动作），非用户操作能力",
 }
 
 

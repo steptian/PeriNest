@@ -51,10 +51,11 @@ _EMBED_CONCURRENCY = int(os.environ.get("EMBEDDING_CONCURRENCY", "4"))
 
 async def _embed_batch(client: httpx.AsyncClient, batch: list[str]) -> list[list[float]]:
     """单批请求。响应按 index 排序还原顺序（OpenAI 兼容规范 data[].index）。"""
+    cfg = await AiRuntimeConfig.embedding()
     resp = await client.post(
-        f"{settings.EMBEDDING_API_BASE.rstrip('/')}/embeddings",
-        headers={"Authorization": f"Bearer {settings.EMBEDDING_API_KEY}"},
-        json={"model": settings.EMBEDDING_MODEL, "input": batch},
+        f"{cfg['base'].rstrip('/')}/embeddings",
+        headers={"Authorization": f"Bearer {cfg['key']}"},
+        json={"model": cfg["model"], "input": batch},
     )
     resp.raise_for_status()
     data = sorted(resp.json()["data"], key=lambda item: item["index"])
@@ -66,8 +67,11 @@ async def _embed_batch(client: httpx.AsyncClient, batch: list[str]) -> list[list
 
 async def embed_texts(texts: list[str]) -> tuple[list[list[float]], bool]:
     """批量 embedding（分批+并发）。返回 (向量列表, 是否 mock)。"""
-    if settings.embedding_mock_enabled:
-        return [_hash_embed(t, settings.EMBEDDING_DIM) for t in texts], True
+    from app.services.runtime_config import AiRuntimeConfig
+
+    cfg = await AiRuntimeConfig.embedding()
+    if settings.EMBEDDING_MOCK or not cfg["key"]:
+        return [_hash_embed(t, cfg["dim"]) for t in texts], True
 
     import asyncio
 

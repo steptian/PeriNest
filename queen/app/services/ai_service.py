@@ -23,21 +23,25 @@ class AIService:
 
         :param messages: [{"role": "system"|"user"|"assistant", "content": "..."}]
         """
-        if settings.ai_mock_enabled:
+        # 运行时配置（DB > .env）：管理端改 key/model 即时生效
+        from app.services.runtime_config import AiRuntimeConfig
+
+        cfg = await AiRuntimeConfig.ai()
+        if settings.AI_MOCK or not cfg["key"]:
             async for chunk in self._mock_stream(messages):
                 yield chunk
             return
 
         payload = {
-            "model": model or settings.AI_MODEL,
+            "model": model or cfg["model"],
             "messages": messages,
             "stream": True,
         }
-        headers = {"Authorization": f"Bearer {settings.AI_API_KEY}"}
-        async with httpx.AsyncClient(timeout=settings.AI_TIMEOUT_SECONDS) as client:
+        headers = {"Authorization": f"Bearer {cfg['key']}"}
+        async with httpx.AsyncClient(timeout=cfg["timeout"]) as client:
             async with client.stream(
                 "POST",
-                f"{settings.AI_API_BASE}/chat/completions",
+                f"{cfg['base']}/chat/completions",
                 json=payload,
                 headers=headers,
             ) as resp:

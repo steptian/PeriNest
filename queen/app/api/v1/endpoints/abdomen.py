@@ -2,9 +2,10 @@
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.api.deps import CurrentUser, DBSession, get_db
+from app.models.user import User
 from app.core.permissions import FEEDBACK, require_permission
 
 logger = logging.getLogger(__name__)
@@ -30,6 +31,48 @@ async def submit_feedback(payload: dict, db: DBSession, user=Depends(require_per
         {"uid": user.id, "msg": content},
     )
     return {"ok": True}
+
+
+class AiConfigUpdate(BaseModel):
+    """白名单键 + 值；空串=删除覆盖回落 env。"""
+    updates: dict[str, str] = Field(min_length=1)
+
+
+@router.get("/system/ai-config")
+async def read_ai_config(user: User = Depends(require_permission("system"))):
+    """AI/embedding 运行时配置（DB>env），敏感 key 打码。"""
+    from app.services import runtime_config as rc
+
+    return {"configs": await rc.read_all_masked()}
+
+
+@router.put("/system/ai-config")
+async def write_ai_config(
+    req: AiConfigUpdate,
+    user: User = Depends(require_permission("system")),
+):
+    """更新运行时配置（白名单校验，即时生效）。"""
+    from app.services import runtime_config as rc
+
+    try:
+        result = await rc.write(req.updates, f"admin:{user.username}")
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    return result
+
+
+@router.post("/system/ai-config/test")
+async def test_ai_config(user: User = Depends(require_permission("system"))):
+    """用当前生效配置发一条测试消息（验证 key/model 可用）。"""
+    from app.services import runtime_config as rc
+    from app.services.ai_service import ai_service
+
+    cfg = await rc.AiRuntimeConfig.ai()
+    try:
+        reply = await ai_service.chat([{"role": "user", "content": "配置测试：请回复 OK"}])
+        return {"ok": True, "model": cfg["model"], "reply_preview": reply[:80]}
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"配置不可用: {e}")
 
 
 @router.get("/healthz", include_in_schema=False)

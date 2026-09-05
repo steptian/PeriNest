@@ -67,6 +67,15 @@ ack-agent（旭化成 RAG）验证过的失败模式，Crop 不走这条路：
 - MCP：wecom_contact_search；Wing 尾须管理页（列表/标签/跟进/手动同步）
 - 坑：测试内勿 asyncio.run 另起 loop（session 单 loop 铁律）；alembic MySQL 非事务 DDL 半途失败用幂等迁移重入
 
+## 运行时配置（runtime_config · 管理端改 key/model）
+
+- 优先级：pn_sys_config（DB）> .env——管理端改完即时生效免重启（内存缓存，写入失效）
+- 白名单 8 键（`queen/app/services/runtime_config.py:22` AI_CONFIG_KEYS）：ai.api_base/api_key/model/timeout + embedding 同构四键；非法键 422 fail-closed
+- 敏感处理：GET 一律打码（sk-645***6f03），SET 收明文，日志不落 key
+- ai_service/embedding_service 已接入动态视图（AiRuntimeConfig）；端点：GET/PUT /system/ai-config + POST /system/ai-config/test（真实测试消息，system 域）
+- Wing「神经索配置」页（perm=system）：双卡（对话/向量）+ 来源徽章（DB 覆盖/env）+ 测试连接
+- 清空值=删 DB 覆盖回落 env；embedding.dim 改动需重建向量投影
+
 ## 版本说明（system_service）
 
 - **唯一源链路**：仓库根 CHANGELOG.md → `queen/app/services/system_service.py:70` get_version_info 解析为结构化版本列表（version/date/sections/items，缩进子项并入主条目，lru_cache）→ `GET /api/v1/system/version`（✅ `queen/app/api/v1/endpoints/abdomen.py:42`，登录即可见无权限域）

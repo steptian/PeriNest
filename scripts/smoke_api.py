@@ -158,6 +158,22 @@ async def main():
         payload = json.loads(r.json()["result"]["content"][0]["text"])
         check("MCP wecom_contact_search（wing denied）", payload.get("denied") is True)
 
+        # ---- 10.5 AI 运行时配置（admin 段）----
+        if admin_h:
+            r = await c.get(f"{API}/system/ai-config", headers=admin_h)
+            cfgs = {x["key"]: x for x in r.json().get("configs", [])}
+            ok = r.status_code == 200 and len(cfgs) == 8 and "***" in cfgs["ai.api_key"]["value"]
+            check("ai-config 读（8 键+key 打码）", ok)
+            r = await c.put(f"{API}/system/ai-config", headers=admin_h, json={"updates": {"ai.timeout": "90"}})
+            check("ai-config 写（即时生效）", r.status_code == 200)
+            r = await c.post(f"{API}/system/ai-config/test", headers=admin_h)
+            check("ai-config 测试连接（真实模型回复）", r.status_code == 200 and r.json().get("ok") is True, r.text[:100])
+            await c.put(f"{API}/system/ai-config", headers=admin_h, json={"updates": {"ai.timeout": ""}})  # 还原
+            r = await c.put(f"{API}/system/ai-config", headers=admin_h, json={"updates": {"evil.key": "x"}})
+            check("ai-config 白名单 fail-closed（422）", r.status_code == 422)
+        else:
+            check("ai-config 权限门（wing 403）", (await c.get(f"{API}/system/ai-config", headers=h)).status_code == 403)
+
         # ---- 11. 越权与未授权 ----
         r = await c.get(f"{API}/orders")
         check("未认证 401", r.status_code == 401)

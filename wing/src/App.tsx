@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import Orders from "./pages/Orders";
 import Users from "./pages/Users";
 import Roles from "./pages/Roles";
+import Settings from "./pages/Settings";
 import { useAuthStore } from "./stores/auth";
 
 function RequireAuth({ children }: { children: JSX.Element }) {
@@ -34,6 +35,7 @@ export default function App() {
           <Route path="roles" element={<Roles />} />
 <Route path="crop" element={<Crop />} />
 <Route path="cercus" element={<Cercus />} />
+<Route path="settings" element={<Settings />} />
         </Route>
       </Routes>
     </BrowserRouter>
