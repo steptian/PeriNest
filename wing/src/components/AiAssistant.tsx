@@ -6,7 +6,7 @@ import { aiApi, type ChatMsg } from "@/api/ai";
 export default function AiAssistant() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMsg[]>([
-    { role: "assistant", content: "你好，我是 PeriNest 神经索 🧠 需要什么帮助？" },
+    { role: "assistant", content: "你好，我是巢穴的神经索。需要什么帮助？" },
   ]);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
@@ -37,7 +37,7 @@ export default function AiAssistant() {
     } catch (e) {
       setMessages((prev) => {
         const copy = [...prev];
-        copy[copy.length - 1] = { role: "assistant", content: `⚠️ ${(e as Error).message}` };
+        copy[copy.length - 1] = { role: "assistant", content: `出错了：${(e as Error).message}` };
         return copy;
       });
     } finally {

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Lock, Plus, Trash2 } from "lucide-react";
+import { Check, Eye, Lock, PenLine, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import Modal from "@/components/Modal";
@@ -76,9 +76,9 @@ export default function Roles() {
                   const st = cellState(r.permissions, d);
                   return (
                     <td key={d} className="px-5 py-3.5 text-center">
-                      {st === "rw" ? <span className="text-primary">✅ 读写</span>
-                        : st === "r" ? <span className="text-amber-600">👁 只读</span>
-                        : st === "w" ? <span className="text-amber-600">✍ 可写</span>
+                      {st === "rw" ? <span className="flex items-center justify-center gap-1 text-primary"><Check className="h-3.5 w-3.5" />读写</span>
+                        : st === "r" ? <span className="flex items-center justify-center gap-1 text-amber-600"><Eye className="h-3.5 w-3.5" />只读</span>
+                        : st === "w" ? <span className="flex items-center justify-center gap-1 text-amber-600"><PenLine className="h-3.5 w-3.5" />可写</span>
                         : <span className="text-muted-foreground/40">—</span>}
                     </td>
                   );

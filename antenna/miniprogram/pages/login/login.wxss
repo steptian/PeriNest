@@ -2,12 +2,13 @@
 .login-title { font-size: 68rpx; font-weight: bold; margin: 16rpx 0 8rpx; }
 .login-slogan { font-size: 22rpx; font-style: italic; color: var(--ink-soft); margin-bottom: 70rpx; }
 .login-card { text-align: left; }
-.specimen-latin { display: block; margin-bottom: 12rpx; }
+.specimen-latin { display: block; margin-bottom: 16rpx; }
 .pwd-label { margin-top: 28rpx; }
 .login-input {
   width: 100%; box-sizing: border-box;
   background: var(--card); border: 1px solid var(--line);
-  border-radius: 20rpx; padding: 20rpx 28rpx; font-size: 30rpx;
+  border-radius: 20rpx; padding: 30rpx 32rpx;
+  min-height: 100rpx; line-height: 1.4; font-size: 32rpx;
 }
 .login-error { color: #d66; font-size: 24rpx; margin-top: 16rpx; }
 .login-btn { margin-top: 44rpx; width: 100%; }
@@ -18,3 +19,9 @@
 }
 .login-wx-icon { margin-right: 8rpx; }
 .login-hint { text-align: center; font-size: 20rpx; color: var(--ink-soft); margin-top: 16rpx; }
+
+.login-wx-btn { display: flex; align-items: center; justify-content: center; gap: 12rpx; }
+.login-wx-dot {
+  width: 22rpx; height: 22rpx; border-radius: 50%;
+  background: #07c160; box-shadow: 0 0 0 4rpx rgba(7, 193, 96, 0.15);
+}

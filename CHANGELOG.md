@@ -12,6 +12,18 @@
 
 > Queen 的 `/health` 与 Wing 侧边栏版本号均自动读取 `VERSION` 文件，无需手动改。
 
+## [0.8.3] - 2026-09-05
+
+### Fixed
+- **全系统 UI 清剿 emoji**（用户规范：系统内任何地方禁止 emoji，用图标库/SVG/纯文字）
+  - Wing：Roles 矩阵 √/👁/✍ → lucide Check/Eye/PenLine；Modal 关闭 ✕ → lucide X
+  - Antenna：登录页微信 🟢 → CSS 绿点；chat 欢迎语/错误提示去 emoji
+  - Leg：Chat 错误提示去 emoji；后端 MCP 工具描述去 ⚠️
+  - 注释/文档表格 ✅❌ → √×（permissions.py docstring）
+  - 复查机制：rg unicode 范围扫描四端 UI 代码，终查零命中
+- **小程序登录样式**：输入框加高（min-height 100rpx + 32rpx 字号）、
+  label 间距放宽，视觉比例修复
+
 ## [0.8.2] - 2026-09-05
 
 ### Fixed

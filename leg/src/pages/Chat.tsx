@@ -40,7 +40,7 @@ export default function Chat() {
         const copy = [...prev];
         copy[copy.length - 1] = {
           role: "assistant",
-          content: `⚠️ ${(e as Error).message}`,
+          content: `出错了：${(e as Error).message}`,
         };
         return copy;
       });

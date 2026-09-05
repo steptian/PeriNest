@@ -64,7 +64,7 @@ def _tool_definitions() -> list[dict]:
         },
         {
             "name": "list_orders",
-            "description": "查询订单列表。⚠️ 权限范围与授权用户完全一致：普通用户仅见自己的订单，admin 可见全部",
+            "description": "查询订单列表。注意：权限范围与授权用户完全一致：普通用户仅见自己的订单，admin 可见全部",
             "inputSchema": {
                 "type": "object",
                 "properties": {
@@ -74,7 +74,7 @@ def _tool_definitions() -> list[dict]:
         },
         {
             "name": "get_order",
-            "description": "查询单个订单详情。⚠️ 仅授权用户本人或 admin 可查，越权访问将被拒绝",
+            "description": "查询单个订单详情。注意：仅授权用户本人或 admin 可查，越权访问将被拒绝",
             "inputSchema": {
                 "type": "object",
                 "properties": {"order_id": {"type": "integer"}},

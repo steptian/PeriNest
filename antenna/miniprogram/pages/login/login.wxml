@@ -13,7 +13,7 @@
 
     <view class="login-divider"><text class="specimen-latin">or</text></view>
     <button class="login-wx-btn" open-type="getUserInfo" bindtap="wxLogin">
-      <text class="login-wx-icon">🟢</text> 微信一键登录
+      <text class="login-wx-dot"/><text>微信一键登录</text>
     </button>
     <view class="login-hint">微信登录需配置真实 appid（生产环境）</view>
   </view>

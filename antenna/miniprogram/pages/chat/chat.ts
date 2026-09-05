@@ -3,7 +3,7 @@ interface ChatMsg { role: "user" | "assistant"; content: string }
 
 Page({
   data: {
-    messages: [{ role: "assistant", content: "你好，我是巢穴的神经索 🧠 有什么可以帮你？" } as ChatMsg],
+    messages: [{ role: "assistant", content: "你好，我是巢穴的神经索。琥珀中沉睡三亿年的生存智慧，随取随用。" } as ChatMsg],
     input: "",
     streaming: false,
     bottomId: "",
@@ -25,7 +25,7 @@ Page({
       });
     } catch (e) {
       const msgs = this.data.messages as ChatMsg[];
-      this.setData({ [`messages[${msgs.length - 1}].content`]: `⚠️ ${(e as Error).message}` });
+      this.setData({ [`messages[${msgs.length - 1}].content`]: `出错了：${(e as Error).message}` });
     } finally {
       this.setData({ streaming: false });
     }
