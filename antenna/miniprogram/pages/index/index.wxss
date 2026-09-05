@@ -13,3 +13,23 @@
   font-weight: bold;
   margin: 16rpx 0 28rpx;
 }
+
+/* ---- 首页充实版 ---- */
+.welcome-card { padding-top: 48rpx; padding-bottom: 48rpx; }
+.welcome-title {
+  font-size: 44rpx; font-weight: bold; margin: 12rpx 0 8rpx;
+}
+.hint { font-size: 24rpx; color: var(--ink-soft); margin-bottom: 28rpx; }
+.main-cta { margin: 0; }
+.order-row {
+  display: flex; align-items: center; gap: 16rpx;
+  padding: 18rpx 0; border-bottom: 1rpx solid var(--line);
+}
+.order-row:last-of-type { border-bottom: none; }
+.order-no { font-size: 26rpx; flex: 1; }
+.order-amount { font-size: 26rpx; }
+.more-link { display: block; text-align: center; font-size: 24rpx; color: var(--amber-light); padding-top: 20rpx; }
+.empty-text { font-size: 26rpx; color: var(--ink-soft); padding: 24rpx 0; text-align: center; }
+.lore-card { background: transparent; border: 1rpx dashed var(--line); box-shadow: none; }
+.lore { font-size: 28rpx; line-height: 1.7; margin: 8rpx 0 12rpx; }
+.lore-sub { font-size: 24rpx; line-height: 1.7; color: var(--ink-soft); }

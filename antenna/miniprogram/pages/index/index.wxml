@@ -1,10 +1,32 @@
-<view class="specimen-card" style="padding-top: 56rpx; padding-bottom: 56rpx;">
-  <view class="specimen-latin">periplaneta · antenna</view>
-  <view class="title font-specimen">PeriNest</view>
+<view class="specimen-card welcome-card">
+  <view class="specimen-latin">{{today}} · nest registry</view>
+  <view class="welcome-title font-specimen">欢迎回来{{username ? "，" + username : ""}}</view>
   <view class="slogan">built to survive, designed to adapt.</view>
 </view>
+
 <view class="specimen-card">
-  <view class="specimen-latin">entries</view>
-  <view class="section-title font-specimen">巢穴入口</view>
-  <navigator url="/pages/order/order" class="btn-amber">查看我的订单</navigator>
+  <view class="specimen-latin">neural cord · ask</view>
+  <view class="section-title font-specimen">问神经索</view>
+  <view class="hint">断头仍传导——AI 助手以你的身份待命</view>
+  <navigator url="/pages/chat/chat" class="btn-amber main-cta">开始提问</navigator>
+</view>
+
+<view class="specimen-card">
+  <view class="specimen-latin">recent specimens</view>
+  <view class="section-title font-specimen">最近订单</view>
+  <block wx:if="{{recentOrders.length}}">
+    <view wx:for="{{recentOrders}}" wx:key="id" class="order-row">
+      <view class="order-no font-specimen">#{{item.order_no}}</view>
+      <view class="badge-amber">{{item.statusLabel}}</view>
+      <view class="order-amount font-specimen">¥{{item.total_amount}}</view>
+    </view>
+    <navigator url="/pages/order/order" class="more-link">查看全部 →</navigator>
+  </block>
+  <view wx:else class="empty-text">嗉囊空空——还没有标本入巢</view>
+</view>
+
+<view class="specimen-card lore-card">
+  <view class="specimen-latin">compendium</view>
+  <view class="lore">鹰要风，狼要群，鲸要海——蜚蠊什么都不需要。</view>
+  <view class="lore-sub">它靠一整套生存系统活过了三亿年、四次大灭绝。PeriNest 把这套系统翻译成了软件。</view>
 </view>
