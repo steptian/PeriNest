@@ -23,6 +23,13 @@ English | [中文](README.md)
 A 4-terminal monorepo: **Queen** (FastAPI backend) + **Wing** (React admin) + **Antenna** (WeChat mini-program) + **Leg** (mobile H5).
 Zero-Docker deployment: native venv + Systemd + Nginx.
 
+## 🗺 Architecture at a Glance
+
+<p align="center">
+  <img src="assets/architecture.svg" alt="PeriNest nest architecture" width="100%" />
+</p>
+<p align="center"><sub>4 terminals → Carapace (Nginx) → Queen (five organs) → nest infrastructure · AI ecosystem via the spiracle</sub></p>
+
 ## 📸 Demo
 
 <p align="center">

@@ -24,6 +24,13 @@
 四端 monorepo：**Queen**（后端核心）+ **Wing**（Web 管理端）+ **Antenna**（微信小程序）+ **Leg**（移动端 H5）。
 无 Docker 部署：原生 venv + Systemd + Nginx。
 
+## 🗺 架构一图流
+
+<p align="center">
+  <img src="assets/architecture.svg" alt="PeriNest 巢穴架构图" width="100%" />
+</p>
+<p align="center"><sub>四端入口 → Carapace 背甲 → Queen 虫母（五器官）→ 巢穴基础设施 · 右侧经气门接入 AI 生态</sub></p>
+
 ## 📸 演示
 
 <p align="center">

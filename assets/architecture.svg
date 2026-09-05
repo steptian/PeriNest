@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 860" font-family="-apple-system, PingFang SC, Songti SC, serif">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="9" markerHeight="6.5" orient="auto"><path d="M0,0 L10,3.5 L0,7 Z" fill="#b4560c"/></marker>
+    <marker id="arg" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="9" markerHeight="6.5" orient="auto"><path d="M0,0 L10,3.5 L0,7 Z" fill="#8a7a68"/></marker>
+    <marker id="arb" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="9" markerHeight="6.5" orient="auto"><path d="M0,0 L10,3.5 L0,7 Z" fill="#2563eb"/></marker>
+  </defs>
+  <rect width="1200" height="860" fill="#f5f1e8"/>
+  <ellipse cx="600" cy="30" rx="700" ry="200" fill="#f59e0b" opacity="0.06"/>
+  <text x="600" y="46" text-anchor="middle" font-size="26" font-weight="bold" fill="#2b2118">PeriNest 巢穴架构 · 一图看懂</text>
+  <text x="600" y="70" text-anchor="middle" font-size="12" fill="#8a7a68" font-style="italic" letter-spacing="2">PERIPLANETA · BUILT TO SURVIVE, DESIGNED TO ADAPT</text>
+  <rect x="80" y="96" width="200" height="86" rx="14" fill="#fffdf7" stroke="#e5dcc8"/>
+  <circle cx="106" cy="122" r="5" fill="none" stroke="#b4560c" stroke-opacity="0.55"/>
+  <text x="180" y="126" text-anchor="middle" font-size="15" font-weight="bold" fill="#2b2118">🖥 Wing 翅翼</text>
+  <text x="180" y="146" text-anchor="middle" font-size="10" fill="#8a7a68" letter-spacing="1.5" font-family="Georgia,serif">WING · WEB ADMIN</text>
+  <text x="180" y="166" text-anchor="middle" font-size="11" fill="#8a7a68">React 管理端 :5173</text>
+  <rect x="350" y="96" width="200" height="86" rx="14" fill="#fffdf7" stroke="#e5dcc8"/>
+  <circle cx="376" cy="122" r="5" fill="none" stroke="#b4560c" stroke-opacity="0.55"/>
+  <text x="450" y="126" text-anchor="middle" font-size="15" font-weight="bold" fill="#2b2118">📱 Leg 足</text>
+  <text x="450" y="146" text-anchor="middle" font-size="10" fill="#8a7a68" letter-spacing="1.5" font-family="Georgia,serif">LEG · MOBILE H5</text>
+  <text x="450" y="166" text-anchor="middle" font-size="11" fill="#8a7a68">H5 移动端 :5174</text>
+  <rect x="620" y="96" width="200" height="86" rx="14" fill="#fffdf7" stroke="#e5dcc8"/>
+  <circle cx="646" cy="122" r="5" fill="none" stroke="#b4560c" stroke-opacity="0.55"/>
+  <text x="720" y="126" text-anchor="middle" font-size="15" font-weight="bold" fill="#2b2118">💬 Antenna 触角</text>
+  <text x="720" y="146" text-anchor="middle" font-size="10" fill="#8a7a68" letter-spacing="1.5" font-family="Georgia,serif">ANTENNA · MINIPROGRAM</text>
+  <text x="720" y="166" text-anchor="middle" font-size="11" fill="#8a7a68">微信小程序</text>
+  <rect x="890" y="96" width="200" height="86" rx="14" fill="#fffdf7" stroke="#e5dcc8"/>
+  <circle cx="916" cy="122" r="5" fill="none" stroke="#b4560c" stroke-opacity="0.55"/>
+  <text x="990" y="126" text-anchor="middle" font-size="15" font-weight="bold" fill="#2b2118">🤖 AI 客户端</text>
+  <text x="990" y="146" text-anchor="middle" font-size="10" fill="#8a7a68" letter-spacing="1.5" font-family="Georgia,serif">CLAUDE / CURSOR</text>
+  <text x="990" y="166" text-anchor="middle" font-size="11" fill="#8a7a68">经 MCP 直连</text>
+  <text x="40" y="143" font-size="11" fill="#8a7a68" writing-mode="tb" letter-spacing="4">入口层</text>
+  <rect x="80" y="226" width="1010" height="52" rx="12" fill="#33241a"/>
+  <text x="585" y="249" text-anchor="middle" font-size="14" font-weight="bold" fill="#f59e0b">Carapace 背甲 · Nginx</text>
+  <text x="585" y="267" text-anchor="middle" font-size="10" fill="#d9c9a8">SSL 终结 · 限流熔断 · 动静分离 · SPA 回退 —— 外骨骼永远在最外层</text>
+  <line x1="180" y1="182" x2="180" y2="222" stroke="#b4560c" stroke-width="2" marker-end="url(#ar)"/>
+  <line x1="450" y1="182" x2="450" y2="222" stroke="#b4560c" stroke-width="2" marker-end="url(#ar)"/>
+  <line x1="720" y1="182" x2="720" y2="222" stroke="#b4560c" stroke-width="2" marker-end="url(#ar)"/>
+  <line x1="990" y1="182" x2="990" y2="222" stroke="#b4560c" stroke-width="2" marker-end="url(#ar)"/>
+  <rect x="130" y="192" width="92" height="16" fill="#f5f1e8" opacity="0.95" rx="3"/>
+  <text x="176" y="204" text-anchor="middle" font-size="10" fill="#b4560c">HTTPS · JWT</text>
+  <rect x="930" y="192" width="120" height="16" fill="#f5f1e8" opacity="0.95" rx="3"/>
+  <text x="990" y="204" text-anchor="middle" font-size="10" fill="#b4560c">JSON-RPC over MCP</text>
+  <rect x="80" y="318" width="740" height="270" rx="16" fill="#fffdf7" stroke="#b4560c" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="450" y="348" text-anchor="middle" font-size="16" font-weight="bold" fill="#2b2118">🪳 Queen 虫母 · FastAPI 后端核心</text>
+  <text x="450" y="366" text-anchor="middle" font-size="10" fill="#8a7a68" font-style="italic">一巢仅一只：业务唯一裁决者，Gunicorn 多 Worker + Systemd 断头再生</text>
+  <rect x="104" y="380" width="128" height="84" rx="10" fill="#faf5ea" stroke="#e5dcc8"/>
+  <circle cx="117" cy="393" r="3.5" fill="none" stroke="#b4560c" stroke-opacity="0.5"/>
+  <text x="168.0" y="410" text-anchor="middle" font-size="13" font-weight="bold" fill="#2b2118">cephalon 头</text>
+  <text x="168.0" y="427" text-anchor="middle" font-size="9" fill="#b4560c" letter-spacing="1">AUTH</text>
+  <text x="168.0" y="446" text-anchor="middle" font-size="10" fill="#8a7a68">注册·登录·JWT</text>
+  <rect x="244" y="380" width="128" height="84" rx="10" fill="#faf5ea" stroke="#e5dcc8"/>
+  <circle cx="257" cy="393" r="3.5" fill="none" stroke="#b4560c" stroke-opacity="0.5"/>
+  <text x="308.0" y="410" text-anchor="middle" font-size="13" font-weight="bold" fill="#2b2118">thorax 胸</text>
+  <text x="308.0" y="427" text-anchor="middle" font-size="9" fill="#b4560c" letter-spacing="1">ORDERS</text>
+  <text x="308.0" y="446" text-anchor="middle" font-size="10" fill="#8a7a68">订单查改·归属</text>
+  <rect x="384" y="380" width="128" height="84" rx="10" fill="#faf5ea" stroke="#e5dcc8"/>
+  <circle cx="397" cy="393" r="3.5" fill="none" stroke="#b4560c" stroke-opacity="0.5"/>
+  <text x="448.0" y="410" text-anchor="middle" font-size="13" font-weight="bold" fill="#2b2118">abdomen 腹</text>
+  <text x="448.0" y="427" text-anchor="middle" font-size="9" fill="#b4560c" letter-spacing="1">FEEDBACK</text>
+  <text x="448.0" y="446" text-anchor="middle" font-size="10" fill="#8a7a68">反馈·系统日志</text>
+  <rect x="536" y="380" width="128" height="84" rx="10" fill="#faf5ea" stroke="#e5dcc8"/>
+  <circle cx="549" cy="393" r="3.5" fill="none" stroke="#b4560c" stroke-opacity="0.5"/>
+  <text x="600.0" y="410" text-anchor="middle" font-size="13" font-weight="bold" fill="#2b2118">版本/配置</text>
+  <text x="600.0" y="427" text-anchor="middle" font-size="9" fill="#b4560c" letter-spacing="1">VERSION</text>
+  <text x="600.0" y="446" text-anchor="middle" font-size="10" fill="#8a7a68">单一源 VERSION</text>
+  <rect x="104" y="480" width="200" height="84" rx="10" fill="#faf5ea" stroke="#e5dcc8"/>
+  <circle cx="117" cy="493" r="3.5" fill="none" stroke="#b4560c" stroke-opacity="0.5"/>
+  <text x="204.0" y="510" text-anchor="middle" font-size="13" font-weight="bold" fill="#2b2118">nerve 神经索</text>
+  <text x="204.0" y="527" text-anchor="middle" font-size="9" fill="#b4560c" letter-spacing="1">AI GATEWAY · SSE</text>
+  <text x="204.0" y="546" text-anchor="middle" font-size="10" fill="#8a7a68">OpenAI 兼容·流式打字机</text>
+  <rect x="320" y="480" width="200" height="84" rx="10" fill="#faf5ea" stroke="#e5dcc8"/>
+  <circle cx="333" cy="493" r="3.5" fill="none" stroke="#b4560c" stroke-opacity="0.5"/>
+  <text x="420.0" y="510" text-anchor="middle" font-size="13" font-weight="bold" fill="#2b2118">spiracle 气门</text>
+  <text x="420.0" y="527" text-anchor="middle" font-size="9" fill="#b4560c" letter-spacing="1">MCP SERVER</text>
+  <text x="420.0" y="546" text-anchor="middle" font-size="10" fill="#8a7a68">7 工具·以授权用户身份</text>
+  <rect x="536" y="480" width="128" height="84" rx="10" fill="#faf5ea" stroke="#e5dcc8"/>
+  <circle cx="549" cy="493" r="3.5" fill="none" stroke="#b4560c" stroke-opacity="0.5"/>
+  <text x="600.0" y="510" text-anchor="middle" font-size="13" font-weight="bold" fill="#2b2118">e2e 测试</text>
+  <text x="600.0" y="527" text-anchor="middle" font-size="9" fill="#b4560c" letter-spacing="1">PARITY GUARD</text>
+  <text x="600.0" y="546" text-anchor="middle" font-size="10" fill="#8a7a68">能力对称 CI 红</text>
+  <line x1="450" y1="278" x2="450" y2="314" stroke="#b4560c" stroke-width="2.5" marker-end="url(#ar)"/>
+  <rect x="860" y="318" width="230" height="270" rx="16" fill="#fffdf7" stroke="#8a7a68" stroke-width="1.5" stroke-dasharray="7,4"/>
+  <text x="975" y="348" text-anchor="middle" font-size="14" font-weight="bold" fill="#2b2118">外部 AI 生态</text>
+  <text x="975" y="364" text-anchor="middle" font-size="9" fill="#8a7a68" font-style="italic">换 base_url 即切换 provider</text>
+  <rect x="884" y="382" width="182" height="36" rx="8" fill="#faf5ea" stroke="#e5dcc8"/>
+  <text x="975" y="405" text-anchor="middle" font-size="12" fill="#2b2118">DeepSeek</text>
+  <rect x="884" y="430" width="182" height="36" rx="8" fill="#faf5ea" stroke="#e5dcc8"/>
+  <text x="975" y="453" text-anchor="middle" font-size="12" fill="#2b2118">Kimi / Qwen</text>
+  <rect x="884" y="478" width="182" height="36" rx="8" fill="#faf5ea" stroke="#e5dcc8"/>
+  <text x="975" y="501" text-anchor="middle" font-size="12" fill="#2b2118">Ollama 本地</text>
+  <rect x="884" y="526" width="182" height="36" rx="8" fill="#faf5ea" stroke="#e5dcc8"/>
+  <text x="975" y="549" text-anchor="middle" font-size="12" fill="#2b2118">任何 OpenAI 兼容</text>
+  <line x1="524" y1="522" x2="856" y2="470" stroke="#b4560c" stroke-width="2" marker-end="url(#ar)"/>
+  <rect x="610" y="480" width="150" height="16" fill="#f5f1e8" opacity="0.95" rx="3"/>
+  <text x="685" y="492" text-anchor="middle" font-size="10" fill="#b4560c">流式 SSE · mock 零成本</text>
+  <path d="M 990,312 C 990,300 700,296 620,300 560,304 420,400 420,416" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arb)"/>
+  <rect x="104" y="644" width="230" height="92" rx="14" fill="#fffdf7" stroke="#e5dcc8"/>
+  <circle cx="120" cy="662" r="4" fill="none" stroke="#b4560c" stroke-opacity="0.5"/>
+  <text x="219" y="678" text-anchor="middle" font-size="14" font-weight="bold" fill="#2b2118">Core 核心腺体</text>
+  <text x="219" y="696" text-anchor="middle" font-size="9" fill="#b4560c" letter-spacing="1">MYSQL 8</text>
+  <text x="219" y="716" text-anchor="middle" font-size="10" fill="#8a7a68">永久业务数据 · alembic 迁移</text>
+  <rect x="360" y="644" width="230" height="92" rx="14" fill="#fffdf7" stroke="#e5dcc8"/>
+  <circle cx="376" cy="662" r="4" fill="none" stroke="#b4560c" stroke-opacity="0.5"/>
+  <text x="475" y="678" text-anchor="middle" font-size="14" font-weight="bold" fill="#2b2118">Nectar 花蜜</text>
+  <text x="475" y="696" text-anchor="middle" font-size="9" fill="#b4560c" letter-spacing="1">REDIS 7</text>
+  <text x="475" y="716" text-anchor="middle" font-size="10" fill="#8a7a68">缓存 · Session · 快进快出</text>
+  <rect x="616" y="644" width="230" height="92" rx="14" fill="#fffdf7" stroke="#e5dcc8"/>
+  <circle cx="632" cy="662" r="4" fill="none" stroke="#b4560c" stroke-opacity="0.5"/>
+  <text x="731" y="678" text-anchor="middle" font-size="14" font-weight="bold" fill="#2b2118">Pheromone 信息素</text>
+  <text x="731" y="696" text-anchor="middle" font-size="9" fill="#b4560c" letter-spacing="1">CELERY</text>
+  <text x="731" y="716" text-anchor="middle" font-size="10" fill="#8a7a68">异步任务 · worker 循迹而动</text>
+  <line x1="219" y1="588" x2="219" y2="640" stroke="#8a7a68" stroke-width="1.5" marker-end="url(#arg)"/>
+  <line x1="475" y1="588" x2="475" y2="640" stroke="#8a7a68" stroke-width="1.5" marker-end="url(#arg)"/>
+  <line x1="731" y1="588" x2="731" y2="640" stroke="#8a7a68" stroke-width="1.5" marker-end="url(#arg)"/>
+  <rect x="160" y="604" width="118" height="16" fill="#f5f1e8" opacity="0.95" rx="3"/>
+  <text x="219" y="616" text-anchor="middle" font-size="10" fill="#8a7a68">SQLAlchemy async</text>
+  <rect x="430" y="604" width="90" height="16" fill="#f5f1e8" opacity="0.95" rx="3"/>
+  <text x="475" y="616" text-anchor="middle" font-size="10" fill="#8a7a68">连接池</text>
+  <rect x="688" y="604" width="86" height="16" fill="#f5f1e8" opacity="0.95" rx="3"/>
+  <text x="731" y="616" text-anchor="middle" font-size="10" fill="#8a7a68">broker</text>
+  <rect x="80" y="762" width="1010" height="72" rx="12" fill="#faf5ea" stroke="#e5dcc8"/>
+  <text x="104" y="788" font-size="12" font-weight="bold" fill="#2b2118">🦠 共生体原则</text>
+  <text x="104" y="808" font-size="11" fill="#8a7a68">AI 经 MCP 以授权用户身份行事：权限边界 = 用户边界 · 能力面 = 用户操作面 · 越权返回结构化拒绝（CI 对账，违规即红）</text>
+  <text x="104" y="824" font-size="10" fill="#8a7a68" font-style="italic">部署：venv + Systemd + Nginx，零 Docker · 验证：make check 十秒全链路自检</text>
+  <line x1="600" y1="780" x2="650" y2="780" stroke="#b4560c" stroke-width="2" marker-end="url(#ar)"/>
+  <text x="660" y="784" font-size="10" fill="#8a7a68">请求流</text>
+  <line x1="600" y1="800" x2="650" y2="800" stroke="#8a7a68" stroke-width="1.5" marker-end="url(#arg)"/>
+  <text x="660" y="804" font-size="10" fill="#8a7a68">数据流</text>
+  <line x1="600" y1="820" x2="650" y2="820" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arb)"/>
+  <text x="660" y="824" font-size="10" fill="#8a7a68">MCP 通道</text>
+</svg>
