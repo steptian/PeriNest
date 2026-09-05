@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import AiAssistant from "@/components/AiAssistant";
 import { useTheme } from "@/hooks/useTheme";
+import ConfirmDialog from "@/components/ConfirmDialog";
 import Modal from "@/components/Modal";
 import { systemApi, type ChangelogEntry } from "@/api/system";
 import { useAuthStore } from "@/stores/auth";
@@ -38,6 +39,7 @@ export default function Layout() {
   const permissions = useAuthStore((s) => s.permissions);
   const { collapsed, toggle: toggleSidebar } = useSidebarCollapsed();
   const [versionOpen, setVersionOpen] = useState(false);
+  const [logoutConfirm, setLogoutConfirm] = useState(false);
   const { data: versionInfo } = useQuery({
     queryKey: ["system-version"],
     queryFn: systemApi.version,
@@ -124,7 +126,7 @@ export default function Layout() {
               {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
             <button
-              onClick={logout}
+              onClick={() => setLogoutConfirm(true)}
               className="shrink-0 rounded-lg p-1.5 text-muted-foreground hover:bg-red-500/10 hover:text-red-500"
               title="离巢"
             >
@@ -142,6 +144,15 @@ export default function Layout() {
           </button>
         </div>
       </aside>
+
+      <ConfirmDialog
+        open={logoutConfirm}
+        title="确认离巢？"
+        message={`巢穴将忘记 ${user?.username ?? "你"} 的本次登录——需要再次进入时重新登录即可。`}
+        confirmText="离巢"
+        onCancel={() => setLogoutConfirm(false)}
+        onConfirm={logout}
+      />
 
       <Modal open={versionOpen} onClose={() => setVersionOpen(false)} title="版本说明" width="w-[720px]">
         <div className="space-y-5">
