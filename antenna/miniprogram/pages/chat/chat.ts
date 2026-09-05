@@ -8,7 +8,7 @@ Page({
     streaming: false,
     bottomId: "",
   },
-  onInput(e: WechatMiniprogram.Input) {
+  onInput(e: WechatMiniprogram.TextareaInput) {
     this.setData({ input: e.detail.value });
   },
   async send() {

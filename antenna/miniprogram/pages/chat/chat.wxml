@@ -8,7 +8,8 @@
   <view id="bottom"></view>
 </scroll-view>
 <view class="chat-input-bar">
-  <input class="chat-input" placeholder="向神经索提问…" value="{{input}}" bindinput="onInput"
-    bindconfirm="send" confirm-type="send" />
+  <textarea class="chat-input" placeholder="向神经索提问…" value="{{input}}" bindinput="onInput"
+    bindconfirm="send" confirm-type="send" confirm-hold="{{true}}" auto-height
+    show-confirm-bar="{{false}}" maxlength="2000" />
   <button class="empty-btn chat-send" bindtap="send" loading="{{streaming}}">发送</button>
 </view>
