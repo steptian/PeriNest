@@ -2,7 +2,6 @@ import { NavLink, Outlet } from "react-router-dom";
 import { BookOpenText, ChevronLeft, ChevronRight, LayoutDashboard, LogOut, Moon, Package, ShieldCheck, Sun, Users as UsersIcon } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
 import AiAssistant from "@/components/AiAssistant";
 import { useTheme } from "@/hooks/useTheme";
 import Modal from "@/components/Modal";
@@ -114,31 +113,29 @@ export default function Layout() {
           ))}
         </nav>
         <div className="border-t border-border/60 pt-3 text-xs text-muted-foreground">
-          <div className={`mb-2 flex items-center ${collapsed ? "justify-center" : "justify-between"}`}>
-            <div className={`truncate ${collapsed ? "hidden" : ""}`}>{user?.username ?? "-"}</div>
+          {/* 一行收纳：用户名 + 主题切换 + 离巢（图标化，省一整行） */}
+          <div className={`flex items-center gap-1 ${collapsed ? "justify-center" : ""}`}>
+            <div className={`min-w-0 flex-1 truncate ${collapsed ? "hidden" : ""}`}>{user?.username ?? "-"}</div>
             <button
               onClick={toggle}
-              className="rounded-lg p-1.5 hover:bg-muted"
+              className="shrink-0 rounded-lg p-1.5 hover:bg-muted"
               title={dark ? "切到亮色" : "切到暗色"}
             >
               {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
-          </div>
-          <Button variant="ghost" size="sm" className="w-full" onClick={logout} title="离巢">
-            <LogOut className="h-4 w-4" />
-            <span
-              className={`overflow-hidden whitespace-nowrap transition-all duration-200 ${
-                collapsed ? "max-w-0 opacity-0" : "ml-1 max-w-[60px] opacity-100"
-              }`}
+            <button
+              onClick={logout}
+              className="shrink-0 rounded-lg p-1.5 text-muted-foreground hover:bg-red-500/10 hover:text-red-500"
+              title="离巢"
             >
-              离巢
-            </span>
-          </Button>
+              <LogOut className="h-4 w-4" />
+            </button>
+          </div>
           <button
             onClick={() => setVersionOpen(true)}
             title="版本说明"
-            className={`specimen-latin mt-3 !text-[8px] overflow-hidden whitespace-nowrap transition-all duration-200 hover:text-primary ${
-              collapsed ? "max-w-0 opacity-0" : "max-w-[80px] opacity-100"
+            className={`specimen-latin mt-2 !text-[8px] block overflow-hidden whitespace-nowrap transition-all duration-200 hover:text-primary ${
+              collapsed ? "max-h-0 opacity-0" : "max-h-4 opacity-100"
             }`}
           >
             v{__APP_VERSION__}
