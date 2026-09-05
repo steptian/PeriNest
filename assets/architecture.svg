@@ -73,11 +73,11 @@
   <text x="420.0" y="510" text-anchor="middle" font-size="13" font-weight="bold" fill="#2b2118">nerve 神经索</text>
   <text x="420.0" y="527" text-anchor="middle" font-size="9" fill="#b4560c" letter-spacing="1">AI GATEWAY · SSE</text>
   <text x="420.0" y="546" text-anchor="middle" font-size="10" fill="#8a7a68">OpenAI 兼容·流式打字机</text>
-  <rect x="690" y="380" width="128" height="84" rx="10" fill="#faf5ea" stroke="#e5dcc8"/>
-  <circle cx="703" cy="393" r="3.5" fill="none" stroke="#b4560c" stroke-opacity="0.5"/>
-  <text x="754.0" y="410" text-anchor="middle" font-size="13" font-weight="bold" fill="#2b2118">e2e 测试</text>
-  <text x="754.0" y="427" text-anchor="middle" font-size="9" fill="#b4560c" letter-spacing="1">PARITY GUARD</text>
-  <text x="754.0" y="446" text-anchor="middle" font-size="10" fill="#8a7a68">能力对称 CI 红</text>
+  <rect x="676" y="380" width="128" height="84" rx="10" fill="#faf5ea" stroke="#e5dcc8"/>
+  <circle cx="689" cy="393" r="3.5" fill="none" stroke="#b4560c" stroke-opacity="0.5"/>
+  <text x="740.0" y="410" text-anchor="middle" font-size="13" font-weight="bold" fill="#2b2118">e2e 测试</text>
+  <text x="740.0" y="427" text-anchor="middle" font-size="9" fill="#b4560c" letter-spacing="1">PARITY GUARD</text>
+  <text x="740.0" y="446" text-anchor="middle" font-size="10" fill="#8a7a68">能力对称 CI 红</text>
   <line x1="450" y1="278" x2="450" y2="314" stroke="#b4560c" stroke-width="2.5" marker-end="url(#ar)"/>
   <rect x="860" y="318" width="230" height="270" rx="16" fill="#fffdf7" stroke="#8a7a68" stroke-width="1.5" stroke-dasharray="7,4"/>
   <text x="975" y="348" text-anchor="middle" font-size="14" font-weight="bold" fill="#2b2118">外部 AI 生态</text>
