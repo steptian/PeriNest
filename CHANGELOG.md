@@ -12,6 +12,16 @@
 
 > Queen 的 `/health` 与 Wing 侧边栏版本号均自动读取 `VERSION` 文件，无需手动改。
 
+## [0.8.4] - 2026-09-05
+
+### Fixed
+- **小程序上传 800059 根治**（entry file app.js not found）
+  - 真因链：tsconfig 的 outDir:dist → 工具 TS 插件产物不落盘 → 上传管线
+    打包磁盘真实文件时无 app.js。修复分三步：去 outDir（js/ts 同目录）→
+    tsconfig 重写（注释曾破坏 JSON 语法）→ **本地 tsc 预编译产物入库**
+    （9 个 js，clone 即可上传，不依赖工具插件行为）
+  - appid 入库；make check 的 antenna 步骤改完整编译；新增 make antenna-build
+
 ## [0.8.3] - 2026-09-05
 
 ### Fixed
