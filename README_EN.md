@@ -7,6 +7,19 @@ English | [中文](README.md)
 >
 > *Built to Survive, Designed to Adapt.*
 
+
+**This framework is built for the AI development era.**
+
+| You bring | PeriNest provides |
+|:---|:---|
+| An idea + an AI agent | A stable, production-ready 4-terminal system |
+
+- **Wheels pre-built** — 4-terminal skeleton / auth / AI gateway / deploy / CI out of the box
+- **Principles self-enforcing** — the Symbiont Principle is guarded by tests: violations turn red in 10 seconds locally, not by discipline
+- **Knowledge pre-compiled** — `AGENTS.md` knowledge base + `make check`: any AI onboards in seconds, iterates safely
+
+> Mission: **let everyone build stable, reliable systems fast — with AI.**
+
 A 4-terminal monorepo: **Queen** (FastAPI backend) + **Wing** (React admin) + **Antenna** (WeChat mini-program) + **Leg** (mobile H5).
 Zero-Docker deployment: native venv + Systemd + Nginx.
 
