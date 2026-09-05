@@ -75,6 +75,7 @@ class QueenSettings(BaseSettings):
     WECOM_AGENT_ID: int = 0
     WECOM_TOKEN: str = ""  # 回调验签 token
     WECOM_ENCODING_AES_KEY: str = ""  # 回调加解密 key（43 字符）
+    WECOM_SYNC_STAFF: str = ""  # 定时同步种子员工（逗号分隔 userid，可空）
 
     @property
     def wecom_enabled(self) -> bool:

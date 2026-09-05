@@ -60,6 +60,7 @@ EXEMPT: dict[str, str] = {
     f"{API_PREFIX}/cercus/wecom/jsapi-config": "JS-SDK 签名供前端 wx.config，非用户操作能力",
     f"{API_PREFIX}/cercus/health": "模块观测端点，非用户操作面",
     f"{API_PREFIX}/cercus/callback": "企微服务器回调入口（免鉴权+验签），非用户操作能力",
+    f"{API_PREFIX}/cercus/wecom/oauth-login": "身份获得入口（企微 code 换 token），逻辑先于任何授权——与 /auth/login 同性质",
 }
 
 

@@ -3,6 +3,7 @@
 耗时任务（导出报表、批量推送）走此通道，与 Queen 主进程解耦。
 """
 from celery import Celery
+from celery.schedules import crontab
 
 from app.core.config import settings
 
@@ -10,7 +11,10 @@ celery_app = Celery(
     "perinest",
     broker=settings.CELERY_BROKER_URL,
     backend=settings.CELERY_RESULT_BACKEND,
-    include=["app.tasks.email_tasks", "app.tasks.report_tasks", "app.tasks.ai_tasks"],
+    include=[
+        "app.tasks.email_tasks", "app.tasks.report_tasks", "app.tasks.ai_tasks",
+        "app.tasks.cercus_tasks",
+    ],
 )
 
 celery_app.conf.update(
@@ -22,4 +26,11 @@ celery_app.conf.update(
     task_track_started=True,
     # worker 崩溃自动重启（断头再生）
     worker_max_tasks_per_child=500,
+    # Cercus 尾须：每日晨间全量同步兜底（回调精确刷新之外的保险）
+    beat_schedule={
+        "cercus-daily-sync": {
+            "task": "app.tasks.cercus_tasks.sync_all_staff",
+            "schedule": crontab(hour=6, minute=30),
+        },
+    },
 )

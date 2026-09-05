@@ -139,3 +139,21 @@ async def test_mcp_wecom_contact_search(client, auth_headers):
     )
     data = _payload(resp)
     assert data["count"] >= 1
+
+
+async def test_cercus_oauth_login_fail_closed(client):
+    """OAuth 免登 fail-closed：企微未配置 → 503（不自动建号不绕权）。"""
+    resp = await client.post(
+        "/api/v1/cercus/wecom/oauth-login", json={"code": "fake_code"}
+    )
+    assert resp.status_code == 503
+
+
+async def test_cercus_callback_refresh_disabled():
+    """回调精确刷新在未配企微时：get_external_contact 抛错仅记日志不炸。
+
+    注：必须走 session 单 loop（项目铁律），勿在测试内 asyncio.run 另起 loop。
+    """
+    from app.api.v1.endpoints.cercus import _refresh_one_contact
+
+    await _refresh_one_contact("wmExt_nonexistent", "modify")  # 应静默返回

@@ -12,6 +12,18 @@
 
 > Queen 的 `/health` 与 Wing 侧边栏版本号均自动读取 `VERSION` 文件，无需手动改。
 
+## [0.10.1] - 2026-09-05
+
+### Added
+- **Cercus v2 三件套**：
+  - 回调精确刷新：change_external_contact 事件 → 定向 upsert/删除单个
+    联系人镜像（delete 不级联运营数据；失败仅记日志，每日兜底）
+  - Celery 定时同步：beat 每日 06:30 全量兜底（员工集=存量 ∪
+    WECOM_SYNC_STAFF 种子；未配企微直接 skipped）
+  - 侧边栏 OAuth 免登：企微 code → userid → **约定式映射**（系统用户名=
+    企微 userid 自动免登，匹配不上 403 fail-closed 不自动建号）；
+    Leg 侧边栏 ?code= 自动换 token
+
 ## [0.10.0] - 2026-09-05
 
 ### Added

@@ -55,6 +55,17 @@ ack-agent（旭化成 RAG）验证过的失败模式，Crop 不走这条路：
 - **触发条件**（满足才重启设计）：用户出现真实的跨文档综合查询需求，且愿意为编译
   延迟买单；届时做「同步编译进 ingest 主路径」（编译产物检索强制可见），不做后台队列
 
+## Cercus 尾须（企微私域）
+
+- 基建：`queen/app/services/wecom_service.py`（token 缓存/外部联系人/JS-SDK 签名/OAuth，WECOM_* 五 env 未配自动禁用 503）+ `queen/app/services/wecom_crypto.py` 回调加解密（AES-256-CBC+PKCS7+sha1，自 JJKK 移植）
+- 数据：pn_wecom_contact 镜像（tags/kv 运营扩展位，**企微为权威源**，sync 只刷新镜像字段不动 tags/kv）+ pn_wecom_followup append-only 时间线
+- 回调精确刷新（v2）：change_external_contact → `_refresh_one_contact`（✅ `queen/app/api/v1/endpoints/cercus.py` delete 删镜像不级联运营数据；失败仅记日志）
+- 定时同步（v2）：`queen/app/tasks/cercus_tasks.py:17` sync_all_staff（celery beat 每日 06:30；员工集=存量 ∪ WECOM_SYNC_STAFF 种子）
+- OAuth 免登（v2）：`POST /cercus/wecom/oauth-login`（✅ 同文件 :240）——**约定式映射：系统用户名=企微 userid** 即自动免登；匹配不上 403 fail-closed 不自动建号；EXEMPT 已登记（身份入口，与 /auth/login 同性质）
+- Leg 侧边栏 `/wecom/sidebar?external_userid=x[&code=y]`：带 code 走 useEffect 免登换 token
+- MCP：wecom_contact_search；Wing 尾须管理页（列表/标签/跟进/手动同步）
+- 坑：测试内勿 asyncio.run 另起 loop（session 单 loop 铁律）；alembic MySQL 非事务 DDL 半途失败用幂等迁移重入
+
 ## 版本说明（system_service）
 
 - **唯一源链路**：仓库根 CHANGELOG.md → `queen/app/services/system_service.py:70` get_version_info 解析为结构化版本列表（version/date/sections/items，缩进子项并入主条目，lru_cache）→ `GET /api/v1/system/version`（✅ `queen/app/api/v1/endpoints/abdomen.py:42`，登录即可见无权限域）

@@ -11,6 +11,6 @@ wiki: docs/agent/
 wiki: 
 
 ## 状态区
-status: v0.10.0 Cercus 尾须(企微私域)已发（tag）：客户镜像/标签/跟进/MCP 搜索/Wing 管理页/Leg 侧边栏；37 测试全绿
-next: Cercus v2(定时同步/回调刷新/OAuth 免登)；在线 demo 部署；业务模块定名
+status: v0.10.1 Cercus v2 已发（tag）：回调精确刷新+每日 beat 兜底+OAuth 约定式免登；39 测试全绿
+next: 在线 demo 部署；业务模块定名；Cercus 生产凭证接入实测
 updated: 2026-09-05

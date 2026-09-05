@@ -231,6 +231,49 @@ async def jsapi_config(
         raise HTTPException(status_code=503, detail="企微未配置")
 
 
+class WecomOauthLogin(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(min_length=1, max_length=128)
+
+
+@router.post("/wecom/oauth-login")
+async def wecom_oauth_login(req: WecomOauthLogin, db: DBSession):
+    """侧边栏 OAuth 免登：企微 code → userid → 约定式匹配系统账号。
+
+    约定：PeriNest 用户名 == 企微员工 userid 即自动免登（零配置）；
+    匹配不上返回 403（不自动建号——fail-closed，账号由管理员建）。
+    """
+    from fastapi import HTTPException
+
+    from app.core.security import create_access_token
+    from app.models.user import User
+    from app.services import wecom_service
+
+    try:
+        userid = await wecom_service.get_userid_by_code(req.code)
+    except wecom_service.WecomDisabledError:
+        raise HTTPException(status_code=503, detail="企微未配置")
+    if not userid:
+        raise HTTPException(status_code=401, detail="code 无效或已过期")
+    import json as _json
+
+    user = (
+        await db.execute(select(User).where(User.username == userid))
+    ).scalar_one_or_none()
+    if user is None or not user.is_active:
+        raise HTTPException(
+            status_code=403,
+            detail=f"企微 userid「{userid}」未映射系统账号——请用同名用户名建号",
+        )
+    token = create_access_token(subject=str(user.id))
+    return {
+        "access_token": token,
+        "username": user.username,
+        "note": "侧边栏免登成功（约定：用户名=企微 userid）",
+    }
+
+
 @router.get("/health")
 async def cercus_health(_user: CurrentUser):
     return {"module": "cercus", "wecom_enabled": settings.wecom_enabled}
@@ -283,6 +326,74 @@ async def wecom_callback(
         logger.warning("cercus_callback_decrypt_failed")
         return "bad encrypt"
     event = json.loads(msg)
-    logger.info("cercus_callback_event", event_type=event.get("Event"), change_type=event.get("ChangeType"))
-    # v1：仅记录。外部联系人变更→精确刷新留 v2（当前以手动 sync 兜底）
+    event_type = event.get("Event")
+    logger.info("cercus_callback_event", event_type=event_type, change_type=event.get("ChangeType"))
+
+    # v2：外部联系人变更 → 精确刷新该联系人镜像（add/update/del）
+    if event_type == "change_external_contact":
+        eid = event.get("ExternalUserID", "")
+        change = event.get("ChangeType", "")
+        if eid and change in ("add", "modify", "delete"):
+            await _refresh_one_contact(eid, change)
     return "ok"
+
+
+async def _refresh_one_contact(external_userid: str, change: str) -> None:
+    """单联系人镜像刷新（回调驱动）。失败只记日志——每日 beat 全量兜底。"""
+    import structlog
+
+    from app.core.database import AsyncSessionLocal
+    from app.models.wecom import WecomContact
+    from app.services import wecom_service
+
+    logger = structlog.get_logger(__name__)
+    async with AsyncSessionLocal() as db:
+        contact = (
+            await db.execute(
+                select(WecomContact).where(WecomContact.external_userid == external_userid)
+            )
+        ).scalar_one_or_none()
+        if change == "delete":
+            if contact:  # 镜像删除；运营数据（tags/kv/跟进）保留在历史里不级联
+                await db.delete(contact)
+                await db.commit()
+            logger.info("cercus_contact_deleted", external_userid=external_userid)
+            return
+        try:
+            detail = await wecom_service.get_external_contact(external_userid)
+        except Exception as e:
+            logger.warning("cercus_refresh_failed", external_userid=external_userid, error=str(e))
+            return
+        info = detail.get("external_contact", {})
+        remark_mobile = ""
+        staff = ""
+        for fu in detail.get("follow_user", []):
+            staff = staff or fu.get("userid", "")
+            if fu.get("remark_mobiles"):
+                remark_mobile = fu["remark_mobiles"][0]
+                break
+        import datetime
+
+        if contact is None:
+            db.add(
+                WecomContact(
+                    external_userid=external_userid,
+                    staff_userid=staff or "unknown",
+                    name=info.get("name") or "",
+                    unionid=info.get("unionid") or "",
+                    avatar=info.get("avatar") or "",
+                    remark_mobile=remark_mobile,
+                    synced_at=datetime.datetime.now(datetime.UTC),
+                )
+            )
+        else:
+            contact.name = info.get("name") or contact.name
+            contact.unionid = info.get("unionid") or contact.unionid
+            contact.avatar = info.get("avatar") or contact.avatar
+            if remark_mobile:
+                contact.remark_mobile = remark_mobile
+            if staff:
+                contact.staff_userid = staff
+            contact.synced_at = datetime.datetime.now(datetime.UTC)
+        await db.commit()
+        logger.info("cercus_contact_refreshed", external_userid=external_userid, change=change)

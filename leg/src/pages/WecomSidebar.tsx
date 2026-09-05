@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { api } from "@/api/client";
+import { useAuthStore } from "@/stores/auth";
 import { fmtTime } from "@/utils/format";
 
 interface Contact {
@@ -12,8 +13,30 @@ interface Followup { content: string; next_at?: string | null; created_at?: stri
 /** 企微侧边栏 H5（Cercus 尾须）：嵌入企微聊天工具栏，员工查客户档案+快速跟进。
  *  URL: /wecom/sidebar?external_userid=wmXxx（企微侧边栏配置此地址） */
 export default function WecomSidebar() {
-  const eid = new URLSearchParams(window.location.search).get("external_userid") ?? "";
+  const params = new URLSearchParams(window.location.search);
+  const eid = params.get("external_userid") ?? "";
+  const code = params.get("code") ?? "";
   const [content, setContent] = useState("");
+  const [exchanging, setExchanging] = useState(!!code);
+
+  // 企微 OAuth 免登：带 code 进入 → 换 token 存登录态（约定：企微 userid=系统用户名）。
+  // 一次性动作走 useEffect（非查询缓存语义）
+  useEffect(() => {
+    if (!code || useAuthStore.getState().token) { setExchanging(false); return; }
+    api
+      .post<{ access_token: string; username: string }>("/cercus/wecom/oauth-login", { code })
+      .then((r) => {
+        if (r.data?.access_token) {
+          useAuthStore.getState().setAuth(r.data.access_token, {
+            id: 0, username: r.data.username, email: null, role: "operator",
+            is_active: true, created_at: "",
+          } as import("@/api/auth").UserResponse);
+          // role 为占位展示；真实权限由后端 JWT 解析决定
+        }
+      })
+      .catch(() => {/* 免登失败回退手动登录态 */})
+      .finally(() => setExchanging(false));
+  }, [code]);
 
   const { data, isLoading } = useQuery({
     queryKey: ["cercus-sidebar", eid],
@@ -37,7 +60,8 @@ export default function WecomSidebar() {
       <p className="specimen-latin mb-1">cercus · sidebar</p>
       <h1 className="font-specimen mb-4 text-xl font-bold">尾须 · 客户档案</h1>
 
-      {!eid && <p className="text-sm text-muted-foreground">缺少 external_userid 参数</p>}
+      {exchanging && <p className="text-sm text-muted-foreground">企微免登中…</p>}
+      {!eid && !exchanging && <p className="text-sm text-muted-foreground">缺少 external_userid 参数</p>}
       {isLoading && <p className="text-sm text-muted-foreground">感知中…</p>}
       {data?.contact === null && (
         <div className="specimen-card p-4 text-sm text-muted-foreground">{data.hint}</div>
