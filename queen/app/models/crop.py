@@ -7,7 +7,7 @@
 import datetime
 
 from sqlalchemy import BigInteger, DateTime, Index, Integer, String, Text, func
-from sqlalchemy.dialects.mysql import MEDIUMBLOB
+from sqlalchemy.dialects.mysql import MEDIUMBLOB  # noqa: F401
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
@@ -26,6 +26,9 @@ class CropDocument(Base):
     chunk_count: Mapped[int] = mapped_column(Integer, default=0)
     status: Mapped[str] = mapped_column(String(16), default="ready")  # embedding/ready/failed
     error: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    original_filename: Mapped[str | None] = mapped_column(String(255), nullable=True)  # 源文件名（无=文本粘贴）
+    file_mime: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    file_blob: Mapped[bytes | None] = mapped_column(MEDIUMBLOB, nullable=True)  # 原始文件（≤10MB，预览/下载用）
     created_by: Mapped[int | None] = mapped_column(BigInteger, nullable=True)  # 上传者 pn_user.id
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime, server_default=func.now()

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { BookOpenText, FileUp, FlaskConical, RefreshCw, Trash2, Upload } from "lucide-react";
+import { BookOpenText, FileDown, FileUp, FlaskConical, RefreshCw, Trash2, Upload } from "lucide-react";
 import Modal from "@/components/Modal";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ export default function Crop() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [delTarget, setDelTarget] = useState<CropDocument | null>(null);
+  const [previewId, setPreviewId] = useState<number | null>(null);
   const [query, setQuery] = useState("");
   const [hits, setHits] = useState<CropSearchHit[] | null>(null);
   const [mockNote, setMockNote] = useState(false);
@@ -147,7 +148,7 @@ export default function Crop() {
               </tr>
             )}
             {docs.map((d) => (
-              <tr key={d.id} className="border-b border-border/40 last:border-0 hover:bg-muted/40">
+              <tr key={d.id} className="cursor-pointer border-b border-border/40 last:border-0 hover:bg-muted/40" onClick={() => setPreviewId(d.id)}>
                 <td className="px-4 py-3 font-medium">{d.title}</td>
                 <td className="px-4 py-3 text-muted-foreground">{d.chunk_count}</td>
                 <td className="px-4 py-3">
@@ -219,6 +220,8 @@ export default function Crop() {
         </div>
       </Modal>
 
+      {previewId !== null && <DocPreview docId={previewId} onClose={() => setPreviewId(null)} />}
+
       {/* 删除确认 */}
       <ConfirmDialog
         open={!!delTarget}
@@ -228,5 +231,54 @@ export default function Crop() {
         onConfirm={() => delTarget && remove.mutate(delTarget.id)}
       />
     </div>
+  );
+}
+
+/** 文档预览：chunks 分块浏览 + 源文件查看 */
+function DocPreview({ docId, onClose }: { docId: number; onClose: () => void }) {
+  const { data } = useQuery({
+    queryKey: ["crop", "detail", docId],
+    queryFn: () => cropApi.detail(docId),
+  });
+  const doc = data?.document;
+  const hasFile = doc && (doc as CropDocument & { original_filename?: string }).original_filename !== undefined
+    && (doc as CropDocument & { original_filename?: string }).original_filename !== null;
+
+  return (
+    <Modal open onClose={onClose} title={doc?.title ?? "文档预览"} width="w-[720px]">
+      {!doc && <p className="text-sm text-muted-foreground">加载中…</p>}
+      {doc && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span className="rounded-full border border-primary/35 px-2 py-0.5 text-primary">{doc.source_type}</span>
+              <span>{doc.chunk_count} 块</span>
+              <span>· {fmtTime(doc.created_at)}</span>
+            </div>
+            {hasFile && (
+              <button
+                className="flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs hover:bg-muted"
+                onClick={() => cropApi.openFile(docId)}
+                title="新窗预览/下载上传原件"
+              >
+                <FileDown className="h-3.5 w-3.5" /> 查看源文件
+              </button>
+            )}
+          </div>
+          <div className="max-h-[55vh] space-y-2.5 overflow-y-auto pr-1">
+            {(data?.chunks ?? []).map((c) => (
+              <div key={c.seq} className="rounded-xl border border-border/60 bg-background/60 p-3">
+                <p className="specimen-latin mb-1 !text-[8px]">chunk #{c.seq}</p>
+                <p className="whitespace-pre-wrap text-sm leading-relaxed">{c.content}</p>
+              </div>
+            ))}
+            {(data?.chunks ?? []).length === 0 && (
+              <p className="py-6 text-center text-xs text-muted-foreground">无分块（消化失败？查看状态与错误信息）</p>
+            )}
+          </div>
+          {doc.error && <p className="text-xs text-red-500">消化错误：{doc.error}</p>}
+        </div>
+      )}
+    </Modal>
   );
 }

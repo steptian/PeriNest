@@ -231,3 +231,31 @@ async def test_crop_upload_docx(client, tmp_path):
     )
     assert r.status_code == 201, r.text[:150]
     assert r.json()["source_type"] == "docx"
+
+
+async def test_crop_source_file_preview(client):
+    """源文件：上传原件落库 → /file 端点原样返回（mime+文件名）；文本型 404。"""
+    headers, _ = await _mk_admin(client)
+    raw = "琥珀标本馆源文件预览验证。嗦囊吞入链路。".encode("utf-8")
+    r = await client.post(
+        "/api/v1/crop/documents/upload", headers=headers,
+        files={"file": ("预览验证.md", raw, "text/markdown")},
+    )
+    assert r.status_code == 201
+    doc_id = r.json()["id"]
+
+    r = await client.get(f"/api/v1/crop/documents/{doc_id}/file", headers=headers)
+    assert r.status_code == 200
+    assert r.content == raw  # 字节级一致
+    assert "markdown" in r.headers["content-type"]
+    assert "inline" in r.headers.get("content-disposition", "")
+    await client.delete(f"/api/v1/crop/documents/{doc_id}", headers=headers)
+
+    # 文本粘贴型无原件 → 404
+    r = await client.post(
+        f"/api/v1/crop/documents", headers=headers,
+        json={"title": "纯文本无原件", "content": "x" * 30},
+    )
+    r2 = await client.get(f"/api/v1/crop/documents/{r.json()['id']}/file", headers=headers)
+    assert r2.status_code == 404
+    await client.delete(f"/api/v1/crop/documents/{r.json()['id']}", headers=headers)

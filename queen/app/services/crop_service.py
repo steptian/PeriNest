@@ -132,11 +132,15 @@ def split_chunks(content: str, target: int = CHUNK_TARGET_CHARS) -> list[str]:
 
 
 async def create_document(
-    db: AsyncSession, req: CropDocumentCreate, user_id: int | None
+    db: AsyncSession,
+    req: CropDocumentCreate,
+    user_id: int | None,
+    original_file: tuple[str, str, bytes] | None = None,
 ) -> CropDocument:
     """吞入+消化：建文档 → 分块 → embedding → 存权威 → 投影到 Redis。
 
-    v1 同步处理（文本量级毫秒完成）；大文件异步化留给 v2（Celery）。
+    original_file=(filename, mime, bytes)：上传原件随权威一起落库
+    （预览/下载用）；文本粘贴无原件。
     """
     doc = CropDocument(
         title=req.title,
@@ -145,6 +149,11 @@ async def create_document(
         size_bytes=len(req.content.encode("utf-8")),
         status="embedding",
         created_by=user_id,
+        **(
+            dict(zip(("original_filename", "file_mime", "file_blob"), original_file))
+            if original_file
+            else {}
+        ),
     )
     db.add(doc)
     await db.flush()

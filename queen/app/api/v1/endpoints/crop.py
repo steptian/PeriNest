@@ -8,6 +8,8 @@
 - POST   /crop/projection/rebuild 重建 Redis 投影（crop:write，运维备手）
 - GET    /crop/health             投影健康（crop:read）
 """
+from urllib.parse import quote
+
 from fastapi import APIRouter, Depends, File, HTTPException, Query, Response, UploadFile, status
 
 from app.api.deps import CurrentUser, DBSession
@@ -61,7 +63,10 @@ async def upload_document(
         raise HTTPException(status_code=422, detail=str(e))
     doc_title = title.strip() or (file.filename or "未命名").rsplit(".", 1)[0]
     req = CropDocumentCreate(title=doc_title, content=text, source_type=source_type)
-    doc = await crop_service.create_document(db, req, user.id)
+    doc = await crop_service.create_document(
+        db, req, user.id,
+        original_file=(file.filename or doc_title, file.content_type or "application/octet-stream", raw),
+    )
     await db.commit()
     return CropDocumentResponse.model_validate(doc)
 
@@ -98,6 +103,27 @@ async def get_document(
             for c in chunks
         ],
     }
+
+
+@router.get("/documents/{doc_id}/file")
+async def get_document_file(
+    doc_id: int,
+    db: DBSession,
+    _user: User = Depends(require_permission(f"{CROP}:read")),
+):
+    """源文件预览/下载：上传原件原样返回（inline，浏览器可预览 PDF/txt）。"""
+    doc = await crop_service.get_document(db, doc_id)
+    if doc is None or not doc.file_blob:
+        raise HTTPException(status_code=404, detail="源文件不存在（文本粘贴型文档无原件）")
+    from fastapi.responses import Response as FastResponse
+
+    return FastResponse(
+        content=doc.file_blob,
+        media_type=doc.file_mime or "application/octet-stream",
+        headers={
+            "Content-Disposition": f"inline; filename*=UTF-8''{quote(doc.original_filename or str(doc_id))}",
+        },
+    )
 
 
 @router.delete("/documents/{doc_id}")
