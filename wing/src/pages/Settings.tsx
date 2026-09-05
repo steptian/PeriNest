@@ -4,6 +4,8 @@ import { FlaskConical, RotateCcw, Save, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { configApi, type ConfigItem } from "@/api/config";
 import Roles from "@/pages/Roles";
+import Users from "@/pages/Users";
+import { useAuthStore } from "@/stores/auth";
 
 const LABELS: Record<string, { label: string; hint: string }> = {
   "ai.api_base": { label: "API Base", hint: "OpenAI 兼容端点" },
@@ -22,12 +24,23 @@ const LABELS: Record<string, { label: string; hint: string }> = {
   "wecom.sync_staff": { label: "同步种子员工", hint: "逗号分隔 userid" },
 };
 
-type Tab = "credentials" | "rbac";
+type Tab = "credentials" | "users" | "rbac";
 
 export default function Settings() {
   const qc = useQueryClient();
   const [tab, setTab] = useState<Tab>("credentials");
   const [edits, setEdits] = useState<Record<string, string>>({});
+  const permissions = useAuthStore((s) => s.permissions);
+  // 域简写=读写全有；域:read 只读。admin 走 system 全域
+  const has = (domain: string) =>
+    permissions.some((p) => p === domain || p.startsWith(domain + ":"));
+  const canSystem = has("system");
+  const canUsers = has("users");
+  // 兜底：当前 tab 越权（如 operator 默认 credentials）时落到首个可见 tab
+  const activeTab: Tab =
+    (tab === "credentials" && !canSystem) || (tab !== "credentials" && !canUsers)
+      ? canSystem ? "credentials" : "users"
+      : tab;
   const [msg, setMsg] = useState("");
 
   const { data } = useQuery({ queryKey: ["ai-config"], queryFn: configApi.read });
@@ -63,7 +76,7 @@ export default function Settings() {
           </p>
         </div>
         <div className="flex gap-2">
-          {tab === "credentials" && (
+          {activeTab === "credentials" && (
           <>
           <Button size="sm" variant="outline" onClick={() => test.mutate()} disabled={test.isPending}>
             <FlaskConical className="mr-1 h-4 w-4" /> 测试连接
@@ -79,14 +92,14 @@ export default function Settings() {
       {/* Tab 切换 */}
       <div className="flex gap-1.5">
         {([
-          ["credentials", "模型与凭证"],
-          ["rbac", "权限矩阵"],
-        ] as [Tab, string][]).map(([k, label]) => (
+          ...(canSystem ? ([["credentials", "模型与凭证"]] as [Tab, string][]) : []),
+          ...(canUsers ? ([["users", "巢穴成员"], ["rbac", "权限矩阵"]] as [Tab, string][]) : []),
+        ]).map(([k, label]) => (
           <button
             key={k}
             onClick={() => setTab(k)}
             className={`rounded-full px-4 py-1.5 text-sm transition-colors ${
-              tab === k ? "btn-amber" : "text-muted-foreground hover:bg-muted"
+              activeTab === k ? "btn-amber" : "text-muted-foreground hover:bg-muted"
             }`}
           >
             {label}
@@ -94,9 +107,9 @@ export default function Settings() {
         ))}
       </div>
 
-      {msg && tab === "credentials" && <div className="glass rounded-2xl px-4 py-2.5 text-sm">{msg}</div>}
+      {msg && activeTab === "credentials" && <div className="glass rounded-2xl px-4 py-2.5 text-sm">{msg}</div>}
 
-      {tab === "credentials" && (
+      {activeTab === "credentials" && (
         <>
           <ConfigCard title="对话模型（Nerve）" latin="chat · deepseek compatible" items={group("ai.")} edits={edits} setEdits={setEdits} />
           <ConfigCard title="向量模型（Crop 嗦囊）" latin="embedding · rag" items={group("embedding.")} edits={edits} setEdits={setEdits} />
@@ -104,7 +117,8 @@ export default function Settings() {
         </>
       )}
 
-      {tab === "rbac" && <Roles />}
+      {activeTab === "users" && <Users />}
+      {activeTab === "rbac" && <Roles />}
     </div>
   );
 }
