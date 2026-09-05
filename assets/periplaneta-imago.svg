@@ -1,0 +1,168 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 665" width="100%" role="img" font-family="system-ui, -apple-system, 'PingFang SC', 'Helvetica Neue', sans-serif">
+<title>PeriNest 巢穴意象 · 琥珀中的蜚蠊</title>
+<desc>一只封存在琥珀里的蜚蠊俯视图，触角对应 Antenna 小程序、前胸背甲对应 Carapace Nginx、双翅对应 Wing 管理端、六足对应 Leg 移动端 H5、神经索对应 Nerve AI 网关、体侧气门对应 Spiracle MCP、胸部核心对应 Queen 后端、腹部依次为 Crop 嗉囊 RAG、Core 腺体 MySQL、Nectar 花蜜 Redis，尾部拖出的信息素痕迹对应 Pheromone Celery。</desc>
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <style>
+    @media (prefers-reduced-motion: no-preference){
+      .pulse{animation:pn 2.2s ease-in-out infinite}
+      @keyframes pn{0%,100%{opacity:.3}50%{opacity:1}}
+      .p2{animation-delay:.3s}.p3{animation-delay:.6s}.p4{animation-delay:.9s}
+      .p5{animation-delay:1.2s}.p6{animation-delay:1.5s}.p7{animation-delay:1.8s}
+    }
+  </style>
+</defs>
+
+<rect x="0" y="0" width="680" height="665" fill="#FAF6EC"/>
+<rect x="16" y="16" width="648" height="633" fill="none" stroke="#D8C8A6" stroke-width="0.5"/>
+
+<ellipse cx="340" cy="312" rx="250" ry="268" fill="#F5E3BC" opacity="0.5"/>
+<ellipse cx="340" cy="312" rx="232" ry="250" fill="#EFD69F" opacity="0.45"/>
+<ellipse cx="340" cy="312" rx="208" ry="226" fill="#F7EACA" opacity="0.4"/>
+<ellipse cx="340" cy="312" rx="250" ry="268" fill="none" stroke="#C89A3C" stroke-width="1.2" opacity="0.55"/>
+<ellipse cx="340" cy="312" rx="232" ry="250" fill="none" stroke="#C89A3C" stroke-width="0.5" opacity="0.4"/>
+
+<g fill="none" stroke="#6B4518" stroke-linecap="round" opacity="0.85">
+  <path d="M292 242 C266 228 244 216 222 212" stroke-width="5"/>
+  <path d="M222 212 C210 228 204 248 200 270" stroke-width="3"/>
+  <path d="M286 336 C260 332 238 336 218 346" stroke-width="5"/>
+  <path d="M218 346 C208 364 204 386 202 406" stroke-width="3"/>
+  <path d="M292 430 C266 438 244 454 226 474" stroke-width="5"/>
+  <path d="M226 474 C220 492 218 512 218 532" stroke-width="3"/>
+  <path d="M388 242 C414 228 436 216 458 212" stroke-width="5"/>
+  <path d="M458 212 C470 228 476 248 480 270" stroke-width="3"/>
+  <path d="M394 336 C420 332 442 336 462 346" stroke-width="5"/>
+  <path d="M462 346 C472 364 476 386 478 406" stroke-width="3"/>
+  <path d="M388 430 C414 438 436 454 454 474" stroke-width="5"/>
+  <path d="M454 474 C460 492 462 512 462 532" stroke-width="3"/>
+</g>
+
+<path d="M320 455 C312 490 318 522 340 540 C362 522 368 490 360 455 Z" fill="#8A5A22" opacity="0.6" stroke="#5A3A12" stroke-width="1.2"/>
+<path d="M330 534 C325 554 320 566 316 576" fill="none" stroke="#6B4518" stroke-width="3" stroke-linecap="round"/>
+<path d="M350 534 C355 554 360 566 364 576" fill="none" stroke="#6B4518" stroke-width="3" stroke-linecap="round"/>
+
+<path d="M336 205 C300 212 276 250 272 300 C268 350 282 405 300 442 C312 464 330 472 338 460 C330 410 330 280 336 205 Z" fill="#A9742E" opacity="0.5" stroke="#6B4518" stroke-width="1.2"/>
+<path d="M344 205 C380 212 404 250 408 300 C412 350 398 405 380 442 C368 464 350 472 342 460 C350 410 350 280 344 205 Z" fill="#A9742E" opacity="0.5" stroke="#6B4518" stroke-width="1.2"/>
+<g fill="none" stroke="#8A5A22" stroke-width="1" opacity="0.32">
+  <path d="M334 242 C314 252 300 286 296 326"/>
+  <path d="M333 286 C312 298 298 332 296 372"/>
+  <path d="M334 332 C314 344 302 378 302 412"/>
+  <path d="M346 242 C366 252 380 286 384 326"/>
+  <path d="M347 286 C368 298 382 332 384 372"/>
+  <path d="M346 332 C366 344 378 378 378 412"/>
+</g>
+
+<path d="M340 150 C368 150 396 166 402 198 C407 224 396 250 340 258 C284 250 273 224 278 198 C284 166 312 150 340 150 Z" fill="#7A4E1C" opacity="0.82" stroke="#5A3A12" stroke-width="1.2"/>
+<path d="M300 178 C316 166 342 162 360 168" fill="none" stroke="#C89A3C" stroke-width="2" opacity="0.5"/>
+
+<path d="M340 106 C356 106 366 118 366 132 C366 147 356 157 340 157 C324 157 314 147 314 132 C314 118 324 106 340 106 Z" fill="#5A3A12" stroke="#3A2408" stroke-width="1.2"/>
+<ellipse cx="327" cy="128" rx="5" ry="8" fill="#2C2C2A"/>
+<ellipse cx="353" cy="128" rx="5" ry="8" fill="#2C2C2A"/>
+
+<path d="M330 118 C318 100 300 88 282 80" fill="none" stroke="#6B4518" stroke-width="3.5" stroke-linecap="round"/>
+<path d="M282 80 C268 75 252 72 240 70" fill="none" stroke="#6B4518" stroke-width="1.8" stroke-linecap="round"/>
+<path d="M350 118 C362 100 380 88 398 80" fill="none" stroke="#6B4518" stroke-width="3.5" stroke-linecap="round"/>
+<path d="M398 80 C412 75 428 72 440 70" fill="none" stroke="#6B4518" stroke-width="1.8" stroke-linecap="round"/>
+
+<ellipse cx="340" cy="205" rx="40" ry="30" fill="none" stroke="#D85A30" stroke-width="1" stroke-dasharray="4 3" opacity="0.6"/>
+<ellipse cx="340" cy="205" rx="32" ry="24" fill="#D85A30"/>
+<ellipse cx="340" cy="202" rx="15" ry="10" fill="#F5C4B3"/>
+
+<ellipse cx="340" cy="302" rx="31" ry="24" fill="#639922" stroke="#3B6D11" stroke-width="1.2"/>
+<g fill="#C0DD97">
+  <circle cx="328" cy="295" r="4"/><circle cx="349" cy="299" r="4"/><circle cx="335" cy="311" r="4"/><circle cx="353" cy="309" r="3"/>
+</g>
+
+<ellipse cx="340" cy="374" rx="33" ry="25" fill="#378ADD" stroke="#185FA5" stroke-width="1.2"/>
+<g stroke="#B5D4F4" stroke-width="2" stroke-linecap="round">
+  <path d="M318 366 L362 366"/><path d="M316 374 L364 374"/><path d="M318 382 L362 382"/>
+</g>
+
+<ellipse cx="340" cy="438" rx="21" ry="17" fill="#1D9E75" stroke="#0F6E56" stroke-width="1.2"/>
+<ellipse cx="334" cy="432" rx="6" ry="4" fill="#9FE1CB"/>
+
+<g fill="none" stroke="#EF9F27" stroke-width="2" stroke-linecap="round">
+  <path d="M330 150 C300 185 288 260 290 340 C292 420 302 470 314 496"/>
+  <path d="M350 150 C380 185 392 260 390 340 C388 420 378 470 366 496"/>
+</g>
+<g fill="#EF9F27">
+  <circle cx="298" cy="200" r="4.5" class="pulse"/>
+  <circle cx="289" cy="320" r="4.5" class="pulse p2"/>
+  <circle cx="294" cy="420" r="4.5" class="pulse p3"/>
+  <circle cx="306" cy="478" r="4.5" class="pulse p4"/>
+  <circle cx="382" cy="200" r="4.5" class="pulse p5"/>
+  <circle cx="391" cy="320" r="4.5" class="pulse p6"/>
+  <circle cx="386" cy="420" r="4.5" class="pulse p7"/>
+  <circle cx="374" cy="478" r="4.5" class="pulse p2"/>
+</g>
+
+<g stroke="#D85A30" stroke-width="1.4">
+  <circle cx="278" cy="330" r="6" fill="#FAEEDA"/><circle cx="278" cy="365" r="6" fill="#FAEEDA"/><circle cx="278" cy="400" r="6" fill="#FAEEDA"/>
+  <circle cx="402" cy="330" r="6" fill="#FAEEDA"/><circle cx="402" cy="365" r="6" fill="#FAEEDA"/><circle cx="402" cy="400" r="6" fill="#FAEEDA"/>
+</g>
+<g fill="#D85A30">
+  <circle cx="278" cy="330" r="2.5"/><circle cx="278" cy="365" r="2.5"/><circle cx="278" cy="400" r="2.5"/>
+  <circle cx="402" cy="330" r="2.5"/><circle cx="402" cy="365" r="2.5"/><circle cx="402" cy="400" r="2.5"/>
+</g>
+
+<g stroke="#7F77DD" stroke-width="1.6" stroke-dasharray="4 4" fill="none" opacity="0.9">
+  <path d="M330 552 C300 566 272 570 252 562"/>
+  <path d="M350 552 C380 566 408 570 428 562"/>
+</g>
+<g fill="#7F77DD">
+  <circle cx="252" cy="562" r="4.5"/><circle cx="244" cy="553" r="3.5"/><circle cx="238" cy="546" r="2.5"/>
+  <circle cx="428" cy="562" r="4.5"/><circle cx="436" cy="553" r="3.5"/><circle cx="442" cy="546" r="2.5"/>
+</g>
+
+<g stroke="#BA7517" stroke-width="0.8" stroke-dasharray="3 3" fill="none" opacity="0.6">
+  <path d="M192 74 L258 72"/>
+  <path d="M192 168 L288 188"/>
+  <path d="M192 254 L306 205"/>
+  <path d="M192 328 L310 302"/>
+  <path d="M192 402 L308 374"/>
+  <path d="M192 501 L244 552"/>
+  <path d="M488 146 L382 205"/>
+  <path d="M488 234 L404 290"/>
+  <path d="M488 324 L400 350"/>
+  <path d="M488 414 L364 438"/>
+  <path d="M488 496 L464 470"/>
+</g>
+<g fill="#BA7517" opacity="0.85">
+  <circle cx="258" cy="72" r="2.5"/><circle cx="288" cy="188" r="2.5"/><circle cx="306" cy="205" r="2.5"/>
+  <circle cx="310" cy="302" r="2.5"/><circle cx="308" cy="374" r="2.5"/><circle cx="244" cy="552" r="2.5"/>
+  <circle cx="382" cy="205" r="2.5"/><circle cx="404" cy="290" r="2.5"/><circle cx="400" cy="350" r="2.5"/>
+  <circle cx="364" cy="438" r="2.5"/><circle cx="464" cy="470" r="2.5"/>
+</g>
+
+<g text-anchor="end">
+  <text x="186" y="70" font-size="13" font-weight="500" fill="#412402">Antenna 触角</text>
+  <text x="186" y="86" font-size="11" fill="#8A7A63">微信小程序探针</text>
+  <text x="186" y="164" font-size="13" font-weight="500" fill="#412402">Carapace 背甲</text>
+  <text x="186" y="180" font-size="11" fill="#8A7A63">Nginx 第一道防线</text>
+  <text x="186" y="250" font-size="13" font-weight="500" fill="#412402">Queen 虫母</text>
+  <text x="186" y="266" font-size="11" fill="#8A7A63">后端唯一裁决者</text>
+  <text x="186" y="324" font-size="13" font-weight="500" fill="#412402">Crop 嗉囊</text>
+  <text x="186" y="340" font-size="11" fill="#8A7A63">RAG 知识库</text>
+  <text x="186" y="398" font-size="13" font-weight="500" fill="#412402">Core 腺体</text>
+  <text x="186" y="414" font-size="11" fill="#8A7A63">MySQL 永久记忆</text>
+  <text x="186" y="497" font-size="13" font-weight="500" fill="#412402">Pheromone 信息素</text>
+  <text x="186" y="513" font-size="11" fill="#8A7A63">Celery 异步队列</text>
+</g>
+<g text-anchor="start">
+  <text x="494" y="142" font-size="13" font-weight="500" fill="#412402">Nerve 神经索</text>
+  <text x="494" y="158" font-size="11" fill="#8A7A63">AI 网关贯穿四端</text>
+  <text x="494" y="230" font-size="13" font-weight="500" fill="#412402">Wing 翅翼</text>
+  <text x="494" y="246" font-size="11" fill="#8A7A63">Web 管理端</text>
+  <text x="494" y="320" font-size="13" font-weight="500" fill="#412402">Spiracle 气门</text>
+  <text x="494" y="336" font-size="11" fill="#8A7A63">MCP 呼吸口</text>
+  <text x="494" y="410" font-size="13" font-weight="500" fill="#412402">Nectar 花蜜</text>
+  <text x="494" y="426" font-size="11" fill="#8A7A63">Redis 快进快出</text>
+  <text x="494" y="492" font-size="13" font-weight="500" fill="#412402">Leg 足</text>
+  <text x="494" y="508" font-size="11" fill="#8A7A63">移动端 H5 六足</text>
+</g>
+
+<text x="340" y="615" font-size="15" font-weight="500" fill="#412402" text-anchor="middle" letter-spacing="1">PERINEST · 巢穴图鉴</text>
+<text x="340" y="636" font-size="11.5" fill="#8A7A63" text-anchor="middle">Built to Survive, Designed to Adapt · since 300 Ma</text>
+</svg>

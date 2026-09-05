@@ -3,7 +3,7 @@
 English | [中文](README.md)
 
 > [![CI](https://github.com/steptian/PeriNest/actions/workflows/ci.yml/badge.svg)](https://github.com/steptian/PeriNest/actions/workflows/ci.yml)
-> ![version](https://img.shields.io/badge/version-0.8.4-c2410c) ![license](https://img.shields.io/badge/license-MIT-green) ![monorepo](https://img.shields.io/badge/monorepo-Queen·Wing·Antenna·Leg-166534)
+> ![version](https://img.shields.io/badge/version-0.9.1-c2410c) ![license](https://img.shields.io/badge/license-MIT-green) ![monorepo](https://img.shields.io/badge/monorepo-Queen·Wing·Antenna·Leg-166534)
 >
 > *Built to Survive, Designed to Adapt.*
 
@@ -22,6 +22,15 @@ English | [中文](README.md)
 
 A 4-terminal monorepo: **Queen** (FastAPI backend) + **Wing** (React admin) + **Antenna** (WeChat mini-program) + **Leg** (mobile H5).
 Zero-Docker deployment: native venv + Systemd + Nginx.
+
+## 🪳 The Nest Imago
+
+<p align="center">
+  <img src="assets/periplaneta-imago.svg" alt="PeriNest nest imago: a cockroach in amber, twelve organs map to system modules" width="760" />
+</p>
+
+<p align="center"><i>Periplaneta · since 300 Ma</i><br/>
+<sub>The creature sealed in amber is the entire vocabulary of this system — the Compendium below unfolds organ by organ.</sub></p>
 
 ## 🗺 Architecture at a Glance
 

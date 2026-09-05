@@ -4,7 +4,7 @@
 
 
 > [![CI](https://github.com/steptian/PeriNest/actions/workflows/ci.yml/badge.svg)](https://github.com/steptian/PeriNest/actions/workflows/ci.yml)
-> ![version](https://img.shields.io/badge/version-0.8.4-c2410c) ![license](https://img.shields.io/badge/license-MIT-green) ![monorepo](https://img.shields.io/badge/monorepo-Queen·Wing·Antenna·Leg-166534)
+> ![version](https://img.shields.io/badge/version-0.9.1-c2410c) ![license](https://img.shields.io/badge/license-MIT-green) ![monorepo](https://img.shields.io/badge/monorepo-Queen·Wing·Antenna·Leg-166534)
 >
 > *Built to Survive, Designed to Adapt.* — 为生存而生，为适应而设计。
 
@@ -23,6 +23,15 @@
 
 四端 monorepo：**Queen**（后端核心）+ **Wing**（Web 管理端）+ **Antenna**（微信小程序）+ **Leg**（移动端 H5）。
 无 Docker 部署：原生 venv + Systemd + Nginx。
+
+## 🪳 巢穴意象
+
+<p align="center">
+  <img src="assets/periplaneta-imago.svg" alt="PeriNest 巢穴意象：琥珀中的蜚蠊，十二器官对应系统模块" width="760" />
+</p>
+
+<p align="center"><i>Periplaneta · since 300 Ma</i><br/>
+<sub>封存在琥珀里的那只生物，就是这套系统的全部命名 · 下方「巢穴图鉴」逐器官展开</sub></p>
 
 ## 🗺 架构一图流
 
