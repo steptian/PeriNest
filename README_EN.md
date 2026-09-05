@@ -210,4 +210,4 @@ Architecture: `docs/技术架构.md` (Chinese) · Deployment: `deploy/DEPLOYMENT
 
 If this project helps you, scan to support the nest 🪳 (WeChat Pay)
 
-![WeChat reward QR](assets/reward-qr.png)
+<p align="center"><img src="assets/reward-qr.png" width="200" alt="WeChat reward QR" /></p>

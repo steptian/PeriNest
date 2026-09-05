@@ -230,5 +230,5 @@ cd antenna && ./node_modules/.bin/tsc --noEmit      # 小程序类型检查
 
 如果这个项目对你有帮助，欢迎扫码打赏，让巢穴生生不息 🪳
 
-![微信收款码](assets/reward-qr.png)
+<p align="center"><img src="assets/reward-qr.png" width="200" alt="微信收款码" /></p>
 
