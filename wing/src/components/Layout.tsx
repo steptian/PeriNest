@@ -146,7 +146,7 @@ export default function Layout() {
         </div>
       </aside>
 
-      <Modal open={versionOpen} onClose={() => setVersionOpen(false)} title="版本说明" width="w-[520px]">
+      <Modal open={versionOpen} onClose={() => setVersionOpen(false)} title="版本说明" width="w-[720px]">
         <div className="space-y-5">
           <div className="flex items-baseline justify-between">
             <span className="font-specimen text-2xl font-bold text-primary">v{versionInfo?.version ?? __APP_VERSION__}</span>
@@ -164,7 +164,7 @@ export default function Layout() {
                   <p className="specimen-latin !text-[8px]">{sec.title}</p>
                   <ul className="mt-1 space-y-1.5">
                     {sec.items.map((item, i) => (
-                      <li key={i} className="whitespace-pre-line text-xs leading-relaxed text-muted-foreground">
+                      <li key={i} className="whitespace-pre-line text-xs leading-relaxed text-foreground/80">
                         {item}
                       </li>
                     ))}

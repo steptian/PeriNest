@@ -64,7 +64,7 @@ export default function Home() {
                     <p className="specimen-latin !text-[8px]">{sec.title}</p>
                     <ul className="mt-1 space-y-1">
                       {sec.items.map((item, i) => (
-                        <li key={i} className="whitespace-pre-line text-[11px] leading-relaxed text-muted-foreground">{item}</li>
+                        <li key={i} className="whitespace-pre-line text-[11px] leading-relaxed text-foreground/80">{item}</li>
                       ))}
                     </ul>
                   </div>

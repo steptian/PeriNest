@@ -8,7 +8,7 @@
 .ver-date { font-size: 22rpx; color: var(--ink-soft); }
 .sec { margin-bottom: 16rpx; }
 .item {
-  font-size: 24rpx; line-height: 1.7; color: var(--ink-soft);
+  font-size: 24rpx; line-height: 1.7; color: var(--ink); opacity: 0.82;
   padding: 8rpx 0 8rpx 20rpx; border-left: 3rpx solid var(--line);
   margin: 8rpx 0; white-space: pre-line;
 }
