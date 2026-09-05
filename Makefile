@@ -11,7 +11,7 @@ check: ## 全链路自检（改代码后的标准验证，parity 违规本地秒
 	bash scripts/verify-anchors.sh docs/agent .
 
 dev: ## 起三服务 queen:8000 wing:5173 leg:5174（日志 /tmp/perinest-*.log）
-	cd queen && (.venv/bin/uvicorn app.main:app --port 8000 > /tmp/perinest-queen.log 2>&1 &)
+	cd queen && (.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000 > /tmp/perinest-queen.log 2>&1 &)  # 0.0.0.0：Antenna 真机预览走局域网
 	cd wing && (npm run dev > /tmp/perinest-wing.log 2>&1 &)
 	cd leg && (npm run dev > /tmp/perinest-leg.log 2>&1 &)
 	@sleep 4 && curl -s http://localhost:8000/health && echo " ← 三服务已起（Ctrl+C 不会停服务，用 make stop）"

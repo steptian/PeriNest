@@ -5,8 +5,9 @@ const APP_VERSION = "0.9.1";
 App({
   globalData: {
     appVersion: APP_VERSION,
-    /** 开发默认连本地 Queen；生产改为 https://api.yourdomain.com/api/v1 */
-    apiBase: "http://127.0.0.1:8000/api/v1",
+    /** 开发默认连本机 Queen——用局域网 IP（真机预览 127.0.0.1 指向手机自身，
+        连不上后端）；IP 变了改这里。生产改为 https://api.yourdomain.com/api/v1 */
+    apiBase: "http://192.168.3.74:8000/api/v1",
     token: "",
     userInfo: null as WechatMiniprogram.UserInfo | null,
   },
