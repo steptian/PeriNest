@@ -17,7 +17,7 @@
 .msg-ai .specimen-latin { display: block; margin-bottom: 8rpx; }
 .chat-input-bar {
   position: fixed; bottom: 0; left: 0; right: 0;
-  display: flex; align-items: flex-end; gap: 16rpx; padding: 20rpx 24rpx calc(20rpx + env(safe-area-inset-bottom));
+  display: flex; align-items: center; gap: 16rpx; padding: 20rpx 24rpx calc(20rpx + env(safe-area-inset-bottom));
   background: var(--paper);
   border-top: 1px solid var(--line);
 }
