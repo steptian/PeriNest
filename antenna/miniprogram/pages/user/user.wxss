@@ -13,3 +13,4 @@
 .leave { color: #d66; font-size: 28rpx; }
 
 .login-link { color: var(--amber); font-size: 28rpx; font-weight: 500; }
+.version { color: var(--ink-soft); }

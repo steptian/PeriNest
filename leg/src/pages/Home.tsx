@@ -1,7 +1,16 @@
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { systemApi, type ChangelogEntry } from "@/api/system";
 import { useAuthStore } from "@/stores/auth";
 
 export default function Home() {
   const user = useAuthStore((s) => s.user);
+  const [versionOpen, setVersionOpen] = useState(false);
+  const { data: versionInfo } = useQuery({
+    queryKey: ["system-version"],
+    queryFn: systemApi.version,
+    enabled: versionOpen,
+  });
   return (
     <div className="p-5">
       {/* 琥珀 hero：树脂深处的光 */}
@@ -28,6 +37,43 @@ export default function Home() {
         <Card latin="no.01" title="神经索" desc="AI 流式对话 · 点开即聊" to="/chat" />
         <Card latin="no.02" title="订单巢" desc="查看全部订单状态" to="/orders" />
       </div>
+
+      {/* 版本说明入口 + 弹层 */}
+      <button
+        onClick={() => setVersionOpen(true)}
+        className="specimen-latin mt-6 block w-full text-center !text-[9px] hover:text-primary"
+      >
+        v{__APP_VERSION__} · 版本说明
+      </button>
+      {versionOpen && (
+        <div className="fixed inset-0 z-50 flex items-end bg-black/40 backdrop-blur-sm" onClick={() => setVersionOpen(false)}>
+          <div className="glass max-h-[70vh] w-full overflow-y-auto rounded-t-3xl p-5" onClick={(e) => e.stopPropagation()}>
+            <div className="mb-4 flex items-baseline justify-between">
+              <span className="font-specimen text-xl font-bold text-primary">v{versionInfo?.version ?? __APP_VERSION__}</span>
+              <button onClick={() => setVersionOpen(false)} className="text-xs text-muted-foreground">关闭</button>
+            </div>
+            {!versionInfo && <p className="text-sm text-muted-foreground">加载中…</p>}
+            {versionInfo?.changelog.map((entry: ChangelogEntry) => (
+              <div key={entry.version} className="border-t border-border/60 py-3 first:border-0">
+                <div className="mb-1.5 flex items-baseline gap-2">
+                  <span className="font-specimen text-sm font-bold">v{entry.version}</span>
+                  <span className="text-[11px] text-muted-foreground">{entry.date}</span>
+                </div>
+                {entry.sections.map((sec) => (
+                  <div key={sec.title} className="mb-2">
+                    <p className="specimen-latin !text-[8px]">{sec.title}</p>
+                    <ul className="mt-1 space-y-1">
+                      {sec.items.map((item, i) => (
+                        <li key={i} className="whitespace-pre-line text-[11px] leading-relaxed text-muted-foreground">{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

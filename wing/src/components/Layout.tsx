@@ -1,9 +1,12 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { BookOpenText, ChevronLeft, ChevronRight, LayoutDashboard, LogOut, Moon, Package, ShieldCheck, Sun, Users as UsersIcon } from "lucide-react";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import AiAssistant from "@/components/AiAssistant";
 import { useTheme } from "@/hooks/useTheme";
+import Modal from "@/components/Modal";
+import { systemApi, type ChangelogEntry } from "@/api/system";
 import { useAuthStore } from "@/stores/auth";
 
 // 菜单按 Carapace 最终权限渲染：无对应权限不显示入口
@@ -35,6 +38,12 @@ export default function Layout() {
   const { dark, toggle } = useTheme();
   const permissions = useAuthStore((s) => s.permissions);
   const { collapsed, toggle: toggleSidebar } = useSidebarCollapsed();
+  const [versionOpen, setVersionOpen] = useState(false);
+  const { data: versionInfo } = useQuery({
+    queryKey: ["system-version"],
+    queryFn: systemApi.version,
+    enabled: versionOpen,
+  });
   const canSee = (perm: string | null) =>
     perm === null || permissions.some((p) => p === perm);
 
@@ -125,15 +134,47 @@ export default function Layout() {
               离巢
             </span>
           </Button>
-          <p
-            className={`specimen-latin mt-3 !text-[8px] overflow-hidden whitespace-nowrap transition-all duration-200 ${
+          <button
+            onClick={() => setVersionOpen(true)}
+            title="版本说明"
+            className={`specimen-latin mt-3 !text-[8px] overflow-hidden whitespace-nowrap transition-all duration-200 hover:text-primary ${
               collapsed ? "max-w-0 opacity-0" : "max-w-[80px] opacity-100"
             }`}
           >
             v{__APP_VERSION__}
-          </p>
+          </button>
         </div>
       </aside>
+
+      <Modal open={versionOpen} onClose={() => setVersionOpen(false)} title="版本说明" width="w-[520px]">
+        <div className="space-y-5">
+          <div className="flex items-baseline justify-between">
+            <span className="font-specimen text-2xl font-bold text-primary">v{versionInfo?.version ?? __APP_VERSION__}</span>
+            <span className="specimen-latin !text-[9px]">changelog · {versionInfo?.source ?? "…"}</span>
+          </div>
+          {!versionInfo && <p className="text-sm text-muted-foreground">加载中…</p>}
+          {versionInfo?.changelog.map((entry: ChangelogEntry) => (
+            <div key={entry.version} className="border-t border-border/60 pt-4 first:border-0">
+              <div className="mb-2 flex items-baseline gap-2">
+                <span className="font-specimen text-sm font-bold">v{entry.version}</span>
+                <span className="text-xs text-muted-foreground">{entry.date}</span>
+              </div>
+              {entry.sections.map((sec) => (
+                <div key={sec.title} className="mb-2">
+                  <p className="specimen-latin !text-[8px]">{sec.title}</p>
+                  <ul className="mt-1 space-y-1.5">
+                    {sec.items.map((item, i) => (
+                      <li key={i} className="whitespace-pre-line text-xs leading-relaxed text-muted-foreground">
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </Modal>
 
       <main className="flex-1 overflow-auto p-7">
         <Outlet />

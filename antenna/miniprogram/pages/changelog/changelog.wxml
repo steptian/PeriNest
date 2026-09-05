@@ -1,0 +1,20 @@
+<scroll-view scroll-y class="changelog-scroll">
+  <view class="specimen-card">
+    <view class="specimen-latin">nest registry · versions</view>
+    <view class="ver-title font-specimen">版本说明</view>
+    <view class="cur-version font-specimen">v{{version || "…"}}</view>
+  </view>
+  <view wx:if="{{loading}}" class="loading-text">翻阅图鉴中…</view>
+  <block wx:for="{{entries}}" wx:key="version" wx:for-item="entry">
+    <view class="specimen-card ver-card">
+      <view class="ver-head">
+        <text class="ver-no font-specimen">v{{entry.version}}</text>
+        <text class="ver-date">{{entry.date}}</text>
+      </view>
+      <view wx:for="{{entry.sections}}" wx:key="title" wx:for-item="sec" class="sec">
+        <view class="specimen-latin">{{sec.title}}</view>
+        <view wx:for="{{sec.items}}" wx:key="index" wx:for-item="item" class="item">{{item}}</view>
+      </view>
+    </view>
+  </block>
+</scroll-view>

@@ -1,0 +1,14 @@
+.changelog-scroll { height: 100vh; }
+.ver-title { font-size: 40rpx; font-weight: bold; margin: 8rpx 0; }
+.cur-version { font-size: 30rpx; color: var(--amber-light); }
+.loading-text { text-align: center; color: var(--ink-soft); font-size: 26rpx; padding: 40rpx; }
+.ver-card { padding-top: 24rpx; }
+.ver-head { display: flex; align-items: baseline; gap: 16rpx; margin-bottom: 16rpx; }
+.ver-no { font-size: 30rpx; font-weight: bold; }
+.ver-date { font-size: 22rpx; color: var(--ink-soft); }
+.sec { margin-bottom: 16rpx; }
+.item {
+  font-size: 24rpx; line-height: 1.7; color: var(--ink-soft);
+  padding: 8rpx 0 8rpx 20rpx; border-left: 3rpx solid var(--line);
+  margin: 8rpx 0; white-space: pre-line;
+}

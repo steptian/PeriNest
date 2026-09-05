@@ -2,7 +2,7 @@
   <view class="avatar btn-amber font-specimen">{{isLoggedIn ? (username ? username[0] : "·") : "·"}}</view>
   <view class="nickname font-specimen">{{isLoggedIn ? (username || "已入巢成员") : "未入巢"}}</view>
   <view class="specimen-latin">{{isLoggedIn ? "specimen keeper" : "not logged in"}}</view>
-  <view class="version font-specimen">PeriNest Antenna v{{appVersion}}</view>
+  <navigator url="/pages/changelog/changelog" class="version font-specimen">PeriNest Antenna v{{appVersion}} · 版本说明 →</navigator>
 </view>
 <navigator wx:if="{{!isLoggedIn}}" url="/pages/login/login" class="specimen-card" style="text-align: center;">
   <text class="login-link">进入巢穴 · 登录</text>

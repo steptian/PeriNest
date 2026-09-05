@@ -4,7 +4,8 @@
     "pages/order/order",
     "pages/user/user",
     "pages/chat/chat",
-    "pages/login/login"
+    "pages/login/login",
+    "pages/changelog/changelog"
   ],
   "window": {
     "navigationBarTitleText": "PeriNest",

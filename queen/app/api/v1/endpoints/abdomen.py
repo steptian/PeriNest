@@ -36,3 +36,15 @@ async def submit_feedback(payload: dict, db: DBSession, user=Depends(require_per
 async def healthz():
     """存活探针（K8s/Nginx check 用）。"""
     return {"status": "ok"}
+
+
+@router.get("/system/version")
+async def system_version(user: CurrentUser):
+    """版本说明（版本号 + 更新记录）——四端 UI 统一数据源。
+
+    唯一源：仓库根 CHANGELOG.md（登录即可见，无权限域：
+    版本号已由 perinest_health MCP 工具覆盖，本端点供 UI 展示）。
+    """
+    from app.services.system_service import get_version_info
+
+    return get_version_info()
