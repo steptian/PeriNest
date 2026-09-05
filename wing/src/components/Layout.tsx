@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { BookOpenText, ChevronLeft, ChevronRight, LayoutDashboard, LogOut, Moon, Package, ShieldCheck, Sun, Users as UsersIcon } from "lucide-react";
+import { BookOpenText, ChevronLeft, ChevronRight, LayoutDashboard, LogOut, Moon, Package, Radar, ShieldCheck, Sun, Users as UsersIcon } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import AiAssistant from "@/components/AiAssistant";
@@ -16,6 +16,7 @@ const navItems = [
   { to: "/users", label: "巢穴成员", latin: "members", icon: UsersIcon, perm: "users" },
   { to: "/roles", label: "权限矩阵", latin: "rbac", icon: ShieldCheck, perm: "users" },
   { to: "/crop", label: "嗦囊知识库", latin: "crop", icon: BookOpenText, perm: "crop" },
+  { to: "/cercus", label: "尾须企微私域", latin: "cercus", icon: Radar, perm: "wecom" },
 ];
 
 /** 侧栏收放状态（localStorage 持久化，刷新保持） */

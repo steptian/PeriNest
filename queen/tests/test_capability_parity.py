@@ -31,6 +31,8 @@ PARITY_MAP: dict[str, list[str]] = {
     f"{API_PREFIX}/ai/chat": ["ai_chat"],
     f"{API_PREFIX}/crop/documents": ["crop_ingest"],   # POST 上传能力（GET 列表见豁免）
     f"{API_PREFIX}/crop/search": ["crop_search"],
+    f"{API_PREFIX}/cercus/contacts": ["wecom_contact_search"],   # POST 检索能力（写操作见豁免）
+    f"{API_PREFIX}/cercus/sidebar/profile": ["wecom_contact_search"],  # 同一检索语义（by external_userid）
 }
 
 # ---- 豁免清单：天然不需要 MCP 化的端点，理由必填 ----
@@ -51,6 +53,13 @@ EXEMPT: dict[str, str] = {
     f"{API_PREFIX}/crop/projection/rebuild": "运维端点：重建 Redis 向量投影，基础设施操作非用户能力",
     f"{API_PREFIX}/crop/health": "观测端点：投影健康检查，非用户操作面",
     f"{API_PREFIX}/system/version": "版本说明供各端 UI 展示；版本号查询已由 perinest_health MCP 工具覆盖",
+    f"{API_PREFIX}/cercus/sync": "运维动作（拉企微镜像），AI 不代理执行外部同步",
+    f"{API_PREFIX}/cercus/contacts/{{contact_id}}": "客户详情浏览，wecom_contact_search 已返回档案+标签全景",
+    f"{API_PREFIX}/cercus/contacts/{{contact_id}}/tags": "打标签为 UI 交互操作，搜索工具已返回标签只读面",
+    f"{API_PREFIX}/cercus/contacts/{{contact_id}}/followup": "跟进写入为人工操作面（记录人=登录员工），AI 不代写跟进纪要",
+    f"{API_PREFIX}/cercus/wecom/jsapi-config": "JS-SDK 签名供前端 wx.config，非用户操作能力",
+    f"{API_PREFIX}/cercus/health": "模块观测端点，非用户操作面",
+    f"{API_PREFIX}/cercus/callback": "企微服务器回调入口（免鉴权+验签），非用户操作能力",
 }
 
 

@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { BrowserRouter } from "react-router-dom";
 import Layout from "./components/Layout";
+import Cercus from "./pages/Cercus";
 import Crop from "./pages/Crop";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
@@ -32,6 +33,7 @@ export default function App() {
           <Route path="users" element={<Users />} />
           <Route path="roles" element={<Roles />} />
 <Route path="crop" element={<Crop />} />
+<Route path="cercus" element={<Cercus />} />
         </Route>
       </Routes>
     </BrowserRouter>

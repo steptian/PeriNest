@@ -169,6 +169,18 @@ def _tool_definitions() -> list[dict]:
             },
         },
         {
+            "name": "wecom_contact_search",
+            "description": "搜索企微私域客户档案（Cercus 尾须）：按姓名/手机号/关键词查找客户，返回标签、跟进人等全景信息。需 wecom:read 权限",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "keyword": {"type": "string", "description": "姓名/手机号/external_userid 关键词"},
+                    "tag": {"type": "string", "description": "按标签过滤（如 高意向）"},
+                    "limit": {"type": "integer", "default": 10, "maximum": 50},
+                },
+            },
+        },
+        {
             "name": "crop_ingest",
             "description": "把一份文本知识存入知识库（需 crop:write 权限，admin/运营具备）。AI 替授权用户吞入嗉囊",
             "inputSchema": {
@@ -400,6 +412,29 @@ async def _call_tool(name: str, args: dict, user, db) -> dict:
             {"role": "user", "content": str(args.get("message", ""))},
         ])
         return _text({"reply": text})
+
+    if name == "wecom_contact_search":
+        if denied := await _perm_denied(user, db, "wecom:read"):
+            return denied
+        from sqlalchemy import func as _func, select as _sel
+        from app.models.wecom import WecomContact
+        q = _sel(WecomContact)
+        kw = str(args.get("keyword", "")).strip()
+        tg = str(args.get("tag", "")).strip()
+        if kw:
+            q = q.where(WecomContact.name.contains(kw) | WecomContact.remark_mobile.contains(kw) | WecomContact.external_userid.contains(kw))
+        if tg:
+            q = q.where(WecomContact.tags.contains(tg))
+        rows = (await db.execute(q.order_by(WecomContact.id.desc()).limit(int(args.get("limit", 10))))).scalars().all()
+        return _text({
+            "count": len(rows),
+            "contacts": [
+                {"name": c.name, "mobile": c.remark_mobile, "tags": c.tags or [],
+                 "staff": c.staff_userid, "external_userid": c.external_userid}
+                for c in rows
+            ],
+            "scope": "wecom:read——档案范围与授权用户一致",
+        })
 
     if name == "crop_search":
         if denied := await _perm_denied(user, db, "crop:read"):

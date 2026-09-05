@@ -5,6 +5,7 @@ import Login from "@/pages/Login";
 import Orders from "@/pages/Orders";
 import Chat from "@/pages/Chat";
 import Profile from "@/pages/Profile";
+import WecomSidebar from "@/pages/WecomSidebar";
 import { useAuthStore } from "@/stores/auth";
 
 function RequireAuth({ children }: { children: JSX.Element }) {
@@ -31,6 +32,7 @@ export default function App() {
           <Route path="orders" element={<Orders />} />
           <Route path="chat" element={<Chat />} />
           <Route path="profile" element={<Profile />} />
+          <Route path="wecom/sidebar" element={<WecomSidebar />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -5,8 +5,9 @@ from app.models.perm_override import PermOverride
 from app.models.role import Role, RolePerm
 from app.models.sys_log import SysLog
 from app.models.user import User
+from app.models.wecom import WecomContact, WecomFollowup
 
 __all__ = [
     "User", "Order", "OrderItem", "SysLog", "PermOverride", "Role", "RolePerm",
-    "CropDocument", "CropChunk",
+    "CropDocument", "CropChunk", "WecomContact", "WecomFollowup",
 ]

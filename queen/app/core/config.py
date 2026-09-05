@@ -69,6 +69,17 @@ class QueenSettings(BaseSettings):
     AI_TIMEOUT_SECONDS: int = 60
     AI_MOCK: bool = False  # 显式开启 mock；未配 key 时隐式生效
 
+    # ---- Cercus 尾须 (企微私域，未配自动禁用——demo 零成本) ----
+    WECOM_CORP_ID: str = ""
+    WECOM_CORP_SECRET: str = ""
+    WECOM_AGENT_ID: int = 0
+    WECOM_TOKEN: str = ""  # 回调验签 token
+    WECOM_ENCODING_AES_KEY: str = ""  # 回调加解密 key（43 字符）
+
+    @property
+    def wecom_enabled(self) -> bool:
+        return bool(self.WECOM_CORP_ID and self.WECOM_CORP_SECRET and self.WECOM_AGENT_ID)
+
     # ---- Crop 嗦囊 (RAG 知识库 embedding，OpenAI 兼容) ----
     # 与 Nerve 同哲学：EMBEDDING_API_KEY 留空自动 mock（哈希伪向量，
     # demo/CI 零成本跑真实检索链路）
