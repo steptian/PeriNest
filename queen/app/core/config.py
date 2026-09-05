@@ -84,10 +84,11 @@ class QueenSettings(BaseSettings):
     # ---- Crop 嗦囊 (RAG 知识库 embedding，OpenAI 兼容) ----
     # 与 Nerve 同哲学：EMBEDDING_API_KEY 留空自动 mock（哈希伪向量，
     # demo/CI 零成本跑真实检索链路）
-    EMBEDDING_API_BASE: str = "https://api.deepseek.com/v1"
+    # 对齐 ack-agent 生产配置（DashScope 兼容模式；DeepSeek 官方无 embeddings 端点）
+    EMBEDDING_API_BASE: str = "https://dashscope.aliyuncs.com/compatible-mode/v1"
     EMBEDDING_API_KEY: str = ""
-    EMBEDDING_MODEL: str = "text-embedding-v3"
-    EMBEDDING_DIM: int = 1536
+    EMBEDDING_MODEL: str = "text-embedding-v4"
+    EMBEDDING_DIM: int = 1024
     EMBEDDING_TIMEOUT_SECONDS: int = 60
     EMBEDDING_MOCK: bool = False
 

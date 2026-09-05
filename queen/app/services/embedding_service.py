@@ -44,8 +44,8 @@ def _tokenize(text: str) -> list[str]:
 
 
 # 分批 + 并发（借鉴 ack-agent 生产实测：并发 5 提速约 4 倍）。
-# BATCH_MAX 按 provider 硬限制调（DashScope=10）；OpenAI 兼容面 32 保守。
-_EMBED_BATCH_MAX = int(os.environ.get("EMBEDDING_BATCH_MAX", "32"))
+# BATCH_MAX 对齐 DashScope 硬限制（实测 >10 报错）；OpenAI 官方可放宽。
+_EMBED_BATCH_MAX = int(os.environ.get("EMBEDDING_BATCH_MAX", "10"))
 _EMBED_CONCURRENCY = int(os.environ.get("EMBEDDING_CONCURRENCY", "4"))
 
 

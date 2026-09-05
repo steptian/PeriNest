@@ -36,7 +36,8 @@ Nginx(Carapace) → gunicorn/uvicorn → main.py 中间件(trace_id) → api/v1/
 ## Crop 嗉囊（RAG 知识库）
 
 - 权威/投影分离（✅ 借鉴 dsh JSONL-only 决策）：MySQL `pn_crop_document/pn_crop_chunk` 是唯一权威（原文+chunk+embedding BLOB 只 INSERT，`queen/app/models/crop.py:15`）；Redis 8 **Vector Sets**（VADD/VSIM）是可丢弃投影（`queen/app/services/crop_vector_store.py:18`），`POST /crop/projection/rebuild` 从权威重建
-- embedding 双模（`queen/app/services/embedding_service.py`）：`EMBEDDING_API_*` 三行 env 接 OpenAI 兼容；未配 key 自动 mock（确定性哈希伪向量，同词必召回）。**真 embedding 挂了会抛错不静默降级**。真 API 分批（32/批）×并发（4）请求、响应按 index 还原顺序（✅ `queen/app/services/embedding_service.py:48`，EMBEDDING_BATCH_MAX/EMBEDDING_CONCURRENCY 可覆盖）
+- embedding 双模（`queen/app/services/embedding_service.py`）：接 OpenAI 兼容端点；未配 key 自动 mock（确定性哈希伪向量，同词必召回）。**真 embedding 挂了会抛错不静默降级**。分批（10/批，DashScope 硬限制）×并发（4）、响应按 index 还原（✅ `queen/app/services/embedding_service.py:48`，env 可覆盖）
+- **默认配置对齐 ack-agent 生产**（DeepSeek 官方无 embeddings 端点，勿配 deepseek base）：DashScope compatible-mode / text-embedding-v4 / **1024 维**。改维度需清 crop 数据+清 `crop:vs` 投影重建（旧向量维度不兼容 VADD 会挂）
 - 分块三级化（✅ `queen/app/services/crop_service.py:43`）：段落→单段超长按句→句超长硬截；相邻块 60 字 overlap 从语义边界回退（`queen/app/services/crop_service.py:36` _overlap_tail）。v1 同步 ingest，大文件 Celery 化留 v2
 - 端点（`queen/app/api/v1/endpoints/crop.py`）：documents CRUD + search + projection/rebuild + health；权限 crop:read（四端角色默认）/ crop:write（admin/运营）
 - MCP：`crop_search`（检索）/`crop_ingest`（吞入），PARITY_MAP 已登记；列表/详情/删除/运维端点走 EXEMPT（理由见 `queen/tests/test_capability_parity.py:35`）
