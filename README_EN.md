@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/favicon.svg" width="128" alt="PeriNest logo: a cockroach sealed in amber with four glowing organs" /></p>
+
 # PeriNest
 
 English | [中文](README.md)

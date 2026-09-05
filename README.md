@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/favicon.svg" width="128" alt="PeriNest logo：琥珀中的蜚蠊，沿脊柱四个发光器官" /></p>
+
 # PeriNest（蜚蠊巢穴）
 
 [English](README_EN.md) | 中文

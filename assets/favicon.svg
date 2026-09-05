@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="100%" role="img">
+<title>PeriNest</title>
+<desc>PeriNest favicon: a cockroach sealed in amber, four glowing organs down the spine.</desc>
+<defs>
+  <style>
+    @media (prefers-reduced-motion: no-preference){
+      .q{transform-origin:128px 88px;animation:hb 1.8s ease-in-out infinite alternate}
+      @keyframes hb{0%{transform:scale(1)}100%{transform:scale(1.07)}}
+      .wL{transform-origin:122px 90px;animation:fL 1.4s ease-in-out infinite alternate}
+      .wR{transform-origin:134px 90px;animation:fR 1.4s ease-in-out infinite alternate}
+      @keyframes fL{0%{transform:rotate(-3deg)}100%{transform:rotate(3deg)}}
+      @keyframes fR{0%{transform:rotate(3deg)}100%{transform:rotate(-3deg)}}
+    }
+  </style>
+</defs>
+
+<circle cx="128" cy="128" r="124" fill="#854F0B" opacity="0.22"/>
+<circle cx="128" cy="128" r="120" fill="#FAEEDA"/>
+<circle cx="128" cy="128" r="112" fill="#FAC775" opacity="0.45"/>
+<circle cx="128" cy="128" r="124" fill="none" stroke="#BA7517" stroke-width="2" opacity="0.55"/>
+<circle cx="128" cy="128" r="112" fill="none" stroke="#C89A3C" stroke-width="0.6" opacity="0.4"/>
+
+<ellipse cx="108" cy="56" rx="34" ry="7" fill="#FFFFFF" opacity="0.4"/>
+<ellipse cx="92" cy="44" rx="10" ry="3" fill="#FFFFFF" opacity="0.55"/>
+
+<g fill="none" stroke="#1A1004" stroke-linecap="round" opacity="0.5">
+  <path d="M106 102 C92 96 78 92 68 90" stroke-width="6"/>
+  <path d="M104 138 C90 138 76 142 64 148" stroke-width="6"/>
+  <path d="M106 174 C92 180 78 188 68 200" stroke-width="6"/>
+  <path d="M150 102 C164 96 178 92 188 90" stroke-width="6"/>
+  <path d="M152 138 C166 138 180 142 192 148" stroke-width="6"/>
+  <path d="M150 174 C164 180 178 188 188 200" stroke-width="6"/>
+</g>
+<g fill="none" stroke="#5A3A12" stroke-linecap="round" opacity="0.95">
+  <path d="M106 102 C92 96 78 92 68 90" stroke-width="3.5"/>
+  <path d="M68 90 C62 100 60 110 58 122" stroke-width="2.2"/>
+  <path d="M104 138 C90 138 76 142 64 148" stroke-width="3.5"/>
+  <path d="M64 148 C60 162 60 178 60 192" stroke-width="2.2"/>
+  <path d="M106 174 C92 180 78 188 68 200" stroke-width="3.5"/>
+  <path d="M68 200 C66 212 66 222 66 230" stroke-width="2.2"/>
+  <path d="M150 102 C164 96 178 92 188 90" stroke-width="3.5"/>
+  <path d="M188 90 C194 100 196 110 198 122" stroke-width="2.2"/>
+  <path d="M152 138 C166 138 180 142 192 148" stroke-width="3.5"/>
+  <path d="M192 148 C196 162 196 178 196 192" stroke-width="2.2"/>
+  <path d="M150 174 C164 180 178 188 188 200" stroke-width="3.5"/>
+  <path d="M188 200 C190 212 190 222 190 230" stroke-width="2.2"/>
+</g>
+
+<path d="M122 96 C112 102 106 122 106 152 C106 184 116 210 128 218 C140 210 150 184 150 152 C150 122 144 102 134 96 Z" fill="#5A3A12" opacity="0.78" stroke="#1A1004" stroke-width="1.2"/>
+<path d="M124 98 C116 104 110 122 112 144 C120 134 132 130 144 134 C146 122 140 104 132 98 Z" fill="#C89A3C" opacity="0.5"/>
+<path d="M128 216 C116 206 110 180 110 158 C118 174 132 180 146 174 C146 180 140 206 128 216 Z" fill="#1A1004" opacity="0.5"/>
+<ellipse cx="128" cy="118" rx="4" ry="2" fill="#FFFFFF" opacity="0.5"/>
+<line x1="128" y1="100" x2="128" y2="216" stroke="#1A1004" stroke-width="0.4" opacity="0.35"/>
+
+<g class="wL">
+  <path d="M122 92 C108 96 96 116 92 142 C90 168 100 192 116 208 C124 218 130 218 130 210 C124 178 122 130 122 92 Z" fill="#C89A3C" opacity="0.32" stroke="#8A5A22" stroke-width="1"/>
+  <g fill="none" stroke="#6B4518" stroke-width="0.6" opacity="0.55">
+    <path d="M120 110 C112 116 106 130 104 144"/>
+    <path d="M121 140 C112 146 104 162 102 178"/>
+    <path d="M122 172 C114 180 108 194 110 206"/>
+  </g>
+  <path d="M104 110 C102 122 100 142 100 162" fill="none" stroke="#FFFFFF" stroke-width="1.2" opacity="0.32"/>
+</g>
+<g class="wR">
+  <path d="M134 92 C148 96 160 116 164 142 C166 168 156 192 140 208 C132 218 126 218 126 210 C132 178 134 130 134 92 Z" fill="#C89A3C" opacity="0.32" stroke="#8A5A22" stroke-width="1"/>
+  <g fill="none" stroke="#6B4518" stroke-width="0.6" opacity="0.55">
+    <path d="M136 110 C144 116 150 130 152 144"/>
+    <path d="M135 140 C144 146 152 162 154 178"/>
+    <path d="M134 172 C142 180 148 194 146 206"/>
+  </g>
+  <path d="M152 110 C154 122 156 142 156 162" fill="none" stroke="#FFFFFF" stroke-width="1.2" opacity="0.32"/>
+</g>
+
+<path d="M128 60 C144 60 156 70 158 88 C160 100 154 110 128 114 C102 110 96 100 98 88 C100 70 112 60 128 60 Z" fill="#5A3A12" stroke="#1A1004" stroke-width="1.4"/>
+<path d="M128 62 C142 64 152 74 154 88 C152 90 144 88 132 88 C120 88 112 90 104 88 C106 76 116 64 128 62 Z" fill="#C89A3C" opacity="0.55"/>
+<ellipse cx="128" cy="74" rx="6" ry="2.5" fill="#FFFFFF" opacity="0.6"/>
+
+<path d="M128 38 C137 38 142 44 142 52 C142 60 137 66 128 66 C119 66 114 60 114 52 C114 44 119 38 128 38 Z" fill="#3A2408" stroke="#1A1004" stroke-width="1.2"/>
+<path d="M114 44 C118 40 124 38 132 38 C140 38 144 40 144 44 C140 42 134 41 128 41 C122 41 116 42 114 44 Z" fill="#C89A3C" opacity="0.7"/>
+<ellipse cx="124" cy="46" rx="5" ry="2" fill="#FFFFFF" opacity="0.6"/>
+<ellipse cx="121" cy="52" rx="3.5" ry="5.5" fill="#0A0804" stroke="#5A3A12" stroke-width="0.6"/>
+<ellipse cx="120" cy="50" rx="0.8" ry="1.2" fill="#FFFFFF" opacity="0.85"/>
+<ellipse cx="135" cy="52" rx="3.5" ry="5.5" fill="#0A0804" stroke="#5A3A12" stroke-width="0.6"/>
+<ellipse cx="134" cy="50" rx="0.8" ry="1.2" fill="#FFFFFF" opacity="0.85"/>
+
+<path d="M122 44 C112 34 96 26 84 24" fill="none" stroke="#3A2408" stroke-width="2" stroke-linecap="round"/>
+<path d="M84 24 C76 22 70 22 64 22" fill="none" stroke="#3A2408" stroke-width="1.2" stroke-linecap="round"/>
+<path d="M134 44 C144 34 160 26 172 24" fill="none" stroke="#3A2408" stroke-width="2" stroke-linecap="round"/>
+<path d="M172 24 C180 22 186 22 192 22" fill="none" stroke="#3A2408" stroke-width="1.2" stroke-linecap="round"/>
+
+<g class="q">
+  <ellipse cx="128" cy="88" rx="15" ry="11" fill="#D85A30"/>
+  <ellipse cx="128" cy="88" rx="15" ry="11" fill="none" stroke="#993C1D" stroke-width="0.8" opacity="0.7"/>
+  <ellipse cx="126" cy="86" rx="7" ry="4" fill="#F5C4B3"/>
+  <ellipse cx="125" cy="85" rx="2" ry="1" fill="#FFFFFF" opacity="0.9"/>
+</g>
+
+<ellipse cx="128" cy="128" rx="13" ry="10" fill="#639922" stroke="#3B6D11" stroke-width="0.8"/>
+<ellipse cx="128" cy="125" rx="9" ry="3" fill="#97C459" opacity="0.7"/>
+<circle cx="125" cy="126" r="1.2" fill="#EAF3DE"/>
+
+<ellipse cx="128" cy="162" rx="14" ry="11" fill="#378ADD" stroke="#185FA5" stroke-width="0.8"/>
+<ellipse cx="128" cy="159" rx="10" ry="3" fill="#85B7EB" opacity="0.7"/>
+<g stroke="#E6F1FB" stroke-width="0.8" stroke-linecap="round">
+  <path d="M122 160 L134 160"/><path d="M121 164 L135 164"/><path d="M122 168 L134 168"/>
+</g>
+
+<ellipse cx="128" cy="196" rx="9" ry="7" fill="#1D9E75" stroke="#0F6E56" stroke-width="0.8"/>
+<ellipse cx="128" cy="194" rx="6" ry="2.5" fill="#9FE1CB" opacity="0.85"/>
+<ellipse cx="126" cy="193" rx="1.6" ry="0.8" fill="#FFFFFF" opacity="0.95"/>
+</svg>

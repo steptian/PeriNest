@@ -57,17 +57,16 @@ export default function Layout() {
         </button>
 
         {/* 品牌区 */}
-        <div className={`mb-8 min-h-[76px] ${collapsed ? "flex items-center justify-center px-0" : "px-2"}`}>
-          {collapsed ? (
-            <span className="font-specimen text-2xl font-bold" title="PeriNest">P</span>
-          ) : (
-            <>
+        <div className={`mb-8 min-h-[76px] ${collapsed ? "flex items-center justify-center px-0" : "flex items-center gap-3 px-2"}`}>
+          <img src="/favicon.svg" alt="PeriNest" className="h-10 w-10 shrink-0" />
+          {collapsed ? null : (
+            <div>
               <p className="specimen-latin mb-1">periplaneta · wing</p>
               <h1 className="font-specimen text-xl font-bold tracking-tight">PeriNest</h1>
               <p className="mt-0.5 text-[11px] italic text-muted-foreground">
                 built to survive
               </p>
-            </>
+            </div>
           )}
         </div>
         <nav className="flex-1 space-y-1.5">
