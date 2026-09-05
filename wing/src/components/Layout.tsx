@@ -25,7 +25,7 @@ export default function Layout() {
   return (
     <div className="flex h-screen">
       {/* 侧边栏：档案柜 */}
-      <aside className="flex w-60 shrink-0 flex-col border-r border-border/70 bg-card/60 px-4 py-5">
+      <aside className="glass flex w-60 shrink-0 flex-col px-4 py-5" style={{ borderRight: "1px solid hsl(var(--glass-border))" }}>
         <div className="mb-8 px-2">
           <p className="specimen-latin mb-1">periplaneta · wing</p>
           <h1 className="font-specimen text-xl font-bold tracking-tight">PeriNest</h1>

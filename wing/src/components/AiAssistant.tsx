@@ -56,7 +56,7 @@ export default function AiAssistant() {
       </button>
 
       {open && (
-        <div className="dark:shadow-2xl fixed bottom-22 right-6 flex h-96 w-80 flex-col overflow-hidden rounded-xl border border-border/70 bg-card shadow-xl">
+        <div className="glass fixed bottom-22 right-6 flex h-96 w-80 flex-col overflow-hidden rounded-xl shadow-xl">
           <div className="border-b border-border/60 px-4 py-2.5"><span className="font-specimen text-sm font-bold">Nerve</span> <span className="specimen-latin ml-1 !text-[8px]">assistant</span></div>
           <div className="flex-1 space-y-2.5 overflow-y-auto p-3">
             {messages.map((m, i) => (

@@ -82,7 +82,7 @@ export default function Crop() {
       </div>
 
       {/* 检索测试框 */}
-      <div className="rounded-2xl border border-border/70 bg-card/60 p-4">
+      <div className="glass rounded-2xl p-4">
         <div className="mb-2 flex items-center gap-2 text-sm font-medium">
           <FlaskConical className="h-4 w-4 text-primary" /> 检索试验
           <span className="text-xs font-normal text-muted-foreground">（语义查询 top-5）</span>
@@ -121,7 +121,7 @@ export default function Crop() {
       </div>
 
       {/* 文档列表 */}
-      <div className="overflow-hidden rounded-2xl border border-border/70 bg-card/60">
+      <div className="overflow-hidden glass rounded-2xl">
         <table className="w-full text-sm">
           <thead className="border-b border-border/60 text-left text-xs uppercase tracking-wide text-muted-foreground">
             <tr>
