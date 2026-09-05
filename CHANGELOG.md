@@ -12,6 +12,21 @@
 
 > Queen 的 `/health` 与 Wing 侧边栏版本号均自动读取 `VERSION` 文件，无需手动改。
 
+## [0.10.0] - 2026-09-05
+
+### Added
+- **Cercus 尾须：企微私域能力 v1**（参考 JJKK wecom-sidebar 通用化提炼）
+  - 基建：企微 API 封装（token 缓存/外部联系人/JS-SDK 签名/OAuth）+
+    回调加解密（AES-256-CBC+PKCS7+sha1，生产版移植）；WECOM_* 五 env
+    未配自动禁用（503 结构化）——demo 零成本
+  - 数据：pn_wecom_contact 镜像（tags/kv 运营扩展位，企微为权威源）+
+    pn_wecom_followup append-only 跟进时间线
+  - 回调：GET echo 验证 + POST fire-and-forget（不建 delivery 状态机）
+  - MCP wecom_contact_search（10 个工具）；Wing 尾须管理页（融入现有
+    管理端：列表/标签/跟进/同步）；Leg /wecom/sidebar 侧边栏 H5
+  - 新依赖 pycryptodome；权限域 wecom（admin/operator）
+  - 迁移幂等保护（MySQL 非事务 DDL 半途失败可安全重入）
+
 ## [0.9.2] - 2026-09-05
 
 ### Added

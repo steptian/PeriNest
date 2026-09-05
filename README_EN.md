@@ -76,6 +76,7 @@ Etymology: **Peri**planeta (the Latin genus of cockroaches) + **Nest**.
 | **Leg** · H5 | Six legs, climbs any surface | Any browser, no install, no review — six legs, lose one, still walking |
 | **Nerve** · AI gateway | The nerve cord runs the whole body — even commands limbs after decapitation | AI runs through all four terminals; SSE streaming = nerve signals relaying segment by segment |
 | **Spiracle** · MCP | The organ that exchanges gas with the outside world | The MCP endpoint = the breathing pore for exchanging tools with the AI ecosystem (Claude/Cursor) |
+| **Cercus** · WeCom CRM | The cerci sense air currents — that's how a cockroach escapes | WeCom contact mirror + tags + follow-up timeline; sidebar H5 embedded in WeCom chat — sensing customer motion |
 | **Core gland** · MySQL | Glands secrete and store life substances | Permanent business data — the nest's memory |
 | **Nectar** · Redis | Quick energy, never stored forever | Cache / sessions / locks — fast in, fast out, expiring by design |
 | **Pheromone** · Celery | Leaves chemical trails for others to follow | Async task queues: heavy work leaves a signal, workers follow the trail |
@@ -150,7 +151,7 @@ PeriNest's AI accesses data with **the authorizing user's permissions** and acts
 - **SSE streaming typewriter**: `/api/v1/ai/chat/stream`, shared by all terminals
 - Leg chat page + Wing assistant drawer — **chat the moment you open it**
 - No API key? Auto mock mode — **CI and demos run the real chain at zero cost**
-- 🧲 **MCP Server (Spiracle)**: 7 tools covering the user surface (identity / orders CRUD / feedback / AI) — **Claude / Cursor connect and work for you**, zero extra dependencies
+- 🧲 **MCP Server (Spiracle)**: 10 tools covering the user surface (identity / orders CRUD / feedback / AI) — **Claude / Cursor connect and work for you**, zero extra dependencies
 
 ### 🔒 Contract-Driven
 

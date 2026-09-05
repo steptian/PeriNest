@@ -11,6 +11,6 @@ wiki: docs/agent/
 wiki: 
 
 ## 状态区
-status: v0.9.2 UI 大版本已发（tag）：三端毛玻璃/logo 定稿/四端版本说明/侧栏收放/仪表盘六图表；wiki 39 锚点全绿
-next: Leg/Antenna 检索页(v2)；在线 demo 部署；业务模块定名
+status: v0.10.0 Cercus 尾须(企微私域)已发（tag）：客户镜像/标签/跟进/MCP 搜索/Wing 管理页/Leg 侧边栏；37 测试全绿
+next: Cercus v2(定时同步/回调刷新/OAuth 免登)；在线 demo 部署；业务模块定名
 updated: 2026-09-05
