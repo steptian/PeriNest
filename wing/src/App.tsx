@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { BrowserRouter } from "react-router-dom";
 import Layout from "./components/Layout";
+import Crop from "./pages/Crop";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Orders from "./pages/Orders";
@@ -30,6 +31,7 @@ export default function App() {
           <Route path="orders" element={<Orders />} />
           <Route path="users" element={<Users />} />
           <Route path="roles" element={<Roles />} />
+<Route path="crop" element={<Crop />} />
         </Route>
       </Routes>
     </BrowserRouter>

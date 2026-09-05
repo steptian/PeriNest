@@ -55,3 +55,40 @@ class HealthResponse(BaseModel):
     status: str
     app: str
     version: str
+
+
+class CropDocumentResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    title: str
+    source_type: str
+    size_bytes: int
+    chunk_count: int
+    status: str
+    error: str | None = None
+    created_by: int | None = None
+    created_at: datetime.datetime
+
+
+class CropChunkResponse(BaseModel):
+    document_id: int
+    seq: int
+    content: str
+
+
+class CropSearchHit(BaseModel):
+    """一条检索命中：chunk + 来源文档 + 相似度。"""
+
+    chunk_id: int
+    document_id: int
+    document_title: str
+    seq: int
+    content: str
+    score: float  # cosine similarity，越大越近
+
+
+class CropSearchResponse(BaseModel):
+    query: str
+    mock: bool  # 是否 mock embedding（提示 demo 环境）
+    hits: list[CropSearchHit]

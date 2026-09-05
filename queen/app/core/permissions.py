@@ -49,7 +49,8 @@ ORDERS = "orders"
 FEEDBACK = "feedback"
 AI = "ai"
 SYSTEM = "system"
-ALL_PERMS = [USERS, ORDERS, FEEDBACK, AI, SYSTEM]
+CROP = "crop"  # RAG 知识库（crop 嗦囊：先吞后消化）
+ALL_PERMS = [USERS, ORDERS, FEEDBACK, AI, SYSTEM, CROP]
 
 READ = "read"
 WRITE = "write"
@@ -60,10 +61,10 @@ _READ_METHODS = {"GET", "HEAD", "OPTIONS"}
 DEFAULT_ROLE_SEEDS: dict[str, tuple[str, list[str], bool]] = {
     # key: (显示名, 权限点, 锁定)
     "admin": ("管理员", ALL_PERMS, True),
-    "operator": ("运营", [f"{USERS}:{READ}", ORDERS, FEEDBACK, AI], False),
-    # 终端用户：能"用"订单/反馈/AI 域；"只见自己的"由 Service 层归属过滤强制
-    "wing": ("终端用户", [ORDERS, FEEDBACK, AI], False),
-    "antenna": ("终端用户(微信)", [ORDERS, FEEDBACK, AI], False),
+    "operator": ("运营", [f"{USERS}:{READ}", ORDERS, FEEDBACK, AI, CROP], False),
+    # 终端用户：能"用"订单/反馈/AI 域与知识库检索；"只见自己的"由 Service 层归属过滤强制
+    "wing": ("终端用户", [ORDERS, FEEDBACK, AI, f"{CROP}:{READ}"], False),
+    "antenna": ("终端用户(微信)", [ORDERS, FEEDBACK, AI, f"{CROP}:{READ}"], False),
 }
 
 

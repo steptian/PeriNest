@@ -64,6 +64,7 @@
 | **Leg 足** · H5 | 六足行走，任何表面都能爬 | 任何浏览器直达，免安装免审核——六条腿，坏一条还能走 |
 | **Nerve 神经索** · AI 网关 | 贯穿全身的神经传导——断头后仍能指挥肢体 | AI 能力贯穿四端；SSE 流式=神经信号逐段传导 |
 | **Spiracle 气门** · MCP | 蜚蠊与外界交换气体的器官 | MCP 端点=与 AI 生态（Claude/Cursor）交换工具的呼吸口 |
+| **Crop 嗉囊** · RAG 知识库 | 先储存食物，再交给共生菌群消化 | 知识先吞入（ingest），再语义检索（消化产出）——AI 从嗉囊取食 |
 | **Core 核心腺体** · MySQL | 腺体分泌并储存生命物质 | 永久业务数据，巢穴的记忆 |
 | **Nectar 花蜜** · Redis | 快取快用的能量，不会永久保存 | 缓存/Session/锁——快进快出，过期即逝 |
 | **Pheromone 信息素** · Celery | 留下化学痕迹，同伴循迹而动 | 异步任务队列：耗时工作留下信号，worker 循迹处理 |
@@ -140,8 +141,9 @@ Queen 的 Pydantic Schema 自动生成 OpenAPI → `openapi-typescript` 一键�
 - 统一 AI 网关：一套 OpenAI 兼容适配，DeepSeek / Kimi / Qwen / Ollama 换个 base_url 即切
 - **SSE 流式打字机**：`/api/v1/ai/chat/stream`，四端共享
 - Leg 端 AI 对话页 + Wing 端 AI 助手抽屉，**点开即聊**
+- 🤫 **对话不落库**：Nerve 是无状态网关——聊天内容不持久化、不上报；将来加会话留存也默认关闭，仅用户显式反馈才授权带走当前会话
 - 未配 key 自动进 mock 模式——**demo 与 CI 零成本跑真实链路**
-- 🧲 **MCP Server（Spiracle 气门）**：7 个工具覆盖用户操作面（身份/订单查改/反馈/AI）——**Claude / Cursor 直连你的后端替你干活**，零额外依赖
+- 🧲 **MCP Server（Spiracle 气门）**：9 个工具覆盖用户操作面（身份/订单查改/反馈/AI/知识库检索与吞入）——**Claude / Cursor 直连你的后端替你干活**，零额外依赖
 
 ### ⚡ 全异步链路，单机性能拉满
 

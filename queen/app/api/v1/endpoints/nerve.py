@@ -8,21 +8,22 @@ import json
 import httpx
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from app.api.deps import CurrentUser
 from app.core.permissions import AI, require_permission
+from app.schemas.request import StrictRequest
 from app.services.ai_service import ai_service
 
 router = APIRouter(prefix="/ai", tags=["ai"])
 
 
-class ChatMessage(BaseModel):
+class ChatMessage(StrictRequest):
     role: str = Field(pattern="^(system|user|assistant)$")
     content: str = Field(max_length=8000)
 
 
-class ChatRequest(BaseModel):
+class ChatRequest(StrictRequest):
     messages: list[ChatMessage] = Field(min_length=1, max_length=40)
     model: str | None = None  # 不传则用服务端默认
 

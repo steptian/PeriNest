@@ -24,11 +24,11 @@ from app.services import user_service
 
 def test_matrix_shape():
     """种子矩阵核心形状：admin 全域、operator 读用户、wing/antenna 终端域。"""
-    assert DEFAULT_ROLE_SEEDS["admin"][1] == ["users", "orders", "feedback", "ai", "system"]
+    assert DEFAULT_ROLE_SEEDS["admin"][1] == ["users", "orders", "feedback", "ai", "system", "crop"]
     assert "users:read" in DEFAULT_ROLE_SEEDS["operator"][1]
     assert "users" not in DEFAULT_ROLE_SEEDS["operator"][1]  # 只读不可写
-    assert DEFAULT_ROLE_SEEDS["wing"][1] == ["orders", "feedback", "ai"]
-    assert DEFAULT_ROLE_SEEDS["antenna"][1] == ["orders", "feedback", "ai"]
+    assert DEFAULT_ROLE_SEEDS["wing"][1] == ["orders", "feedback", "ai", "crop:read"]  # 终端可检索知识库，不可管理
+    assert DEFAULT_ROLE_SEEDS["antenna"][1] == ["orders", "feedback", "ai", "crop:read"]
     assert DEFAULT_ROLE_SEEDS["admin"][2] is True  # admin 锁定
 
 

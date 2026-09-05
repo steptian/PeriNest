@@ -29,6 +29,8 @@ PARITY_MAP: dict[str, list[str]] = {
     f"{API_PREFIX}/users/{{user_id}}/perms": ["admin_set_perm_override"],
     f"{API_PREFIX}/roles/{{role_key}}": ["admin_role_manage"],
     f"{API_PREFIX}/ai/chat": ["ai_chat"],
+    f"{API_PREFIX}/crop/documents": ["crop_ingest"],   # POST 上传能力（GET 列表见豁免）
+    f"{API_PREFIX}/crop/search": ["crop_search"],
 }
 
 # ---- 豁免清单：天然不需要 MCP 化的端点，理由必填 ----
@@ -45,6 +47,9 @@ EXEMPT: dict[str, str] = {
     f"{API_PREFIX}/auth/me/permissions": "权限自查，get_me 工具已内嵌 permissions 返回",
     "/health": "基础设施探针，非用户操作面",
     "/healthz": "存活探针，非用户操作面",
+    f"{API_PREFIX}/crop/documents/{{doc_id}}": "知识库详情浏览（含 chunk 全文），管理面低频操作，AI 侧 crop_search 检索已覆盖知识获取语义",
+    f"{API_PREFIX}/crop/projection/rebuild": "运维端点：重建 Redis 向量投影，基础设施操作非用户能力",
+    f"{API_PREFIX}/crop/health": "观测端点：投影健康检查，非用户操作面",
 }
 
 

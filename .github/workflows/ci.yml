@@ -21,7 +21,7 @@ jobs:
           --health-cmd="mysqladmin ping -proot"
           --health-interval=10s --health-timeout=5s --health-retries=10
       redis:
-        image: redis:7
+        image: redis:8  # Vector Sets (VADD/VSIM) — Crop 向量投影依赖
         ports: ["6379:6379"]
         options: >-
           --health-cmd="redis-cli ping"

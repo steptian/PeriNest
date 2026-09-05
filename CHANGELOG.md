@@ -12,6 +12,30 @@
 
 > Queen 的 `/health` 与 Wing 侧边栏版本号均自动读取 `VERSION` 文件，无需手动改。
 
+## [0.9.0] - 2026-09-05
+
+### Added
+- **Crop 嗦囊：RAG 知识库（v1）**——先吞后消化，四端共享语义检索
+  - 权威/投影分离（借鉴 DeepSeek Harness）：MySQL `pn_crop_document/pn_crop_chunk`
+    为唯一权威（原文+分块+embedding BLOB，只 INSERT）；Redis 8 **Vector Sets**
+    （VADD/VSIM）为可丢弃投影，`POST /crop/projection/rebuild` 一键重建
+  - embedding 双模：`EMBEDDING_API_*` 三行 env 接 OpenAI 兼容 embeddings；
+    未配 key 自动 mock（确定性哈希伪向量）——demo/CI 零成本跑全链路
+  - 语义检索 `POST /crop/search`（crop:read，四端角色默认具备）；
+    管理面列表/详情/删除/重建（crop:write，admin/运营）
+  - MCP 新增 `crop_search` / `crop_ingest` 工具（共生体能力对称，PARITY_MAP 已登记）
+  - Wing 管理端「嗦囊知识库」页：吞入/检索试验/投影健康/重建
+  - 依赖升级：Redis 7 → **Redis 8**（Vector Sets 原生内置，无模块安装；CI 镜像已切 redis:8）
+
+### Added
+- **请求契约 fail-closed**：`StrictRequest(extra='forbid')` 基类覆盖全部 15 个
+  REST request 模型——未知字段一律 422，不再静默吞掉（dsh wire 教训）
+  - 覆盖面刻意排除 response 模型（服务端产出无注入风险）与 MCP RpcRequest
+    （JSON-RPC 协议面保持宽容）——详见 docs/agent/04 否决记录
+  - 新增 `tests/test_request_forbid.py` 契约测试
+- **隐私默认立字**：README/技术架构声明 Nerve 对话不落库、将来会话留存
+  默认关闭、仅用户显式反馈才授权带走（FEEDBACK_ONLY）
+
 ## [0.8.4] - 2026-09-05
 
 ### Fixed

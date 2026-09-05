@@ -48,7 +48,7 @@ class QueenSettings(BaseSettings):
     DB_MAX_OVERFLOW: int = 20
     DB_ECHO: bool = False
 
-    # ---- Nectar 花蜜 (Redis 7) ----
+    # ---- Nectar 花蜜 (Redis 8，向量投影用 Vector Sets) ----
     REDIS_URL: str = "redis://127.0.0.1:6379/0"
 
     # ---- Carapace 加密 (JWT) ----
@@ -69,9 +69,23 @@ class QueenSettings(BaseSettings):
     AI_TIMEOUT_SECONDS: int = 60
     AI_MOCK: bool = False  # 显式开启 mock；未配 key 时隐式生效
 
+    # ---- Crop 嗦囊 (RAG 知识库 embedding，OpenAI 兼容) ----
+    # 与 Nerve 同哲学：EMBEDDING_API_KEY 留空自动 mock（哈希伪向量，
+    # demo/CI 零成本跑真实检索链路）
+    EMBEDDING_API_BASE: str = "https://api.deepseek.com/v1"
+    EMBEDDING_API_KEY: str = ""
+    EMBEDDING_MODEL: str = "text-embedding-v3"
+    EMBEDDING_DIM: int = 1536
+    EMBEDDING_TIMEOUT_SECONDS: int = 60
+    EMBEDDING_MOCK: bool = False
+
     @property
     def ai_mock_enabled(self) -> bool:
         return self.AI_MOCK or not self.AI_API_KEY
+
+    @property
+    def embedding_mock_enabled(self) -> bool:
+        return self.EMBEDDING_MOCK or not self.EMBEDDING_API_KEY
 
     # ---- Pheromone (Celery broker，默认复用 Redis) ----
     CELERY_BROKER_URL: str = "redis://127.0.0.1:6379/1"

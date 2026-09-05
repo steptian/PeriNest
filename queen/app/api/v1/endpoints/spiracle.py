@@ -156,6 +156,31 @@ def _tool_definitions() -> list[dict]:
                 "required": ["message"],
             },
         },
+        {
+            "name": "crop_search",
+            "description": "在知识库（Crop 嗦囊）中做语义检索，返回最相关的文档分块。需 crop:read 权限（四端角色默认具备）",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "自然语言查询"},
+                    "top_k": {"type": "integer", "default": 5, "maximum": 20},
+                },
+                "required": ["query"],
+            },
+        },
+        {
+            "name": "crop_ingest",
+            "description": "把一份文本知识存入知识库（需 crop:write 权限，admin/运营具备）。AI 替授权用户吞入嗉囊",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "title": {"type": "string"},
+                    "content": {"type": "string", "minLength": 10},
+                    "source_type": {"type": "string", "default": "text"},
+                },
+                "required": ["title", "content"],
+            },
+        },
     ]
 
 
@@ -375,6 +400,32 @@ async def _call_tool(name: str, args: dict, user, db) -> dict:
             {"role": "user", "content": str(args.get("message", ""))},
         ])
         return _text({"reply": text})
+
+    if name == "crop_search":
+        if denied := await _perm_denied(user, db, "crop:read"):
+            return denied
+        from app.services import crop_service
+        hits, mock = await crop_service.search(
+            db, str(args.get("query", "")), int(args.get("top_k", 5))
+        )
+        return _text({"query": args.get("query"), "mock_embedding": mock, "hits": hits})
+
+    if name == "crop_ingest":
+        if denied := await _perm_denied(user, db, "crop:write"):
+            return denied
+        from app.schemas.request import CropDocumentCreate
+        from app.services import crop_service
+        try:
+            req = CropDocumentCreate(
+                title=str(args.get("title", "")),
+                content=str(args.get("content", "")),
+                source_type=str(args.get("source_type", "text")),
+            )
+        except Exception as e:
+            return _denied(f"参数不合法: {e}")
+        doc = await crop_service.create_document(db, req, user.id)
+        await db.commit()
+        return _text({"ingested": True, "document_id": doc.id, "chunks": doc.chunk_count, "status": doc.status})
 
     raise ValueError(f"unknown tool: {name}")
 

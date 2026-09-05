@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { LayoutDashboard, LogOut, Moon, Package, ShieldCheck, Sun, Users as UsersIcon } from "lucide-react";
+import { BookOpenText, LayoutDashboard, LogOut, Moon, Package, ShieldCheck, Sun, Users as UsersIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AiAssistant from "@/components/AiAssistant";
 import { useTheme } from "@/hooks/useTheme";
@@ -11,6 +11,7 @@ const navItems = [
   { to: "/orders", label: "订单档案", latin: "specimens", icon: Package, perm: "orders" },
   { to: "/users", label: "巢穴成员", latin: "members", icon: UsersIcon, perm: "users" },
   { to: "/roles", label: "权限矩阵", latin: "rbac", icon: ShieldCheck, perm: "users" },
+  { to: "/crop", label: "嗦囊知识库", latin: "crop", icon: BookOpenText, perm: "crop" },
 ];
 
 export default function Layout() {

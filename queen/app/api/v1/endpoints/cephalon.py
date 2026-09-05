@@ -3,7 +3,6 @@ import logging
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
-from pydantic import BaseModel
 from sqlalchemy import delete, select
 
 from app.api.deps import CurrentUser, DBSession
@@ -17,7 +16,7 @@ from app.core.permissions import (
 from app.core.security import create_access_token
 from app.models.perm_override import PermOverride
 from app.models.user import User
-from app.schemas.request import LoginRequest, RegisterRequest, WxLoginRequest
+from app.schemas.request import LoginRequest, RegisterRequest, StrictRequest, WxLoginRequest
 from app.schemas.response import TokenResponse, UserResponse
 from app.services import user_service
 
@@ -104,14 +103,14 @@ async def list_roles(
     }
 
 
-class RoleCreateRequest(BaseModel):
+class RoleCreateRequest(StrictRequest):
     key: str
     name: str
     perms: list[str]
     description: str | None = None
 
 
-class RoleUpdateRequest(BaseModel):
+class RoleUpdateRequest(StrictRequest):
     name: str | None = None
     perms: list[str] | None = None
 
@@ -164,15 +163,15 @@ async def delete_role(
 
 # ---------- 用户管理（admin 写 / operator 读） ----------
 
-class UserRoleRequest(BaseModel):
+class UserRoleRequest(StrictRequest):
     role: str
 
 
-class UserStatusRequest(BaseModel):
+class UserStatusRequest(StrictRequest):
     is_active: bool
 
 
-class PermOverrideRequest(BaseModel):
+class PermOverrideRequest(StrictRequest):
     perm: str
     effect: str  # grant / deny
 
@@ -194,11 +193,11 @@ async def list_users(
 
 
 
-class UserUpdateRequest(BaseModel):
+class UserUpdateRequest(StrictRequest):
     email: str | None = None
 
 
-class UserCreateRequest(BaseModel):
+class UserCreateRequest(StrictRequest):
     username: str
     password: str
     email: str | None = None

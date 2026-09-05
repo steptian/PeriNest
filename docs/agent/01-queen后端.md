@@ -33,6 +33,16 @@ Nginx(Carapace) → gunicorn/uvicorn → main.py 中间件(trace_id) → api/v1/
 - 端点：`queen/app/api/v1/endpoints/nerve.py:40`（/ai/chat + /ai/chat/stream SSE）
 - 换 provider 只改 .env 三行（AI_API_BASE/AI_API_KEY/AI_MODEL）
 
+## Crop 嗉囊（RAG 知识库）
+
+- 权威/投影分离（✅ 借鉴 dsh JSONL-only 决策）：MySQL `pn_crop_document/pn_crop_chunk` 是唯一权威（原文+chunk+embedding BLOB 只 INSERT，`queen/app/models/crop.py:15`）；Redis 8 **Vector Sets**（VADD/VSIM）是可丢弃投影（`queen/app/services/crop_vector_store.py:18`），`POST /crop/projection/rebuild` 从权威重建
+- embedding 双模（`queen/app/services/embedding_service.py`）：`EMBEDDING_API_*` 三行 env 接 OpenAI 兼容；未配 key 自动 mock（确定性哈希伪向量，同词必召回）。**真 embedding 挂了会抛错不静默降级**
+- 分块：段落聚合 ~600 字（`crop_service.py` split_chunks）；v1 同步 ingest，大文件 Celery 化留 v2
+- 端点（`queen/app/api/v1/endpoints/crop.py`）：documents CRUD + search + projection/rebuild + health；权限 crop:read（四端角色默认）/ crop:write（admin/运营）
+- MCP：`crop_search`（检索）/`crop_ingest`（吞入），PARITY_MAP 已登记；列表/详情/删除/运维端点走 EXEMPT（理由见 `queen/tests/test_capability_parity.py:35`）
+- **依赖**：Redis ≥ 8.2（Vector Sets）；Redis 7 无此结构——部署文档见 03
+- 坑：向量操作走独立二进制连接（decode_responses=False），不能复用主池（主池 True 会破坏 FP32 传输）
+
 ## Celery（Pheromone）
 
 - 实例：`queen/app/tasks/celery_app.py:9`；任务：email/report/ai_tasks
