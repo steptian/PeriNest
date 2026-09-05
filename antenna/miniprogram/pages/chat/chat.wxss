@@ -25,4 +25,14 @@
   flex: 1; background: var(--card); border: 1px solid var(--line);
   border-radius: 999rpx; padding: 16rpx 32rpx; font-size: 28rpx;
 }
-.chat-send { padding: 10rpx 40rpx; font-size: 26rpx; line-height: 1.6; margin: 0; }
+.chat-send {
+  padding: 0 40rpx;
+  height: 72rpx;
+  line-height: 72rpx;   /* 与 height 等值：修微信 button 默认高度导致的文本偏移 */
+  font-size: 26rpx;
+  margin: 0;
+  border-radius: 999rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
