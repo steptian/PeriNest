@@ -36,8 +36,8 @@ Nginx(Carapace) → gunicorn/uvicorn → main.py 中间件(trace_id) → api/v1/
 ## Crop 嗉囊（RAG 知识库）
 
 - 权威/投影分离（✅ 借鉴 dsh JSONL-only 决策）：MySQL `pn_crop_document/pn_crop_chunk` 是唯一权威（原文+chunk+embedding BLOB 只 INSERT，`queen/app/models/crop.py:15`）；Redis 8 **Vector Sets**（VADD/VSIM）是可丢弃投影（`queen/app/services/crop_vector_store.py:18`），`POST /crop/projection/rebuild` 从权威重建
-- embedding 双模（`queen/app/services/embedding_service.py`）：`EMBEDDING_API_*` 三行 env 接 OpenAI 兼容；未配 key 自动 mock（确定性哈希伪向量，同词必召回）。**真 embedding 挂了会抛错不静默降级**
-- 分块：段落聚合 ~600 字（`crop_service.py` split_chunks）；v1 同步 ingest，大文件 Celery 化留 v2
+- embedding 双模（`queen/app/services/embedding_service.py`）：`EMBEDDING_API_*` 三行 env 接 OpenAI 兼容；未配 key 自动 mock（确定性哈希伪向量，同词必召回）。**真 embedding 挂了会抛错不静默降级**。真 API 分批（32/批）×并发（4）请求、响应按 index 还原顺序（✅ `queen/app/services/embedding_service.py:48`，EMBEDDING_BATCH_MAX/EMBEDDING_CONCURRENCY 可覆盖）
+- 分块三级化（✅ `queen/app/services/crop_service.py:43`）：段落→单段超长按句→句超长硬截；相邻块 60 字 overlap 从语义边界回退（`queen/app/services/crop_service.py:36` _overlap_tail）。v1 同步 ingest，大文件 Celery 化留 v2
 - 端点（`queen/app/api/v1/endpoints/crop.py`）：documents CRUD + search + projection/rebuild + health；权限 crop:read（四端角色默认）/ crop:write（admin/运营）
 - MCP：`crop_search`（检索）/`crop_ingest`（吞入），PARITY_MAP 已登记；列表/详情/删除/运维端点走 EXEMPT（理由见 `queen/tests/test_capability_parity.py:35`）
 - **依赖**：Redis ≥ 8.2（Vector Sets）；Redis 7 无此结构——部署文档见 03
@@ -54,6 +54,13 @@ ack-agent（旭化成 RAG）验证过的失败模式，Crop 不走这条路：
   PeriNest 暂不引入 agent 框架形态，LLM 面保持 Nerve 网关 httpx 直调
 - **触发条件**（满足才重启设计）：用户出现真实的跨文档综合查询需求，且愿意为编译
   延迟买单；届时做「同步编译进 ingest 主路径」（编译产物检索强制可见），不做后台队列
+
+## 版本说明（system_service）
+
+- **唯一源链路**：仓库根 CHANGELOG.md → `queen/app/services/system_service.py:70` get_version_info 解析为结构化版本列表（version/date/sections/items，缩进子项并入主条目，lru_cache）→ `GET /api/v1/system/version`（✅ `queen/app/api/v1/endpoints/abdomen.py:42`，登录即可见无权限域）
+- 四端版本说明 UI 统一消费此 API；改版本记录只改 CHANGELOG.md 一处
+- 打包部署读不到仓库根时降级返回纯版本号（changelog 空列表）
+- PARITY 走 EXEMPT（版本号查询已由 perinest_health MCP 工具覆盖）
 
 ## Celery（Pheromone）
 

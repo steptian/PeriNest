@@ -32,6 +32,8 @@
 
 - 加 REST 接口：`queen/app/api/v1/endpoints/<模块>.py` → service 层写逻辑 → **同步 MCP 工具**（见 04）
 - 改前端：Wing `wing/src/pages/`、Leg `leg/src/pages/`（同构，改一端看另一端）
+- 改版本说明：只改根 `CHANGELOG.md`（三端 UI 自动消费 `/system/version`，勿手改前端）
+- 改设计令牌：三端 index.css/wxss 的 --glass-* 与 --primary 同步改（见 02 玻璃设计系统节）
 - 改主题色：`wing/src/index.css` 与 `leg/src/index.css` 的 CSS 变量（同源令牌）
 - 改版本：只改根 `VERSION` + 三处同步（见 00 文档发版三步）
 

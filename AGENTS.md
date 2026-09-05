@@ -11,6 +11,6 @@ wiki: docs/agent/
 wiki: 
 
 ## 状态区
-status: v0.9.1 Crop 嗦囊(RAG)稳定：三级分块+overlap、embedding 分批并发、wiki 编译层不采纳(ack 实证教训入档)，make check 32测试+29锚点全绿
-next: Leg/Antenna 检索页(v2)；大文件 Celery 异步 ingest；在线 demo 部署；业务模块定名
+status: v0.9.1+ UI 大版本：三端琥珀毛玻璃统一、logo 定稿五处应用、四端版本说明(CHANGELOG 唯一源)、Wing 侧栏收放+仪表盘六图表；wiki 同步 39 锚点全绿
+next: 发 v0.9.2 收口；Leg/Antenna 检索页(v2)；在线 demo 部署；业务模块定名
 updated: 2026-09-05
