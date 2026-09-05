@@ -90,10 +90,10 @@
   <text x="975" y="501" text-anchor="middle" font-size="12" fill="#2b2118">Ollama 本地</text>
   <rect x="884" y="526" width="182" height="36" rx="8" fill="#faf5ea" stroke="#e5dcc8"/>
   <text x="975" y="549" text-anchor="middle" font-size="12" fill="#2b2118">任何 OpenAI 兼容</text>
-  <line x1="524" y1="522" x2="856" y2="470" stroke="#b4560c" stroke-width="2" marker-end="url(#ar)"/>
-  <rect x="610" y="480" width="150" height="16" fill="#f5f1e8" opacity="0.95" rx="3"/>
-  <text x="685" y="492" text-anchor="middle" font-size="10" fill="#b4560c">流式 SSE · mock 零成本</text>
-  <path d="M 990,312 C 990,300 700,296 620,300 560,304 420,400 420,416" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arb)"/>
+  <line x1="524" y1="522" x2="856" y2="522" stroke="#b4560c" stroke-width="2" marker-end="url(#ar)"/>
+  <rect x="608" y="498" width="164" height="16" fill="#f5f1e8" opacity="0.95" rx="3"/>
+  <text x="690" y="509" text-anchor="middle" font-size="10" fill="#b4560c">流式 SSE · mock 零成本</text>
+  <path d="M 990,312 C 990,300 700,296 480,302 300,340 204,410 204,476" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arb)"/>
   <rect x="104" y="644" width="230" height="92" rx="14" fill="#fffdf7" stroke="#e5dcc8"/>
   <circle cx="120" cy="662" r="4" fill="none" stroke="#b4560c" stroke-opacity="0.5"/>
   <text x="219" y="678" text-anchor="middle" font-size="14" font-weight="bold" fill="#2b2118">Core 核心腺体</text>
