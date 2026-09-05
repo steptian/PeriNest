@@ -11,3 +11,5 @@
 .nickname { font-size: 40rpx; font-weight: bold; }
 .version { margin-top: 20rpx; font-size: 22rpx; color: var(--ink-soft); }
 .leave { color: #d66; font-size: 28rpx; }
+
+.login-link { color: var(--amber); font-size: 28rpx; font-weight: 500; }

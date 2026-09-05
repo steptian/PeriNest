@@ -9,10 +9,17 @@ interface Order {
 Page({
   data: {
     orders: [] as Order[],
+    isLoggedIn: false,
     loading: true,
     statusLabel: { pending: "待支付", paid: "已支付", shipped: "已发货", completed: "已完成", cancelled: "已取消" } as Record<string, string>,
   },
   onShow() {
+    const token = getApp().globalData.token;
+    if (!token) {
+      this.setData({ isLoggedIn: false, loading: false, orders: [] });
+      return;
+    }
+    this.setData({ isLoggedIn: true, loading: true });
     request<Order[]>("/orders")
       .then((orders) => this.setData({ orders, loading: false }))
       .catch((e: Error) => {

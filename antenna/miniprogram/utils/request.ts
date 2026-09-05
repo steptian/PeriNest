@@ -2,7 +2,7 @@
  * - 自动携带 Authorization + X-Client: Antenna
  * - 401 时自动 wx.login 刷新 Token 重放（登录态管理见 wx_auth.ts）
  */
-const BASE_URL = "https://api.yourdomain.com/api/v1";
+const BASE_URL = () => getApp().globalData.apiBase;
 
 type Method = "GET" | "POST" | "PUT" | "DELETE";
 
@@ -17,7 +17,7 @@ export function request<T>(url: string, options: RequestOptions = {}): Promise<T
   return new Promise((resolve, reject) => {
     const doRequest = (token: string) => {
       wx.request({
-        url: `${BASE_URL}${url}`,
+        url: `${BASE_URL()}${url}`,
         method,
         data,
         header: {

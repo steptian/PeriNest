@@ -2,9 +2,11 @@ Page({
   data: {
     userInfo: null as WechatMiniprogram.UserInfo | null,
     appVersion: getApp().globalData.appVersion,
+    isLoggedIn: false,
   },
   onShow() {
-    this.setData({ userInfo: getApp().globalData.userInfo });
+    const app = getApp();
+    this.setData({ userInfo: app.globalData.userInfo, isLoggedIn: !!app.globalData.token });
   },
   async logout() {
     wx.removeStorageSync("perinest_token");

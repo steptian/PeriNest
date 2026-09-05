@@ -1,5 +1,5 @@
 /** 神经索流式对话 — wx.request enableChunked 分块解析 SSE */
-const BASE_URL = "https://api.yourdomain.com/api/v1";
+const BASE_URL = () => getApp().globalData.apiBase;
 
 export function streamChat(
   messages: { role: string; content: string }[],
@@ -8,7 +8,7 @@ export function streamChat(
   return new Promise((resolve, reject) => {
     let buf = "";
     const task = wx.request({
-      url: `${BASE_URL}/ai/chat/stream`,
+      url: `${BASE_URL()}/ai/chat/stream`,
       method: "POST",
       enableChunked: true,
       header: {
