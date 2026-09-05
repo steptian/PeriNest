@@ -53,7 +53,7 @@ async def leg_chat(page, token, dark: bool):
     theme = "document.documentElement.classList.add('dark');" if dark else ""
     await page.add_init_script(auth_script(token, "leg") + theme)
     await page.goto(f"{LEG}/chat")
-    await page.wait_for_selector('input[placeholder="向神经索提问…"]')
+    await page.wait_for_selector('textarea[placeholder="向神经索提问…"]')
     await page.fill('input[placeholder="向神经索提问…"]', "用一句话夸夸坚持开源的程序员")
     await page.click("button.rounded-full")
     # 等流式回复：用户气泡出现后，轮询最后一页文本稳定
