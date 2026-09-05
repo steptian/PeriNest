@@ -37,20 +37,23 @@ async def create_order(db: AsyncSession, user_id: int, req: CreateOrderRequest) 
 
 
 async def list_orders(
-    db: AsyncSession, user_id: int | None = None, limit: int = 20, offset: int = 0
-) -> list[Order]:
-    """订单列表；user_id 为空时查全部（管理端）。"""
-    stmt = (
-        select(Order)
-        .options(selectinload(Order.items))
-        .order_by(desc(Order.created_at))
-        .limit(limit)
-        .offset(offset)
-    )
+    db: AsyncSession, user_id: int | None = None, limit: int = 20, offset: int = 0,
+    keyword: str = "", status: str | None = None,
+) -> tuple[list[Order], int]:
+    """订单列表+总数；user_id 为空时查全部（管理端）。keyword 匹配 order_no。"""
+    stmt = select(Order).options(selectinload(Order.items))
     if user_id is not None:
         stmt = stmt.where(Order.user_id == user_id)
-    result = await db.execute(stmt)
-    return list(result.scalars().all())
+    if keyword:
+        stmt = stmt.where(Order.order_no.like(f"%{keyword}%"))
+    if status:
+        stmt = stmt.where(Order.status == status)
+    from sqlalchemy import func as _f, select as _sel
+    total = await db.scalar(_sel(_f.count()).select_from(stmt.subquery()))
+    rows = await db.execute(
+        stmt.order_by(desc(Order.created_at)).limit(limit).offset(offset)
+    )
+    return list(rows.scalars().all()), int(total or 0)
 
 
 async def get_order(db: AsyncSession, order_id: int) -> Order | None:

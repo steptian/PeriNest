@@ -50,7 +50,8 @@ async def test_symbiont_get_me_declares_identity(client, auth_headers):
     resp = await client.post("/api/v1/mcp", headers=auth_headers, json=_call("get_me"))
     data = _payload(resp)
     assert data["acting_as"].startswith("fx_")
-    assert "权限范围一致" in data["note"]
+    assert "权限范围=上述 permissions" in data["note"]
+    assert isinstance(data["permissions"], list) and "ai" in data["permissions"]  # wing 用户必有 ai 域
 
 
 async def test_symbiont_scope_isolation(client, auth_headers):

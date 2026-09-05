@@ -21,3 +21,6 @@ stop: ## 停三服务
 
 shots: ## 重拍 README 演示截图（需先 make dev）
 	python3 scripts/take_screenshots.py
+
+admin: ## 首次引导：提权/创建 admin，用法 make admin USER=xxx [PASS=yyy]
+	cd queen && .venv/bin/python scripts/seed_admin.py $(USER) $(if $(PASS),--password $(PASS))

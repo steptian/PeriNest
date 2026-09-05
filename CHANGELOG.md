@@ -12,6 +12,27 @@
 
 > Queen 的 `/health` 与 Wing 侧边栏版本号均自动读取 `VERSION` 文件，无需手动改。
 
+## [0.7.0] - 2026-09-05
+
+### Added
+- **Carapace RBAC：角色 · 权限矩阵 · 用户管理**（设计参考 Z-SH 生产实践）
+  - 权限矩阵唯一事实源 `queen/app/core/permissions.py`：域(users/orders/feedback/ai/system)
+    × 角色(admin/operator/wing/antenna)，读写细分，fail closed
+  - **两层分离**：权限域管"能不能用"，数据归属管"能看谁的"（Service 层强制）
+  - **账号级覆盖** `pn_perm_override`：最终权限=角色⊕grant/deny（deny 绝对优先），
+    admin 锁死不可覆盖（防自锁）
+  - 用户管理 REST（列表/改角色/禁用/权限覆盖，operator 只读 users）+ 登录留痕 last_login
+  - **MCP 同步 4 个 admin 工具**（共生体原则：权限不足结构化拒绝）
+  - Wing「巢穴成员」管理页 + 菜单按最终权限渲染
+  - **首次引导**：`make admin USER=xxx`——clone 后第一个管理员从这里来
+- **CRUD 交互完整度对齐 Z-SH**（用户反馈：列表缺翻页/搜索/操作列，成员缺新增编辑确认）
+  - 通用组件：Pagination / ConfirmDialog / Modal（标本馆风格）
+  - 巢穴成员：新增表单弹窗 + 编辑弹窗 + 禁用二次确认 + 搜索 + 分页（X-Total-Count）
+  - 订单档案：订单号/状态搜索表单 + 详情弹窗 + 分页
+  - 后端：POST /users（admin 新增）、订单 keyword/status 筛选、列表 total 响应头
+  - MCP 对称：admin_create_user 工具（parity 登记）
+- 测试 23/23（+新增/筛选/total header/403）
+
 ## [0.6.0] - 2026-09-05
 
 ### Added

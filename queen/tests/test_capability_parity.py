@@ -23,6 +23,10 @@ PARITY_MAP: dict[str, list[str]] = {
     f"{API_PREFIX}/orders": ["list_orders", "create_order"],   # GET+POST 双能力
     f"{API_PREFIX}/orders/{{order_id}}": ["get_order"],
     f"{API_PREFIX}/feedback": ["submit_feedback"],
+    f"{API_PREFIX}/users": ["admin_list_users", "admin_create_user"],
+    f"{API_PREFIX}/users/{{user_id}}/role": ["admin_set_user_role"],
+    f"{API_PREFIX}/users/{{user_id}}/status": ["admin_set_user_status"],
+    f"{API_PREFIX}/users/{{user_id}}/perms": ["admin_set_perm_override"],
     f"{API_PREFIX}/ai/chat": ["ai_chat"],
 }
 
@@ -33,6 +37,9 @@ EXEMPT: dict[str, str] = {
     f"{API_PREFIX}/auth/wx-login": "同上，微信通道的身份入口",
     f"{API_PREFIX}/mcp": "MCP 端点是 AI 面自身的入口，不构成用户操作能力",
     f"{API_PREFIX}/ai/chat/stream": "SSE 流式通道，MCP 的 ai_chat 已覆盖其非流式语义",
+    f"{API_PREFIX}/users/{{user_id}}": "用户详情读，admin_list_users 列表已含全部字段",
+    f"{API_PREFIX}/users/{{user_id}}/permissions": "权限查询，get_me 的 permissions 字段已覆盖该语义",
+    f"{API_PREFIX}/auth/me/permissions": "权限自查，get_me 工具已内嵌 permissions 返回",
     "/health": "基础设施探针，非用户操作面",
     "/healthz": "存活探针，非用户操作面",
 }

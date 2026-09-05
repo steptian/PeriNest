@@ -19,6 +19,8 @@ class User(Base):
     # 微信小程序 openid（Antenna 用户）
     wx_openid: Mapped[str | None] = mapped_column(String(64), unique=True, nullable=True)
     is_active: Mapped[bool] = mapped_column(default=True, server_default="1")
+    last_login_at: Mapped[datetime.datetime | None] = mapped_column(DateTime, nullable=True)
+    last_login_ip: Mapped[str | None] = mapped_column(String(50), nullable=True)
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime, server_default=func.current_timestamp()
     )

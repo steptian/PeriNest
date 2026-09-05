@@ -33,6 +33,10 @@ from app.models.order import Order, OrderItem
 from app.models.sys_log import SysLog
 from app.services import order_service
 from app.services.ai_service import ai_service
+from app.core.permissions import (
+    USERS, effective_permissions, _parse_perm, _check_perm,
+)
+from app.services import user_service
 
 router = APIRouter(prefix="/mcp", tags=["mcp"])
 
@@ -112,6 +116,31 @@ def _tool_definitions() -> list[dict]:
             },
         },
         {
+            "name": "admin_list_users",
+            "description": "用户列表（需 users:read 权限，admin/运营可用；AI 权限不足会被拒绝）",
+            "inputSchema": {"type": "object", "properties": {"keyword": {"type": "string"}, "limit": {"type": "integer", "default": 20}}},
+        },
+        {
+            "name": "admin_create_user",
+            "description": "新增用户（需 users:write；角色 operator/wing/antenna）",
+            "inputSchema": {"type": "object", "properties": {"username": {"type": "string"}, "password": {"type": "string"}, "email": {"type": "string"}, "role": {"type": "string", "default": "wing"}}, "required": ["username", "password"]},
+        },
+        {
+            "name": "admin_set_user_role",
+            "description": "修改用户角色 admin/operator/wing/antenna（需 users:write，仅 admin；admin 账号锁死不可改）",
+            "inputSchema": {"type": "object", "properties": {"user_id": {"type": "integer"}, "role": {"type": "string"}}, "required": ["user_id", "role"]},
+        },
+        {
+            "name": "admin_set_user_status",
+            "description": "启用/禁用用户（需 users:write；admin 账号不可禁用）",
+            "inputSchema": {"type": "object", "properties": {"user_id": {"type": "integer"}, "is_active": {"type": "boolean"}}, "required": ["user_id", "is_active"]},
+        },
+        {
+            "name": "admin_set_perm_override",
+            "description": "账号级权限覆盖 grant/deny（需 users:write；最终权限=角色⊕覆盖，deny 优先）",
+            "inputSchema": {"type": "object", "properties": {"user_id": {"type": "integer"}, "perm": {"type": "string"}, "effect": {"type": "string"}}, "required": ["user_id", "perm", "effect"]},
+        },
+        {
             "name": "ai_chat",
             "description": "调用 PeriNest AI 网关（Nerve）进行一次对话（非流式）",
             "inputSchema": {
@@ -137,6 +166,15 @@ def _denied(msg: str) -> dict:
     }
 
 
+async def _perm_denied(user, db, perm: str) -> dict | None:
+    """共生体权限检查：不足则返回 denied 结构，通过返回 None。"""
+    perms = await effective_permissions(user, db)
+    domain, action = _parse_perm(perm)
+    if not _check_perm(perms, domain, action or "read"):
+        return _denied(f"共生体原则：授权用户 {user.username} 缺少「{perm}」权限")
+    return None
+
+
 async def _call_tool(name: str, args: dict, user, db) -> dict:
     """执行工具。所有数据访问都锚定 user —— 与 REST 行为完全一致。"""
     if name == "perinest_health":
@@ -146,11 +184,13 @@ async def _call_tool(name: str, args: dict, user, db) -> dict:
         })
 
     if name == "get_me":
+        perms = await effective_permissions(user, db)
         return _text({
             "acting_as": user.username,
             "role": user.role,
             "user_id": user.id,
-            "note": "本 AI 会话的全部工具调用均以上述用户身份执行，权限范围一致",
+            "permissions": perms,
+            "note": "本 AI 会话的全部工具调用均以上述用户身份执行，权限范围=上述 permissions",
         })
 
     if name == "list_orders":
@@ -217,6 +257,82 @@ async def _call_tool(name: str, args: dict, user, db) -> dict:
         db.add(SysLog(user_id=user.id, level="INFO", source="mcp-feedback", message=content))
         await db.flush()
         return _text({"submitted_as": user.username, "ok": True})
+
+    if name == "admin_list_users":
+        if d := await _perm_denied(user, db, f"{USERS}:read"):
+            return d
+        keyword = str(args.get("keyword", ""))
+        limit = min(int(args.get("limit", 20)), 100)
+        users, total = await user_service.list_users(db, keyword, limit)
+        return _text({
+            "total": total, "count": len(users),
+            "users": [{"id": u.id, "username": u.username, "role": u.role,
+                       "is_active": u.is_active, "last_login_at": str(u.last_login_at or "")}
+                      for u in users],
+        })
+
+    if name == "admin_create_user":
+        if d := await _perm_denied(user, db, f"{USERS}:write"):
+            return d
+        from app.schemas.request import RegisterRequest
+        uname, pwd = str(args.get("username", "")), str(args.get("password", ""))
+        role = str(args.get("role", "wing"))
+        if role not in ("operator", "wing", "antenna"):
+            return _denied("新用户角色仅限 operator/wing/antenna（admin 由引导流程创建）")
+        try:
+            target = await user_service.register(
+                db, RegisterRequest(username=uname, password=pwd, email=args.get("email"))
+            )
+            if role != "wing":
+                target = await user_service.update_user_role(db, target, role, user)
+        except user_service.UserExistsError as e:
+            return _denied(str(e))
+        except ValueError as e:
+            return _denied(str(e))
+        return _text({"created": target.username, "role": target.role, "ok": True})
+
+    if name == "admin_set_user_role":
+        if d := await _perm_denied(user, db, f"{USERS}:write"):
+            return d
+        target = await user_service.get_by_id(db, int(args.get("user_id", 0)))
+        if target is None:
+            return _denied("用户不存在")
+        try:
+            t = await user_service.update_user_role(db, target, str(args.get("role", "")), user)
+        except (ValueError, PermissionError) as e:
+            return _denied(str(e))
+        return _text({"user": t.username, "role": t.role, "ok": True})
+
+    if name == "admin_set_user_status":
+        if d := await _perm_denied(user, db, f"{USERS}:write"):
+            return d
+        target = await user_service.get_by_id(db, int(args.get("user_id", 0)))
+        if target is None:
+            return _denied("用户不存在")
+        try:
+            t = await user_service.set_user_status(db, target, bool(args.get("is_active", True)), user)
+        except PermissionError as e:
+            return _denied(str(e))
+        return _text({"user": t.username, "is_active": t.is_active, "ok": True})
+
+    if name == "admin_set_perm_override":
+        if d := await _perm_denied(user, db, f"{USERS}:write"):
+            return d
+        target = await user_service.get_by_id(db, int(args.get("user_id", 0)))
+        if target is None:
+            return _denied("用户不存在")
+        if target.role == "admin":
+            return _denied("admin 账号权限锁死，不可覆盖")
+        perm, effect = str(args.get("perm", "")), str(args.get("effect", ""))
+        if effect not in ("grant", "deny"):
+            return _denied("effect 必须是 grant 或 deny")
+        from sqlalchemy import delete as _del
+        from app.models.perm_override import PermOverride
+        await db.execute(_del(PermOverride).where(
+            PermOverride.user_id == target.id, PermOverride.perm == perm))
+        db.add(PermOverride(user_id=target.id, perm=perm, effect=effect, created_by=user.id))
+        await db.flush()
+        return _text({"user": target.username, "perm": perm, "effect": effect, "ok": True})
 
     if name == "ai_chat":
         text = await ai_service.chat([

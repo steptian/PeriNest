@@ -1,19 +1,24 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { LayoutDashboard, LogOut, Moon, Package, Sun } from "lucide-react";
+import { LayoutDashboard, LogOut, Moon, Package, Sun, Users as UsersIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AiAssistant from "@/components/AiAssistant";
 import { useTheme } from "@/hooks/useTheme";
 import { useAuthStore } from "@/stores/auth";
 
+// 菜单按 Carapace 最终权限渲染：无对应权限不显示入口
 const navItems = [
-  { to: "/", label: "仪表盘", latin: "overview", icon: LayoutDashboard },
-  { to: "/orders", label: "订单档案", latin: "specimens", icon: Package },
+  { to: "/", label: "仪表盘", latin: "overview", icon: LayoutDashboard, perm: null },
+  { to: "/orders", label: "订单档案", latin: "specimens", icon: Package, perm: "orders" },
+  { to: "/users", label: "巢穴成员", latin: "members", icon: UsersIcon, perm: "users" },
 ];
 
 export default function Layout() {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const { dark, toggle } = useTheme();
+  const permissions = useAuthStore((s) => s.permissions);
+  const canSee = (perm: string | null) =>
+    perm === null || permissions.some((p) => p === perm);
 
   return (
     <div className="flex h-screen">
@@ -27,7 +32,7 @@ export default function Layout() {
           </p>
         </div>
         <nav className="flex-1 space-y-1.5">
-          {navItems.map(({ to, label, latin, icon: Icon }) => (
+          {navItems.filter((n) => canSee(n.perm)).map(({ to, label, latin, icon: Icon }) => (
             <NavLink
               key={to}
               to={to}

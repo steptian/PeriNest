@@ -4,7 +4,7 @@
 
 
 > [![CI](https://github.com/steptian/PeriNest/actions/workflows/ci.yml/badge.svg)](https://github.com/steptian/PeriNest/actions/workflows/ci.yml)
-> ![version](https://img.shields.io/badge/version-0.6.0-c2410c) ![license](https://img.shields.io/badge/license-MIT-green) ![monorepo](https://img.shields.io/badge/monorepo-Queen·Wing·Antenna·Leg-166534)
+> ![version](https://img.shields.io/badge/version-0.7.0-c2410c) ![license](https://img.shields.io/badge/license-MIT-green) ![monorepo](https://img.shields.io/badge/monorepo-Queen·Wing·Antenna·Leg-166534)
 >
 > *Built to Survive, Designed to Adapt.* — 为生存而生，为适应而设计。
 
@@ -100,6 +100,7 @@
 | 你不用再造的轮子 | PeriNest 已交付 |
 |:---|:---|
 | 注册/登录/JWT/鉴权 | 开箱即用，含微信 wx.login 双通道 |
+| 角色权限矩阵 RBAC | admin/operator/终端用户 + 账号级 grant/deny 覆盖，菜单按权限渲染 |
 | 管理后台 + H5 + 小程序 | 四端一套仓库，同构 API 层 |
 | AI 流式对话（SSE） | Nerve 网关 + 双端 UI，mock 模式零 key 体验 |
 | 部署脚本/进程守护/Nginx | deploy/ 全套，无 Docker |

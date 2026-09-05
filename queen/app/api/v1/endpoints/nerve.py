@@ -6,11 +6,12 @@
 import json
 
 import httpx
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 from app.api.deps import CurrentUser
+from app.core.permissions import AI, require_permission
 from app.services.ai_service import ai_service
 
 router = APIRouter(prefix="/ai", tags=["ai"])
@@ -31,13 +32,13 @@ def _sse(data: dict) -> str:
 
 
 @router.post("/chat")
-async def chat(req: ChatRequest, user: CurrentUser) -> dict:
+async def chat(req: ChatRequest, user=Depends(require_permission(AI))) -> dict:
     text = await ai_service.chat([m.model_dump() for m in req.messages], req.model)
     return {"content": text, "model": req.model or "default"}
 
 
 @router.post("/chat/stream")
-async def chat_stream(req: ChatRequest, user: CurrentUser) -> StreamingResponse:
+async def chat_stream(req: ChatRequest, user=Depends(require_permission(AI))) -> StreamingResponse:
     async def gen():
         try:
             async for delta in ai_service.stream_chat(

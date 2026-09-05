@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/auth";
 import { authApi } from "@/api/auth";
+import { usersApi } from "@/api/users";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -20,6 +21,8 @@ export default function Login() {
       // 时序：此刻 token 尚未入 store，me 必须显式携带，否则拦截器读不到 → 401
       const user = await authApi.me(access_token);
       setAuth(access_token, user);
+      const { permissions } = await usersApi.myPermissions();
+      useAuthStore.getState().setPermissions(permissions);
       navigate("/", { replace: true });
     } catch {
       setErr("用户名或密码错误");
