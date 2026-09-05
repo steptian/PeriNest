@@ -66,7 +66,7 @@
 | **Spiracle 气门** · MCP | 蜚蠊与外界交换气体的器官 | MCP 端点=与 AI 生态（Claude/Cursor）交换工具的呼吸口 |
 | **Crop 嗉囊** · RAG 知识库 | 先储存食物，再交给共生菌群消化 | 知识先吞入（ingest），再语义检索（消化产出）——AI 从嗉囊取食 |
 | **Core 核心腺体** · MySQL | 腺体分泌并储存生命物质 | 永久业务数据，巢穴的记忆 |
-| **Nectar 花蜜** · Redis | 快取快用的能量，不会永久保存 | 缓存/Session/锁——快进快出，过期即逝 |
+| **Nectar 花蜜** · Redis | 快取快用的能量，不会永久保存 | 缓存/Session/锁——快进快出，过期即逝；v0.9 起兼载嗦囊向量投影（可从 MySQL 权威随时重建） |
 | **Pheromone 信息素** · Celery | 留下化学痕迹，同伴循迹而动 | 异步任务队列：耗时工作留下信号，worker 循迹处理 |
 | **Carapace 背甲** · Nginx | 外骨骼永远在最外层 | 第一道防线：SSL 终结、限流熔断、动静分离 |
 
@@ -167,6 +167,8 @@ structlog 输出 JSON 日志，**每个请求注入唯一 trace_id**，接入 EL
 ## 快速开始
 
 ### Queen（后端）
+
+> **依赖**：MySQL 8 · **Redis ≥ 8.2**（嗦囊向量检索用 Vector Sets，Redis 7 无此结构）· Python 3.11+
 
 ```bash
 cd queen
