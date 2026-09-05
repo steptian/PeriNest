@@ -25,3 +25,4 @@
   width: 22rpx; height: 22rpx; border-radius: 50%;
   background: #07c160; box-shadow: 0 0 0 4rpx rgba(7, 193, 96, 0.15);
 }
+.login-logo { width: 160rpx; height: 160rpx; display: block; margin: 0 auto 24rpx; }

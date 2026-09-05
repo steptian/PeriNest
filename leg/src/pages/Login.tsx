@@ -30,6 +30,7 @@ export default function Login() {
 
   return (
     <div className="relative flex min-h-screen flex-col justify-center px-8">
+      <img src="/favicon.svg" alt="PeriNest" className="mb-4 h-24 w-24" />
       <p className="specimen-latin mb-1">Periplaneta · since 300 Ma</p>
       <h1 className="font-specimen mb-1 text-[42px] font-bold leading-none tracking-tight">
         PeriNest

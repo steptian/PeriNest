@@ -1,4 +1,5 @@
 <view class="login-wrap">
+  <image src="/images/logo.png" class="login-logo" mode="aspectFit" />
   <view class="specimen-latin">periplaneta · antenna</view>
   <view class="login-title font-specimen">PeriNest</view>
   <view class="login-slogan">built to survive, designed to adapt.</view>

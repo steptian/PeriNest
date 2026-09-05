@@ -34,7 +34,8 @@ export default function Login() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted/40">
       <form onSubmit={onSubmit} className="specimen-card w-96 space-y-5 p-8">
-        <p className="specimen-latin">periplaneta · wing</p>
+        <img src="/favicon.svg" alt="PeriNest" className="mx-auto h-20 w-20" />
+        <p className="specimen-latin -mt-1 text-center">periplaneta · wing</p>
         <h1 className="font-specimen -mt-2 text-3xl font-bold tracking-tight">PeriNest</h1>
         <p className="-mt-2 text-xs italic text-muted-foreground">
           built to survive, designed to adapt.
