@@ -28,11 +28,14 @@ def sync_all_staff(staff_userids: list[str] | None = None) -> dict:
     from app.services import wecom_service
 
     async def _run() -> dict:
-        if not settings.wecom_enabled:
+        from app.services.runtime_config import AiRuntimeConfig
+
+        if not await AiRuntimeConfig.wecom_configured():
             return {"ok": False, "skipped": "wecom disabled"}
         async with AsyncSessionLocal() as db:
             if not staff_userids:
-                seeds = [s.strip() for s in settings.WECOM_SYNC_STAFF.split(",") if s.strip()]
+                sync_staff = (await AiRuntimeConfig.wecom())["sync_staff"]
+                seeds = [s.strip() for s in sync_staff.split(",") if s.strip()]
                 existing = (
                     await db.execute(select(WecomContact.staff_userid).distinct())
                 ).scalars().all()

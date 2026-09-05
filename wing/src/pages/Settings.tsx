@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { FlaskConical, RotateCcw, Save, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { configApi, type ConfigItem } from "@/api/config";
+import Roles from "@/pages/Roles";
 
 const LABELS: Record<string, { label: string; hint: string }> = {
   "ai.api_base": { label: "API Base", hint: "OpenAI 兼容端点" },
@@ -13,10 +14,19 @@ const LABELS: Record<string, { label: string; hint: string }> = {
   "embedding.api_key": { label: "Embedding Key", hint: "敏感；留空=mock 伪向量" },
   "embedding.model": { label: "Embedding 模型", hint: "如 text-embedding-v3" },
   "embedding.dim": { label: "维度", hint: "改维度需重建向量投影" },
+  "wecom.corp_id": { label: "Corp ID", hint: "企业 ID（ww 开头）" },
+  "wecom.corp_secret": { label: "应用 Secret", hint: "敏感——留空不改" },
+  "wecom.agent_id": { label: "Agent ID", hint: "自建应用数字 ID" },
+  "wecom.token": { label: "回调 Token", hint: "回调验签用" },
+  "wecom.aes_key": { label: "回调 EncodingAESKey", hint: "敏感；43 字符" },
+  "wecom.sync_staff": { label: "同步种子员工", hint: "逗号分隔 userid" },
 };
+
+type Tab = "credentials" | "rbac";
 
 export default function Settings() {
   const qc = useQueryClient();
+  const [tab, setTab] = useState<Tab>("credentials");
   const [edits, setEdits] = useState<Record<string, string>>({});
   const [msg, setMsg] = useState("");
 
@@ -47,25 +57,54 @@ export default function Settings() {
       <div className="flex items-end justify-between">
         <div>
           <p className="specimen-latin mb-1">runtime config</p>
-          <h1 className="font-specimen text-2xl font-bold">神经索配置</h1>
+          <h1 className="font-specimen text-2xl font-bold">系统设置</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            AI / Embedding 的 key 与模型运行时可调（DB 优先于 .env），改完即时生效免重启
+            全部凭证与模型集中配置（AI / 向量 / 企微私域），DB 优先于 .env，改完即时生效免重启
           </p>
         </div>
         <div className="flex gap-2">
+          {tab === "credentials" && (
+          <>
           <Button size="sm" variant="outline" onClick={() => test.mutate()} disabled={test.isPending}>
             <FlaskConical className="mr-1 h-4 w-4" /> 测试连接
           </Button>
           <Button size="sm" onClick={() => save.mutate()} disabled={!dirty || save.isPending}>
             <Save className="mr-1 h-4 w-4" /> 保存 {dirty ? `(${Object.values(edits).filter(Boolean).length})` : ""}
           </Button>
+          </>
+          )}
         </div>
       </div>
 
-      {msg && <div className="glass rounded-2xl px-4 py-2.5 text-sm">{msg}</div>}
+      {/* Tab 切换 */}
+      <div className="flex gap-1.5">
+        {([
+          ["credentials", "模型与凭证"],
+          ["rbac", "权限矩阵"],
+        ] as [Tab, string][]).map(([k, label]) => (
+          <button
+            key={k}
+            onClick={() => setTab(k)}
+            className={`rounded-full px-4 py-1.5 text-sm transition-colors ${
+              tab === k ? "btn-amber" : "text-muted-foreground hover:bg-muted"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
 
-      <ConfigCard title="对话模型（Nerve）" latin="chat · deepseek compatible" items={group("ai.")} edits={edits} setEdits={setEdits} />
-      <ConfigCard title="向量模型（Crop 嗦囊）" latin="embedding · rag" items={group("embedding.")} edits={edits} setEdits={setEdits} />
+      {msg && tab === "credentials" && <div className="glass rounded-2xl px-4 py-2.5 text-sm">{msg}</div>}
+
+      {tab === "credentials" && (
+        <>
+          <ConfigCard title="对话模型（Nerve）" latin="chat · deepseek compatible" items={group("ai.")} edits={edits} setEdits={setEdits} />
+          <ConfigCard title="向量模型（Crop 嗦囊）" latin="embedding · rag" items={group("embedding.")} edits={edits} setEdits={setEdits} />
+          <ConfigCard title="企微私域（Cercus 尾须）" latin="wecom · crm" items={group("wecom.")} edits={edits} setEdits={setEdits} />
+        </>
+      )}
+
+      {tab === "rbac" && <Roles />}
     </div>
   );
 }

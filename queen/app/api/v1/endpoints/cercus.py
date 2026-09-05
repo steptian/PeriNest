@@ -276,7 +276,7 @@ async def wecom_oauth_login(req: WecomOauthLogin, db: DBSession):
 
 @router.get("/health")
 async def cercus_health(_user: CurrentUser):
-    return {"module": "cercus", "wecom_enabled": settings.wecom_enabled}
+    return {"module": "cercus", "wecom_enabled": await wecom_service.wecom_configured()}
 
 
 @router.get("/callback", include_in_schema=False)
@@ -290,11 +290,12 @@ async def wecom_callback_echo(
     import structlog
 
     logger = structlog.get_logger(__name__)
-    if not verify(settings.WECOM_TOKEN, timestamp, nonce, echostr, msg_signature):
+    cfg = await wecom_service._wecom_cfg()
+    if not verify(cfg["token"], timestamp, nonce, echostr, msg_signature):
         logger.warning("cercus_callback_echo_bad_signature")
         return "bad signature"
     try:
-        return decrypt(settings.WECOM_ENCODING_AES_KEY, settings.WECOM_CORP_ID, echostr)
+        return decrypt(cfg["aes_key"], cfg["corp_id"], echostr)
     except Exception:
         return "bad encrypt"
 
@@ -317,11 +318,12 @@ async def wecom_callback(
     encrypt_b64 = (body or {}).get("Encrypt", "")
     if not encrypt_b64:
         return "bad request"
-    if not verify(settings.WECOM_TOKEN, timestamp, nonce, encrypt_b64, msg_signature):
+    cfg = await wecom_service._wecom_cfg()
+    if not verify(cfg["token"], timestamp, nonce, encrypt_b64, msg_signature):
         logger.warning("cercus_callback_bad_signature")
         return "bad signature"
     try:
-        msg = decrypt(settings.WECOM_ENCODING_AES_KEY, settings.WECOM_CORP_ID, encrypt_b64)
+        msg = decrypt(cfg["aes_key"], cfg["corp_id"], encrypt_b64)
     except Exception:
         logger.warning("cercus_callback_decrypt_failed")
         return "bad encrypt"

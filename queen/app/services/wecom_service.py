@@ -63,14 +63,28 @@ class WecomDisabledError(RuntimeError):
     """未配置企微凭证。"""
 
 
-def _require_enabled() -> None:
-    if not settings.wecom_enabled:
-        raise WecomDisabledError("企微未配置（WECOM_CORP_ID/SECRET/AGENT_ID 缺失）")
+async def _wecom_cfg() -> dict:
+    """企微凭证动态解析（DB > env，管理端改完即时生效）。"""
+    from app.services.runtime_config import AiRuntimeConfig
+
+    return await AiRuntimeConfig.wecom()
+
+
+async def wecom_configured() -> bool:
+    from app.services.runtime_config import AiRuntimeConfig
+
+    return await AiRuntimeConfig.wecom_configured()
+
+
+async def _require_enabled() -> None:
+    if not await wecom_configured():
+        raise WecomDisabledError("企微未配置（系统设置或 WECOM_* 环境变量）")
 
 
 async def get_access_token() -> str:
     """获取企微应用 access_token（Redis 共享缓存，TTL 7000s）。"""
-    _require_enabled()
+    await _require_enabled()
+    cfg = await _wecom_cfg()
     cached = await _cache_get("cercus:token")
     if cached:
         return cached
@@ -78,8 +92,8 @@ async def get_access_token() -> str:
         resp = await client.get(
             f"{QYAPI}/gettoken",
             params={
-                "corpid": settings.WECOM_CORP_ID,
-                "corpsecret": settings.WECOM_CORP_SECRET,
+                "corpid": cfg["corp_id"],
+                "corpsecret": cfg["corp_secret"],
             },
         )
         data = resp.json()
@@ -124,7 +138,7 @@ async def list_external_contacts(staff_userid: str) -> list[str]:
 
 async def get_userid_by_code(code: str) -> str | None:
     """OAuth code → 员工 userid（侧边栏免登）。"""
-    _require_enabled()
+    await _require_enabled()
     async with httpx.AsyncClient(timeout=15) as client:
         resp = await client.get(
             f"{QYAPI}/auth/getuserinfo",
@@ -159,9 +173,10 @@ async def make_jsapi_signature(url: str, agent: bool = False) -> dict:
     timestamp = str(int(time.time()))
     raw = f"jsapi_ticket={ticket}&noncestr={nonce}&timestamp={timestamp}&url={url}"
     signature = hashlib.sha1(raw.encode()).hexdigest()
+    cfg = await _wecom_cfg()
     return {
-        "corpid": settings.WECOM_CORP_ID,
-        "agentid": settings.WECOM_AGENT_ID,
+        "corpid": cfg["corp_id"],
+        "agentid": cfg["agent_id"],
         "timestamp": timestamp,
         "nonceStr": nonce,
         "signature": signature,

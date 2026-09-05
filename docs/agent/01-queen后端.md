@@ -71,9 +71,9 @@ ack-agent（旭化成 RAG）验证过的失败模式，Crop 不走这条路：
 ## 运行时配置（runtime_config · 管理端改 key/model）
 
 - 优先级：pn_sys_config（DB）> .env——管理端改完即时生效免重启（内存缓存，写入失效）
-- 白名单 8 键（`queen/app/services/runtime_config.py:22` AI_CONFIG_KEYS）：ai.api_base/api_key/model/timeout + embedding 同构四键；非法键 422 fail-closed
+- 白名单 14 键（`queen/app/services/runtime_config.py:22` AI_CONFIG_KEYS）：ai×4 + embedding×4 + **wecom×6**（corp_id/corp_secret/agent_id/token/aes_key/sync_staff——企微凭证已归拢同面）；非法键 422 fail-closed
 - 敏感处理：GET 一律打码（sk-645***6f03），SET 收明文，日志不落 key
-- ai_service/embedding_service 已接入动态视图（AiRuntimeConfig）；端点：GET/PUT /system/ai-config + POST /system/ai-config/test（真实测试消息，system 域）
+- ai_service/embedding_service/wecom_service/cercus 端点/celery 任务全部接入动态视图（AiRuntimeConfig）；**企微凭证变更自动失效 Redis token/ticket 缓存**；端点：GET/PUT /system/ai-config + POST /system/ai-config/test（真实测试消息，system 域）
 - Wing「神经索配置」页（perm=system）：双卡（对话/向量）+ 来源徽章（DB 覆盖/env）+ 测试连接
 - 清空值=删 DB 覆盖回落 env；embedding.dim 改动需重建向量投影
 

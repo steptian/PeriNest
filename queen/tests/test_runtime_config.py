@@ -38,7 +38,10 @@ async def test_ai_config_read_masked(client):
     assert set(configs) == {
         "ai.api_base", "ai.api_key", "ai.model", "ai.timeout",
         "embedding.api_base", "embedding.api_key", "embedding.model", "embedding.dim",
+        "wecom.corp_id", "wecom.corp_secret", "wecom.agent_id",
+        "wecom.token", "wecom.aes_key", "wecom.sync_staff",
     }
+    assert "***" in configs["wecom.corp_secret"]["value"] or configs["wecom.corp_secret"]["value"] == ""
     for c in configs.values():
         assert c["source"] in ("env", "db")
     # 敏感打码：值不得以明文 sk- 全量出现
