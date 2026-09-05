@@ -11,6 +11,6 @@ wiki: docs/agent/
 wiki: 
 
 ## 状态区
-status: v0.10.1 Cercus v2 已发（tag）：回调精确刷新+每日 beat 兜底+OAuth 约定式免登；39 测试全绿
-next: 在线 demo 部署；业务模块定名；Cercus 生产凭证接入实测
+status: v0.10.1+ 未发版累积：Nectar 缓存/运行时配置中心(14 键+企微归拢)/配置页三 tab/文件吞入+预览源文件/弹窗实底化；47 测试+冒烟 38 全绿
+next: 发 v0.11.0 收口；在线 demo 部署；业务模块定名
 updated: 2026-09-05
