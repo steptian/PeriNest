@@ -10,6 +10,7 @@ const WELCOME: ChatMsg = {
 export default function Chat() {
   const [messages, setMessages] = useState<ChatMsg[]>([WELCOME]);
   const [input, setInput] = useState("");
+  const taRef = useRef<HTMLTextAreaElement>(null);
   const [streaming, setStreaming] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -85,12 +86,20 @@ export default function Chat() {
 
       <div className="glass sticky bottom-16 m-2 rounded-2xl p-3">
         <div className="flex items-center gap-2.5">
-          <input
-            className="flex-1 rounded-full border bg-card px-4 py-2.5 text-[15px] outline-none transition-colors focus:border-primary"
+          <textarea
+            ref={taRef}
+            rows={1}
+            className="flex-1 resize-none rounded-2xl border bg-card px-4 py-2.5 text-[15px] leading-normal outline-none transition-colors focus:border-primary"
             placeholder="向神经索提问…"
             value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && send()}
+            onChange={(e) => {
+              setInput(e.target.value);
+              const ta = taRef.current;
+              if (ta) { ta.style.height = "auto"; ta.style.height = `${Math.min(ta.scrollHeight, 120)}px`; }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
+            }}
           />
           <button
             className="btn-amber flex h-11 w-11 items-center justify-center rounded-full disabled:opacity-40"

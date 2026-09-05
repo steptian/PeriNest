@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { LogOut, Moon, Sun } from "lucide-react";
+import VersionSheet from "@/components/VersionSheet";
 import { useAuthStore } from "@/stores/auth";
 import { useTheme } from "@/hooks/useTheme";
 
@@ -6,6 +8,7 @@ export default function Profile() {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const { dark, toggle } = useTheme();
+  const [versionOpen, setVersionOpen] = useState(false);
 
   return (
     <div className="p-5">
@@ -31,10 +34,16 @@ export default function Profile() {
         {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
       </button>
 
-      <div className="specimen-card mb-4 flex items-center justify-between px-4 py-3.5">
+      <button
+        onClick={() => setVersionOpen(true)}
+        className="specimen-card mb-4 flex w-full items-center justify-between px-4 py-3.5"
+      >
         <span className="specimen-latin">version</span>
-        <span className="font-specimen text-sm">PeriNest Leg v{__APP_VERSION__}</span>
-      </div>
+        <span className="font-specimen text-sm">
+          PeriNest Leg v{__APP_VERSION__} · 版本说明 →
+        </span>
+      </button>
+      <VersionSheet open={versionOpen} onClose={() => setVersionOpen(false)} />
 
       <button
         onClick={logout}
