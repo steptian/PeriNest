@@ -12,6 +12,28 @@
 
 > Queen 的 `/health` 与 Wing 侧边栏版本号均自动读取 `VERSION` 文件，无需手动改。
 
+## [0.11.0] - 2026-09-06
+
+### Added
+- **Crop 嗦囊 agentic 问答（方案②）**：
+  - `POST /crop/ask` + `/crop/ask/stream`（SSE）：AI 自主多轮检索知识库后
+    作答并附引用（OpenAI tool-calls 循环 ≤4 轮，工具结果截断防 context 爆炸）
+  - Agent 工具注册表 `agent_tools.py`：工具面=用户操作面，按有效权限动态
+    下发（首版 crop_search + get_me，写操作不开放）
+  - MCP 新增 `crop_ask` 工具（PARITY_MAP 登记）
+  - 未配 LLM key 时 503/SSE error fail-closed——知识库问答不 mock 假答案
+- **混合检索**：向量 KNN + 关键词 LIKE 召回 → RRF 融合（k=60）——编号/术语
+  类查询提升，投影丢失不再全盲（关键词兜底）
+- **三端问答 UI**：Wing「问嗉囊」区 / Leg Knowledge 页（BottomNav 第 5 tab，
+  问共生体/查原文双模式）/ Antenna knowledge 页（ai_stream 通用化）
+- `permissions.has_permission` 公共判定：域简写/全称/write 隐含 read 同语义
+
+### Fixed
+- admin 角色权限种子为域简写（"crop"），裸字符串匹配曾把 agent 工具面误杀为空
+
+### Tests
+- 53 测试 + 冒烟 40 全绿（crop ask 走真实 provider 验证全链路）
+
 ## [0.10.1] - 2026-09-05
 
 ### Added

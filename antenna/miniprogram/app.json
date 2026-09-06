@@ -32,7 +32,6 @@
       },
       {
         "pagePath": "pages/chat/chat",
-    "pages/knowledge/knowledge",
         "text": "神经索",
         "iconPath": "images/icons/tab-nerve.png",
         "selectedIconPath": "images/icons/tab-nerve-active.png"
