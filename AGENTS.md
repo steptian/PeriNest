@@ -11,6 +11,6 @@ wiki: docs/agent/
 wiki: 
 
 ## 状态区
-status: v0.11.0 已发（tag 推送）：嗉囊 agentic 问答+混合检索+三端 UI+app.json 修复；53 测试+冒烟 40 全绿
-next: Antenna 真机验证 knowledge 页；在线 demo 部署
+status: v0.11.0 已发 + Unreleased（版本说明 md 渲染 runs/设置 tab 重排）；54 测试+冒烟 40 全绿
+next: Antenna 真机验证 knowledge 页；发 v0.11.1 收口 Unreleased；在线 demo 部署
 updated: 2026-09-06
