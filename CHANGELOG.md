@@ -12,6 +12,16 @@
 
 > Queen 的 `/health` 与 Wing 侧边栏版本号均自动读取 `VERSION` 文件，无需手动改。
 
+## [Unreleased]
+
+### Added
+- 版本说明弹窗/页渲染行内 markdown：后端解析 `**加粗**`/`` `代码` `` 为 runs
+  结构，三端按 runs 渲染（Wing/Leg `<strong>`/`<code>`，Antenna class 分支）
+
+### Changed
+- Wing 系统设置 tab 重排：默认「巢穴成员」，「模型与凭证」移至最后；越权兜底
+  改为按首个可见 tab 通用判定
+
 ## [0.11.0] - 2026-09-06
 
 ### Added

@@ -12,3 +12,16 @@
   padding: 8rpx 0 8rpx 20rpx; border-left: 3rpx solid var(--line);
   margin: 8rpx 0; white-space: pre-line;
 }
+
+/* 行内 markdown runs */
+.md-bold {
+  font-weight: 600;
+  color: var(--primary, #b4560c);
+}
+.md-code {
+  font-family: Menlo, Consolas, monospace;
+  font-size: 0.9em;
+  padding: 2rpx 8rpx;
+  border-radius: 6rpx;
+  background: rgba(0, 0, 0, 0.06);
+}

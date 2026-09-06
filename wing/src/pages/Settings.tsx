@@ -28,7 +28,7 @@ type Tab = "credentials" | "users" | "rbac";
 
 export default function Settings() {
   const qc = useQueryClient();
-  const [tab, setTab] = useState<Tab>("credentials");
+  const [tab, setTab] = useState<Tab>("users");
   const [edits, setEdits] = useState<Record<string, string>>({});
   const permissions = useAuthStore((s) => s.permissions);
   // 域简写=读写全有；域:read 只读。admin 走 system 全域
@@ -36,11 +36,12 @@ export default function Settings() {
     permissions.some((p) => p === domain || p.startsWith(domain + ":"));
   const canSystem = has("system");
   const canUsers = has("users");
-  // 兜底：当前 tab 越权（如 operator 默认 credentials）时落到首个可见 tab
-  const activeTab: Tab =
-    (tab === "credentials" && !canSystem) || (tab !== "credentials" && !canUsers)
-      ? canSystem ? "credentials" : "users"
-      : tab;
+  // 兜底：当前 tab 越权时落到首个可见 tab（tab 顺序：巢穴成员 → 权限矩阵 → 模型与凭证）
+  const tabs: [Tab, string][] = [
+    ...(canUsers ? ([["users", "巢穴成员"], ["rbac", "权限矩阵"]] as [Tab, string][]) : []),
+    ...(canSystem ? ([["credentials", "模型与凭证"]] as [Tab, string][]) : []),
+  ];
+  const activeTab: Tab = tabs.some(([k]) => k === tab) ? tab : (tabs[0]?.[0] ?? "users");
   const [msg, setMsg] = useState("");
 
   const { data } = useQuery({ queryKey: ["ai-config"], queryFn: configApi.read });
@@ -91,10 +92,7 @@ export default function Settings() {
 
       {/* Tab 切换 */}
       <div className="flex gap-1.5">
-        {([
-          ...(canSystem ? ([["credentials", "模型与凭证"]] as [Tab, string][]) : []),
-          ...(canUsers ? ([["users", "巢穴成员"], ["rbac", "权限矩阵"]] as [Tab, string][]) : []),
-        ]).map(([k, label]) => (
+        {tabs.map(([k, label]) => (
           <button
             key={k}
             onClick={() => setTab(k)}

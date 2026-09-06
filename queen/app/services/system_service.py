@@ -13,14 +13,39 @@ from pathlib import Path
 # 仓库根 = queen/app/services/system_service.py 上溯 3 级（同 config.py 算法）
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 
+def _inline_runs(text: str) -> list[dict]:
+    """行内 markdown → runs：[{"t": "text|bold|code", "s": str}]。
+
+    前端按 runs 渲染（web: <strong>/<code>；小程序: class 分支），
+    避免三端各引 md 渲染器。只认 **加粗** 与 `代码` 两种（Keep a Changelog
+    惯例面），其余原样文本；换行保留在 text run 内（web whitespace-pre-line /
+    小程序 text 组件均原样换行）。
+    """
+    import re
+
+    pattern = re.compile(r"(\*\*.+?\*\*|`[^`]+`)")
+    runs: list[dict] = []
+    for part in pattern.split(text):
+        if not part:
+            continue
+        if part.startswith("**") and part.endswith("**") and len(part) > 4:
+            runs.append({"t": "bold", "s": part[2:-2]})
+        elif part.startswith("`") and part.endswith("`") and len(part) > 2:
+            runs.append({"t": "code", "s": part[1:-1]})
+        else:
+            runs.append({"t": "text", "s": part})
+    return runs or [{"t": "text", "s": ""}]
+
 
 @lru_cache(maxsize=1)
 def _parse_changelog_raw() -> tuple[list[dict], str]:
     """解析 CHANGELOG.md。
 
     返回 (版本列表, 源标识)。版本列表按文件顺序（新→旧）：
-    [{"version": "0.9.1", "date": "2026-09-05",
-      "sections": [{"title": "Improved", "items": ["...", "..."]}]}]
+    [{"version": "0.11.0", "date": "2026-09-06",
+      "sections": [{"title": "Added", "items": [[{"t": "bold", "s": "..."},
+                                                 {"t": "text", "s": "..."}]]}]}]
+    item = runs 列表（行内 markdown 已解析，见 _inline_runs）。
 
     读不到文件（打包部署无仓库根）返回空列表——版本号仍可用。
     """
@@ -39,7 +64,9 @@ def _parse_changelog_raw() -> tuple[list[dict], str]:
     def _flush_item() -> None:
         nonlocal current_item
         if current_item is not None and current_section is not None:
-            current_section["items"].append("\n".join(current_item).strip())
+            current_section["items"].append(
+                _inline_runs("\n".join(current_item).strip())
+            )
         current_item = None
 
     for line in text.splitlines():

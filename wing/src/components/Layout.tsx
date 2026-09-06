@@ -32,6 +32,23 @@ function useSidebarCollapsed() {
   return { collapsed, toggle };
 }
 
+
+function Runs({ runs }: { runs: { t: string; s: string }[] }) {
+  return (
+    <>
+      {runs.map((r, j) =>
+        r.t === "bold" ? (
+          <strong key={j} className="font-semibold text-foreground">{r.s}</strong>
+        ) : r.t === "code" ? (
+          <code key={j} className="rounded bg-muted px-1 py-0.5 font-mono text-[10px]">{r.s}</code>
+        ) : (
+          <span key={j}>{r.s}</span>
+        )
+      )}
+    </>
+  );
+}
+
 export default function Layout() {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
@@ -171,9 +188,9 @@ export default function Layout() {
                 <div key={sec.title} className="mb-2">
                   <p className="specimen-latin !text-[8px]">{sec.title}</p>
                   <ul className="mt-1 space-y-1.5">
-                    {sec.items.map((item, i) => (
+                    {sec.items.map((runs, i) => (
                       <li key={i} className="whitespace-pre-line text-xs leading-relaxed text-foreground/80">
-                        {item}
+                        <Runs runs={runs} />
                       </li>
                     ))}
                   </ul>

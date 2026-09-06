@@ -2,6 +2,23 @@ import { useQuery } from "@tanstack/react-query";
 import { systemApi, type ChangelogEntry } from "@/api/system";
 
 /** 版本说明底部抽屉（受控组件，Home / Profile 共用） */
+
+function Runs({ runs }: { runs: { t: string; s: string }[] }) {
+  return (
+    <>
+      {runs.map((r, j) =>
+        r.t === "bold" ? (
+          <strong key={j} className="font-semibold text-foreground">{r.s}</strong>
+        ) : r.t === "code" ? (
+          <code key={j} className="rounded bg-muted px-1 py-0.5 font-mono text-[10px]">{r.s}</code>
+        ) : (
+          <span key={j}>{r.s}</span>
+        )
+      )}
+    </>
+  );
+}
+
 export default function VersionSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { data: versionInfo } = useQuery({
     queryKey: ["system-version"],
@@ -30,9 +47,9 @@ export default function VersionSheet({ open, onClose }: { open: boolean; onClose
               <div key={sec.title} className="mb-2">
                 <p className="specimen-latin !text-[8px]">{sec.title}</p>
                 <ul className="mt-1 space-y-1">
-                  {sec.items.map((item, i) => (
+                  {sec.items.map((runs, i) => (
                     <li key={i} className="whitespace-pre-line text-[11px] leading-relaxed text-foreground/80">
-                      {item}
+                      <Runs runs={runs} />
                     </li>
                   ))}
                 </ul>

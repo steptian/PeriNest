@@ -1,6 +1,7 @@
 import { request } from "../../utils/request";
 
-interface ChangelogSection { title: string; items: string[] }
+interface InlineRun { t: "text" | "bold" | "code"; s: string }
+interface ChangelogSection { title: string; items: InlineRun[][] }
 interface ChangelogEntry { version: string; date: string; sections: ChangelogSection[] }
 interface VersionInfo { version: string; changelog: ChangelogEntry[] }
 

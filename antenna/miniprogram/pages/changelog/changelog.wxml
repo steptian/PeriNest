@@ -13,7 +13,9 @@
       </view>
       <view wx:for="{{entry.sections}}" wx:key="title" wx:for-item="sec" class="sec">
         <view class="specimen-latin">{{sec.title}}</view>
-        <view wx:for="{{sec.items}}" wx:key="index" wx:for-item="item" class="item">{{item}}</view>
+        <view wx:for="{{sec.items}}" wx:key="index" wx:for-item="runs" class="item">
+          <text wx:for="{{runs}}" wx:key="index" wx:for-item="r" class="md-{{r.t}}">{{r.s}}</text>
+        </view>
       </view>
     </view>
   </block>
