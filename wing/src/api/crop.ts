@@ -1,4 +1,5 @@
 import { api } from "./client";
+import { useAuthStore } from "@/stores/auth";
 
 export interface CropDocument {
   id: number; title: string; source_type: string; size_bytes: number;
@@ -54,7 +55,6 @@ export async function askStream(
   onEvent: (ev: AskEvent) => void,
   history: { role: "user" | "assistant"; content: string }[] = [],
 ): Promise<void> {
-  const { useAuthStore } = await import("@/stores/auth");
   const token = useAuthStore.getState().token;
   const resp = await fetch(`${import.meta.env.VITE_QUEEN_API}/crop/ask/stream`, {
     method: "POST",
