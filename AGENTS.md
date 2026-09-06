@@ -11,6 +11,6 @@ wiki: docs/agent/
 wiki: 
 
 ## 状态区
-status: v0.11.0 待发：Crop 嗦囊 agentic 问答（tool-call 循环+混合检索 RRF+crop_ask MCP+三端问答 UI）+ 权限 has_permission 修复；53 测试+冒烟 40 全绿
-next: 发 v0.11.0（VERSION+CHANGELOG+tag）；Antenna 真机验证；在线 demo 部署
-updated: 2026-09-05
+status: v0.11.0 已发（tag 推送）：嗉囊 agentic 问答+混合检索+三端 UI+app.json 修复；53 测试+冒烟 40 全绿
+next: Antenna 真机验证 knowledge 页；在线 demo 部署
+updated: 2026-09-06
