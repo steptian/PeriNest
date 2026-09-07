@@ -338,16 +338,23 @@ async def test_mcp_crop_ask_fail_closed(client, auth_headers, monkeypatch):
     assert data["denied"] is True
 
 
-def test_tools_for_admin_includes_crop_search():
-    """域简写权限（admin 种子 "crop"）下 crop_search 不被误杀——裸 in 匹配回归。"""
+async def test_tools_for_admin_includes_crop_search():
+    """域简写权限（admin 种子 "crop"）下 crop_search 不被误杀——裸 in 匹配回归。
+
+    v0.11.1+：tools_for_user 为 async（web_search 条件注册需查运行时配置）；
+    web_search 未配 key 时不下发。
+    """
     from app.services.agent_tools import tools_for_user
 
-    tools = {t.name for t in tools_for_user(["users", "orders", "crop", "wecom"])}
+    tools = {t.name for t in await tools_for_user(["users", "orders", "crop", "wecom"])}
     assert "crop_search" in tools  # 域简写 "crop" 隐含 crop:read
     assert "get_me" in tools
+    assert "list_orders" in tools  # v0.11.1+ 工具面渐进开放
+    assert "web_search" not in tools  # 未配 key 不下发（条件注册）
 
-    tools_wing = {t.name for t in tools_for_user(["orders", "feedback", "ai", "crop:read"])}
-    assert "crop_search" in tools_wing
+    tools_wing = {t.name for t in await tools_for_user(["orders", "feedback", "ai", "crop:read"])}
+    assert "crop_search" in tools_wing and "list_orders" in tools_wing
 
-    tools_none = {t.name for t in tools_for_user(["orders", "feedback"])}
-    assert "crop_search" not in tools_none and "get_me" in tools_none
+    tools_none = {t.name for t in await tools_for_user(["feedback", "ai"])}
+    assert "crop_search" not in tools_none and "get_me" in tools
+    assert "list_orders" not in tools_none  # 无 orders 权限不下发_none

@@ -77,6 +77,9 @@ class QueenSettings(BaseSettings):
     WECOM_ENCODING_AES_KEY: str = ""  # 回调加解密 key（43 字符）
     WECOM_SYNC_STAFF: str = ""  # 定时同步种子员工（逗号分隔 userid，可空）
 
+    # Web 搜索佐证（agent web_search 工具，火山引擎联网搜索 API）
+    WEB_SEARCH_API_KEY: str = ""
+    WEB_SEARCH_ENABLED: str = ""  # 1/true 开启；空=关（配置 key 后再开）
     @property
     def wecom_enabled(self) -> bool:
         return bool(self.WECOM_CORP_ID and self.WECOM_CORP_SECRET and self.WECOM_AGENT_ID)

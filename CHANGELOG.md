@@ -18,6 +18,14 @@
 - 版本说明弹窗/页渲染行内 markdown：后端解析 `**加粗**`/`` `代码` `` 为 runs
   结构，三端按 runs 渲染（Wing/Leg `<strong>`/`<code>`，Antenna class 分支）
 
+- **Agent 用量观测**：`pn_agent_usage` 账本（token/轮次/工具次数），
+  `GET /crop/usage/summary`（admin 全局/普通本人），Wing 问答区用量条
+- **问答会话持久化**：`pn_agent_message`，`conversation_id` 续聊（服务端加载
+  历史自动续聊 + 成功后入库），`GET /crop/conversations` 列表/详情
+- **Agent 工具面扩展**：+`list_orders`（权限边界与 REST 一致）+`web_search`
+  （火山引擎联网搜索佐证，`web_search.api_key`/`enabled` 运行时配置，条件注册）
+- 用量采集：`stream_options.include_usage` 跨轮累计
+
 ### Changed
 - Wing 系统设置 tab 重排：默认「巢穴成员」，「模型与凭证」移至最后；越权兜底
   改为按首个可见 tab 通用判定

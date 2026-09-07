@@ -40,6 +40,7 @@ async def test_ai_config_read_masked(client):
         "embedding.api_base", "embedding.api_key", "embedding.model", "embedding.dim",
         "wecom.corp_id", "wecom.corp_secret", "wecom.agent_id",
         "wecom.token", "wecom.aes_key", "wecom.sync_staff",
+        "web_search.api_key", "web_search.enabled",
     }
     assert "***" in configs["wecom.corp_secret"]["value"] or configs["wecom.corp_secret"]["value"] == ""
     for c in configs.values():

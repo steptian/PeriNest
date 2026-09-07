@@ -10,5 +10,6 @@ from app.models.wecom import WecomContact, WecomFollowup
 
 __all__ = [
     "User", "Order", "OrderItem", "SysLog", "PermOverride", "Role", "RolePerm",
-    "CropDocument", "CropChunk", "WecomContact", "WecomFollowup", "SysConfig",
+    "CropDocument", "CropChunk", "WecomContact", "WecomFollowup", "SysConfig", "AgentUsage", "AgentMessage",
 ]
+from app.models.agent import AgentMessage, AgentUsage  # noqa: F401

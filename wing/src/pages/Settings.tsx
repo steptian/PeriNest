@@ -22,6 +22,8 @@ const LABELS: Record<string, { label: string; hint: string }> = {
   "wecom.token": { label: "回调 Token", hint: "回调验签用" },
   "wecom.aes_key": { label: "回调 EncodingAESKey", hint: "敏感；43 字符" },
   "wecom.sync_staff": { label: "同步种子员工", hint: "逗号分隔 userid" },
+  "web_search.api_key": { label: "Web 搜索 Key", hint: "火山引擎联网搜索 API Key；敏感——留空不改" },
+  "web_search.enabled": { label: "Web 搜索开关", hint: "1=开启（agent web_search 工具佐证）；空=关" },
 };
 
 type Tab = "credentials" | "users" | "rbac";

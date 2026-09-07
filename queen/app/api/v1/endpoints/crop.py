@@ -6,7 +6,10 @@
 - DELETE /crop/documents/{id}     删除（crop:write）
 - POST   /crop/search             语义检索（crop:read，四端共享）
 - POST   /crop/ask                知识库问答：AI 多轮检索后作答（crop:read）
-- POST   /crop/ask/stream         流式问答 SSE（crop:read）
+- POST   /crop/ask/stream         流式问答 SSE（crop:read，conversation_id 续聊）
+- GET    /crop/conversations      本人会话列表（crop:read）
+- GET    /crop/conversations/{id} 会话消息详情（crop:read）
+- GET    /crop/usage/summary      问答用量汇总（crop:read，admin 全局/本人）
 - POST   /crop/projection/rebuild 重建 Redis 投影（crop:write，运维备手）
 - GET    /crop/health             投影健康（crop:read）
 """
@@ -185,15 +188,17 @@ async def ask(
 ) -> dict:
     """知识库问答：AI 自主多轮检索后作答（带引用）——agentic RAG。
 
+    conversation_id 有值时自动加载会话历史并在成功后追加消息（多轮续聊）。
     无真实 LLM 时 503（fail-closed：知识库问答不 mock 假答案）。
-    权限语义：crop:read 即可问（AI 是实现细节，工具面按用户权限下发）。
     """
     try:
         answer, citations = await crop_service.ask(
-            db, user, req.query, req.history, req.top_k
+            db, user, req.query, req.history, req.top_k,
+            session_id=req.conversation_id,
         )
     except AIServiceUnavailable as e:
         raise HTTPException(status_code=503, detail=str(e))
+    await db.commit()  # 会话消息（如有）随事务落库
     return {"answer": answer, "citations": citations}
 
 
@@ -203,14 +208,19 @@ async def ask_stream(
     db: DBSession,
     user: User = Depends(require_permission(f"{CROP}:read")),
 ) -> StreamingResponse:
-    """流式问答 SSE。事件：{tool_call} → {delta}* → {citations} → {done}。"""
+    """流式问答 SSE。事件：{tool_call} → {delta}* → {citations} → {done}。
+
+    conversation_id 有值时服务端续聊（历史自动加载，答案自动入库）。
+    """
 
     async def gen():
         try:
             async for ev in crop_service.ask_stream(
-                db, user, req.query, req.history, req.top_k
+                db, user, req.query, req.history, req.top_k,
+                session_id=req.conversation_id,
             ):
                 yield _sse(ev)
+            await db.commit()  # 会话消息随事务落库（流结束后）
             yield _sse({"done": True})
         except AIServiceUnavailable as e:
             yield _sse({"error": str(e)})
@@ -238,3 +248,42 @@ async def crop_health(
     _user: User = Depends(require_permission(f"{CROP}:read")),
 ):
     return await crop_service.projection_health()
+
+
+@router.get("/conversations")
+async def list_conversations(
+    db: DBSession,
+    user: User = Depends(require_permission(f"{CROP}:read")),
+    limit: int = Query(default=30, ge=1, le=100),
+):
+    """本人问答会话列表（最近活动倒序）。"""
+    from app.services import agent_service
+
+    return await agent_service.list_conversations(db, user, limit)
+
+
+@router.get("/conversations/{session_id}")
+async def get_conversation(
+    session_id: str,
+    db: DBSession,
+    user: User = Depends(require_permission(f"{CROP}:read")),
+):
+    """会话消息详情（仅本人会话；不存在/越权 404）。"""
+    from app.services import agent_service
+
+    messages = await agent_service.get_conversation(db, session_id, user)
+    if messages is None:
+        raise HTTPException(status_code=404, detail="会话不存在")
+    return {"session_id": session_id, "messages": messages}
+
+
+@router.get("/usage/summary")
+async def usage_summary(
+    db: DBSession,
+    user: User = Depends(require_permission(f"{CROP}:read")),
+    days: int = Query(default=7, ge=1, le=90),
+):
+    """问答用量汇总（近 N 天）：admin 见全局，普通用户仅本人。"""
+    from app.services import agent_service
+
+    return await agent_service.usage_summary(user, days)

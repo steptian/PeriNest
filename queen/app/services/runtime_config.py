@@ -29,9 +29,12 @@ AI_CONFIG_KEYS = {
     "wecom.token": "WECOM_TOKEN",
     "wecom.aes_key": "WECOM_ENCODING_AES_KEY",
     "wecom.sync_staff": "WECOM_SYNC_STAFF",
+    # Web 搜索佐证（agent web_search 工具，火山引擎联网搜索 API）
+    "web_search.api_key": "WEB_SEARCH_API_KEY",
+    "web_search.enabled": "WEB_SEARCH_ENABLED",
 }
 # 响应中必须打码的键
-SENSITIVE_KEYS = {"ai.api_key", "embedding.api_key", "wecom.corp_secret", "wecom.aes_key"}
+SENSITIVE_KEYS = {"ai.api_key", "embedding.api_key", "wecom.corp_secret", "wecom.aes_key", "web_search.api_key"}
 # 数值型键（int 转换）
 _NUMERIC_KEYS = {"ai.timeout", "embedding.dim", "wecom.agent_id"}
 

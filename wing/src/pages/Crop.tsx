@@ -4,7 +4,7 @@ import { BookOpenText, FileDown, FileUp, FlaskConical, MessagesSquare, RefreshCw
 import Modal from "@/components/Modal";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { Button } from "@/components/ui/button";
-import { askStream, cropApi, type CropDocument, type CropSearchHit } from "@/api/crop";
+import { agentApi, askStream, cropApi, type CropDocument, type CropSearchHit } from "@/api/crop";
 import { fmtTime } from "@/utils/format";
 
 const PAGE_SIZE = 15;
@@ -21,13 +21,23 @@ export default function Crop() {
   const [query, setQuery] = useState("");
   const [hits, setHits] = useState<CropSearchHit[] | null>(null);
   const [mockNote, setMockNote] = useState(false);
-  // —— 问嗦囊（agentic 问答）——
+  // —— 问嗦囊（agentic 问答 + 会话续聊 + 用量观测）——
   const [askQuery, setAskQuery] = useState("");
   const [asking, setAsking] = useState(false);
   const [askAnswer, setAskAnswer] = useState("");
   const [askSteps, setAskSteps] = useState<string[]>([]);
   const [askCitations, setAskCitations] = useState<CropSearchHit[]>([]);
   const [askError, setAskError] = useState("");
+  const [conversationId, setConversationId] = useState<string | undefined>(undefined);
+
+  const { data: usage } = useQuery({
+    queryKey: ["crop", "usage"],
+    queryFn: () => agentApi.usage(7),
+  });
+  const { data: conversations = [] } = useQuery({
+    queryKey: ["crop", "conversations"],
+    queryFn: agentApi.conversations,
+  });
 
   const { data: docs = [], isLoading } = useQuery({
     queryKey: ["crop", "docs", page],
@@ -64,6 +74,7 @@ export default function Crop() {
 
   async function runAsk(q: string) {
     if (!q.trim() || asking) return;
+    if (!conversationId) setConversationId(`conv_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`);
     setAsking(true); setAskSteps([]); setAskAnswer(""); setAskCitations([]); setAskError("");
     try {
       await askStream(q, (ev) => {
@@ -76,11 +87,31 @@ export default function Crop() {
         } else if (ev.error) {
           setAskError(ev.error);
         }
-      });
+      }, [], conversationId);
     } catch (e) {
       setAskError(e instanceof Error ? e.message : "问答服务异常");
     } finally {
       setAsking(false);
+      qc.invalidateQueries({ queryKey: ["crop", "usage"] });
+      qc.invalidateQueries({ queryKey: ["crop", "conversations"] });
+    }
+  }
+
+  function newConversation() {
+    setConversationId(undefined);
+    setAskAnswer(""); setAskSteps([]); setAskCitations([]); setAskError("");
+  }
+
+  async function loadConversation(sid: string) {
+    if (!sid) { newConversation(); return; }
+    setConversationId(sid);
+    setAskAnswer(""); setAskSteps([]); setAskCitations([]); setAskError("");
+    try {
+      const d = await agentApi.conversation(sid);
+      const lastA = [...d.messages].reverse().find((m) => m.role === "assistant");
+      setAskAnswer(lastA?.content ?? "");
+    } catch (e) {
+      setAskError(e instanceof Error ? e.message : "会话加载失败");
     }
   }
 
@@ -154,11 +185,31 @@ export default function Crop() {
         )}
       </div>
 
-      {/* 问嗦囊：AI 多轮检索后作答（agentic RAG） */}
+      {/* 问嗦囊：AI 多轮检索后作答（agentic RAG + 会话续聊） */}
       <div className="glass rounded-2xl p-4">
         <div className="mb-2 flex items-center gap-2 text-sm font-medium">
           <MessagesSquare className="h-4 w-4 text-primary" /> 问嗦囊
           <span className="text-xs font-normal text-muted-foreground">（AI 自主检索知识库后作答，附引用）</span>
+          <span className="ml-auto flex items-center gap-2">
+            {usage && (
+              <span className="specimen-latin !text-[9px] text-muted-foreground" title="近 7 天问答用量（token/调用/工具次数）">
+                7d: {usage.calls}次 · {usage.total_tokens.toLocaleString()} tok · 工具×{usage.tool_calls}
+              </span>
+            )}
+            <select
+              value={conversationId ?? ""}
+              onChange={(e) => void loadConversation(e.target.value)}
+              className="max-w-[200px] rounded-lg border border-border bg-background px-2 py-1 text-xs outline-none"
+              title="历史会话（选择后续聊）"
+            >
+              <option value="">＋ 新对话</option>
+              {conversations.map((c) => (
+                <option key={c.session_id} value={c.session_id}>
+                  {c.first_question || c.session_id.slice(0, 12)}（{c.message_count}条）
+                </option>
+              ))}
+            </select>
+          </span>
         </div>
         <div className="flex gap-2">
           <input

@@ -356,23 +356,32 @@ async def ask_stream(
     query: str,
     history: list,
     top_k: int = 5,
+    session_id: str | None = None,
+    source: str = "crop_ask",
 ):
     """知识库问答：agentic 检索循环（方案②）——AI 自主决定检索什么、检索几轮。
 
-    yield SSE 事件：{"tool_call": {...}} | {"delta": "..."} | {"citations": [...]}。
+    yield SSE 事件：{"tool_call": ...} | {"delta": ...} | {"citations": ...}。
+    session_id 有值时：先加载会话历史（覆盖 history 参数），成功后追加消息入库；
+    用量（token/轮次/工具次数）落 pn_agent_usage（fire-and-forget，不炸主链路）。
     无真实 LLM 抛 AIServiceUnavailable（fail-closed：不 mock 假答案）。
-    工具面按用户权限动态下发（工具面=用户操作面，共生体原则）。
     """
     from app.core.permissions import effective_permissions, has_permission
-    from app.services import agent_tools
+    from app.services import agent_service, agent_tools
     from app.services.ai_service import ai_service
 
     perms = await effective_permissions(user, db)
-    tools = agent_tools.tools_for_user(perms)
+    tools = await agent_tools.tools_for_user(perms)
     specs = [t.openai_spec() for t in tools]
     handlers = {t.name: t for t in tools}
     citations: dict[int, dict] = {}  # chunk_id -> hit，跨轮去重
     round_no = 0
+    tool_calls_n = 0
+    usage: dict = {}  # 末轮 usage 事件
+    answer_parts: list[str] = []
+
+    if session_id:
+        history = await agent_service.load_history(db, session_id, user)
 
     async def execute_tool(name: str, args: dict) -> dict:
         tool = handlers.get(name)
@@ -396,6 +405,7 @@ async def ask_stream(
         messages, specs, execute_tool, max_turns=MAX_ASK_TURNS
     ):
         if ev["type"] == "tool_call":
+            tool_calls_n += 1
             if ev["name"] == "crop_search":
                 round_no += 1
                 yield {
@@ -405,23 +415,48 @@ async def ask_stream(
                         "query": str(ev["args"].get("query", "")),
                     }
                 }
-            # 其余工具（get_me）内部消化，不下发前端（协议面最小）
+            # 其余工具（get_me/web_search/list_orders）内部消化，协议面最小
         elif ev["type"] == "delta":
+            answer_parts.append(ev["text"])
             yield {"delta": ev["text"]}
+        elif ev["type"] == "usage":
+            usage = ev
 
     ranked = sorted(
         citations.values(), key=lambda h: h["score"], reverse=True
     )[:top_k]
     yield {"citations": ranked}
 
+    # 问答成功：记账 + 会话追加（观测失败不炸主链路；消息随端点事务提交）
+    if usage:
+        await agent_service.record_usage(
+            user_id=user.id,
+            source=source,
+            model=usage.get("model", ""),
+            prompt_tokens=usage.get("prompt_tokens", 0),
+            completion_tokens=usage.get("completion_tokens", 0),
+            rounds=round_no,
+            tool_calls=tool_calls_n,
+        )
+    if session_id:
+        await agent_service.append_messages(
+            db, session_id, user, query, "".join(answer_parts)
+        )
+
 
 async def ask(
-    db: AsyncSession, user: User, query: str, history: list, top_k: int = 5
+    db: AsyncSession,
+    user: User,
+    query: str,
+    history: list,
+    top_k: int = 5,
+    session_id: str | None = None,
+    source: str = "crop_ask",
 ) -> tuple[str, list[dict]]:
     """非流式问答：聚合 ask_stream，返回 (answer, citations)。"""
     parts: list[str] = []
     citations: list[dict] = []
-    async for ev in ask_stream(db, user, query, history, top_k):
+    async for ev in ask_stream(db, user, query, history, top_k, session_id, source):
         if "delta" in ev:
             parts.append(ev["delta"])
         elif "citations" in ev:

@@ -54,6 +54,7 @@ export async function askStream(
   query: string,
   onEvent: (ev: AskEvent) => void,
   history: { role: "user" | "assistant"; content: string }[] = [],
+  conversationId?: string,
 ): Promise<void> {
   const token = useAuthStore.getState().token;
   const resp = await fetch(`${import.meta.env.VITE_QUEEN_API}/crop/ask/stream`, {
@@ -63,7 +64,7 @@ export async function askStream(
       Authorization: `Bearer ${token}`,
       "X-Client": "Wing",
     },
-    body: JSON.stringify({ query, history }),
+    body: JSON.stringify({ query, history, conversation_id: conversationId || undefined }),
   });
   if (!resp.ok || !resp.body) throw new Error(`HTTP ${resp.status}`);
 
@@ -86,3 +87,23 @@ export async function askStream(
     }
   }
 }
+
+/** 会话与用量（v0.11.1+ agent 横切能力） */
+export interface ConversationItem {
+  session_id: string; first_question: string; message_count: number; last_time: string;
+}
+export interface UsageSummary {
+  scope: string; days: number; calls: number;
+  prompt_tokens: number; completion_tokens: number; total_tokens: number; tool_calls: number;
+}
+
+export const agentApi = {
+  conversations: () =>
+    api.get<ConversationItem[]>("/crop/conversations").then((r) => r.data),
+  conversation: (id: string) =>
+    api.get<{ session_id: string; messages: { role: string; content: string }[] }>(
+      `/crop/conversations/${id}`
+    ).then((r) => r.data),
+  usage: (days = 7) =>
+    api.get<UsageSummary>("/crop/usage/summary", { params: { days } }).then((r) => r.data),
+};

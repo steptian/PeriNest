@@ -91,3 +91,4 @@ class CropAskRequest(StrictRequest):
     query: str = Field(min_length=1, max_length=2000)
     history: list[AskMessage] = Field(default_factory=list, max_length=20)
     top_k: int = Field(default=5, ge=1, le=10)
+    conversation_id: str | None = Field(default=None, max_length=64, pattern=r"^[a-zA-Z0-9_-]{1,64}$")

@@ -93,12 +93,18 @@ class AIService:
             )
 
         convo = list(messages)
+        usage_total = {"prompt": 0, "completion": 0}  # 跨轮累计（include_usage）
         headers = {"Authorization": f"Bearer {cfg['key']}"}
         base_url = f"{cfg['base']}/chat/completions"
 
         async with httpx.AsyncClient(timeout=cfg["timeout"]) as client:
             for turn in range(max_turns):
-                payload: dict = {"model": model or cfg["model"], "messages": convo, "stream": True}
+                payload: dict = {
+                    "model": model or cfg["model"],
+                    "messages": convo,
+                    "stream": True,
+                    "stream_options": {"include_usage": True},  # 末尾 usage chunk（用量观测）
+                }
                 if turn < max_turns - 1:  # 最后一轮不给工具，逼直答
                     payload["tools"] = tools
                 tool_calls: dict[int, dict] = {}  # index -> {id, name, arguments}
@@ -114,8 +120,19 @@ class AIService:
                         if data == "[DONE]":
                             break
                         try:
-                            choice = json.loads(data)["choices"][0]
-                        except (json.JSONDecodeError, KeyError, IndexError):
+                            chunk = json.loads(data)
+                        except json.JSONDecodeError:
+                            continue
+                        usage_chunk = chunk.get("usage") or {}
+                        if usage_chunk.get("total_tokens"):
+                            # 多轮累计（每轮末尾一个 usage chunk）
+                            usage_total["prompt"] += int(usage_chunk.get("prompt_tokens") or 0)
+                            usage_total["completion"] += int(usage_chunk.get("completion_tokens") or 0)
+                        if not chunk.get("choices"):
+                            continue
+                        try:
+                            choice = chunk["choices"][0]
+                        except (KeyError, IndexError):
                             continue
                         delta = choice.get("delta") or {}
                         if delta.get("content"):
@@ -135,7 +152,15 @@ class AIService:
                             finish = choice["finish_reason"]
 
                 if finish != "tool_calls" or not tool_calls:
-                    return  # 纯文本回答完成
+                    # 纯文本回答完成——交出累计用量（观测链路消费）
+                    yield {
+                        "type": "usage",
+                        "prompt_tokens": usage_total["prompt"],
+                        "completion_tokens": usage_total["completion"],
+                        "total_tokens": usage_total["prompt"] + usage_total["completion"],
+                        "model": model or cfg["model"],
+                    }
+                    return
 
                 # 回填 assistant tool_calls 消息，逐个执行工具
                 ordered = [slot for _, slot in sorted(tool_calls.items())]

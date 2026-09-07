@@ -484,7 +484,8 @@ async def _call_tool(name: str, args: dict, user, db) -> dict:
         from app.services.ai_service import AIServiceUnavailable
         try:
             answer, citations = await crop_service.ask(
-                db, user, str(args.get("query", "")), [], 5
+                db, user, str(args.get("query", "")), [], 5,
+                source="mcp_crop_ask",
             )
         except AIServiceUnavailable as e:
             return _denied(str(e))
