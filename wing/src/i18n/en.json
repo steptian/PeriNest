@@ -1,5 +1,8 @@
 {
-  "app": { "name": "PeriNest", "tagline": "built to survive" },
+  "app": {
+    "name": "PeriNest",
+    "tagline": "built to survive"
+  },
   "nav": {
     "dashboard": "Dashboard",
     "orders": "Orders",
@@ -36,5 +39,66 @@
     "totalPages": "{{total}} items · page {{page}}/{{pages}}",
     "prev": "Prev",
     "next": "Next"
+  },
+  "dashboard": {
+    "title": "Business Overview",
+    "statOrders": "Total orders",
+    "statAmount": "Total value",
+    "statPending": "Pending",
+    "distTitle": "Orders by status",
+    "trendTitle": "Orders — last 7 days",
+    "donutTitle": "Value by status",
+    "topTitle": "Top 5 SKUs",
+    "healthTitle": "Health Radar",
+    "latestTitle": "Latest orders",
+    "sysTitle": "System status",
+    "radarOrders": "Orders",
+    "radarAi": "AI",
+    "radarKb": "KB",
+    "radarUsers": "Users",
+    "radarFeedback": "Feedback",
+    "empty": "No data",
+    "emptySku": "No product data",
+    "emptyOrders": "No orders",
+    "colOrderNo": "Order no.",
+    "colStatus": "Status",
+    "colAmount": "Amount",
+    "colTime": "Time",
+    "rowQueen": "Queen backend",
+    "rowVersion": "Version",
+    "rowChangelog": "Changelog",
+    "rowChangelogCount": "{{count}} releases",
+    "rowTerminal": "Terminal",
+    "rowTerminalValue": "Wing · Console",
+    "online": "Online",
+    "offline": "Offline"
+  },
+  "orders": {
+    "title": "Order Archive",
+    "records": "{{total}} records",
+    "placeholder": "Search order no., e.g. PN20260904…",
+    "allStatus": "All statuses",
+    "search": "Search",
+    "reset": "Reset",
+    "colNo": "Archive No.",
+    "colStatus": "Status",
+    "colAmount": "Amount",
+    "colSku": "Items",
+    "colTime": "Created",
+    "colOp": "Actions",
+    "items": "{{count}} items",
+    "detail": "Details",
+    "loading": "Loading…",
+    "noMatch": "No matching records",
+    "remark": "Remark: {{remark}}",
+    "itemsTitle": "items · Products",
+    "detailTitle": "Record · {{no}}"
+  },
+  "status": {
+    "pending": "Pending payment",
+    "paid": "Paid",
+    "shipped": "Shipped",
+    "completed": "Completed",
+    "cancelled": "Cancelled"
   }
 }

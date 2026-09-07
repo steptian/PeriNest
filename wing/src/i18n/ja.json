@@ -1,5 +1,8 @@
 {
-  "app": { "name": "PeriNest", "tagline": "built to survive" },
+  "app": {
+    "name": "PeriNest",
+    "tagline": "built to survive"
+  },
   "nav": {
     "dashboard": "ダッシュボード",
     "orders": "注文",
@@ -36,5 +39,66 @@
     "totalPages": "全 {{total}} 件 · {{page}}/{{pages}} ページ",
     "prev": "前へ",
     "next": "次へ"
+  },
+  "dashboard": {
+    "title": "経営概況",
+    "statOrders": "注文総数",
+    "statAmount": "累計金額",
+    "statPending": "支払い待ち",
+    "distTitle": "注文ステータス分布",
+    "trendTitle": "直近 7 日の注文数",
+    "donutTitle": "金額構成",
+    "topTitle": "人気 Top 5",
+    "healthTitle": "ヘルスレーダー",
+    "latestTitle": "最新の注文",
+    "sysTitle": "システム状況",
+    "radarOrders": "注文",
+    "radarAi": "AI",
+    "radarKb": "ナレッジ",
+    "radarUsers": "メンバー",
+    "radarFeedback": "フィードバック",
+    "empty": "データなし",
+    "emptySku": "商品データなし",
+    "emptyOrders": "注文なし",
+    "colOrderNo": "注文番号",
+    "colStatus": "状態",
+    "colAmount": "金額",
+    "colTime": "時刻",
+    "rowQueen": "Queen バックエンド",
+    "rowVersion": "現在のバージョン",
+    "rowChangelog": "更新履歴",
+    "rowChangelogCount": "全 {{count}} リリース",
+    "rowTerminal": "端末",
+    "rowTerminalValue": "Wing · 管理画面",
+    "online": "オンライン",
+    "offline": "オフライン"
+  },
+  "orders": {
+    "title": "注文アーカイブ",
+    "records": "{{total}} records",
+    "placeholder": "注文番号で検索（例 PN20260904…）",
+    "allStatus": "すべての状態",
+    "search": "検索",
+    "reset": "リセット",
+    "colNo": "アーカイブ No.",
+    "colStatus": "状態",
+    "colAmount": "金額",
+    "colSku": "商品",
+    "colTime": "登録時刻",
+    "colOp": "操作",
+    "items": "{{count}}件",
+    "detail": "詳細",
+    "loading": "読み込み中…",
+    "noMatch": "該当する記録がありません",
+    "remark": "備考：{{remark}}",
+    "itemsTitle": "items · 商品リスト",
+    "detailTitle": "記録 · {{no}}"
+  },
+  "status": {
+    "pending": "支払い待ち",
+    "paid": "支払い済み",
+    "shipped": "発送済み",
+    "completed": "完了",
+    "cancelled": "キャンセル"
   }
 }

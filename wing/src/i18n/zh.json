@@ -1,5 +1,8 @@
 {
-  "app": { "name": "PeriNest", "tagline": "built to survive" },
+  "app": {
+    "name": "PeriNest",
+    "tagline": "built to survive"
+  },
   "nav": {
     "dashboard": "仪表盘",
     "orders": "订单",
@@ -36,5 +39,66 @@
     "totalPages": "共 {{total}} 条 · {{page}}/{{pages}} 页",
     "prev": "上一页",
     "next": "下一页"
+  },
+  "dashboard": {
+    "title": "经营概览",
+    "statOrders": "订单总数",
+    "statAmount": "累计金额",
+    "statPending": "待支付",
+    "distTitle": "订单状态分布",
+    "trendTitle": "近 7 日订单量",
+    "donutTitle": "金额构成",
+    "topTitle": "热销 Top 5",
+    "healthTitle": "健康概览",
+    "latestTitle": "最新订单",
+    "sysTitle": "系统状态",
+    "radarOrders": "订单",
+    "radarAi": "AI 服务",
+    "radarKb": "知识库",
+    "radarUsers": "成员",
+    "radarFeedback": "反馈",
+    "empty": "暂无数据",
+    "emptySku": "暂无商品数据",
+    "emptyOrders": "暂无订单",
+    "colOrderNo": "订单号",
+    "colStatus": "状态",
+    "colAmount": "金额",
+    "colTime": "时间",
+    "rowQueen": "Queen 后端",
+    "rowVersion": "当前版本",
+    "rowChangelog": "更新记录",
+    "rowChangelogCount": "{{count}} 个版本",
+    "rowTerminal": "终端",
+    "rowTerminalValue": "Wing · 管理端",
+    "online": "在线",
+    "offline": "离线"
+  },
+  "orders": {
+    "title": "订单档案",
+    "records": "{{total}} records",
+    "placeholder": "订单号搜索，如 PN20260904…",
+    "allStatus": "全部状态",
+    "search": "检索",
+    "reset": "重置",
+    "colNo": "档案号",
+    "colStatus": "状态",
+    "colAmount": "金额",
+    "colSku": "商品",
+    "colTime": "入库时间",
+    "colOp": "操作",
+    "items": "{{count}} 件",
+    "detail": "详情",
+    "loading": "加载中…",
+    "noMatch": "无匹配档案",
+    "remark": "备注：{{remark}}",
+    "itemsTitle": "items · 商品清单",
+    "detailTitle": "档案 · {{no}}"
+  },
+  "status": {
+    "pending": "待支付",
+    "paid": "已支付",
+    "shipped": "已发货",
+    "completed": "已完成",
+    "cancelled": "已取消"
   }
 }

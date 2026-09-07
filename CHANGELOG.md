@@ -24,6 +24,9 @@
 - **多语言 i18n Wing 外壳**（同 Leg 模式第二批）：`wing/src/i18n/` 三 JSON；侧栏 Languages 循环
   切换器（持久化 + `<html lang>` 同步）；Layout/Login/Modal/ConfirmDialog/Pagination 文案 t() 化；
   业务页 key 渐进补充（缺 key 回退中文，任意时刻可发布）
+- **多语言 i18n Wing 业务页（第一批）**：Dashboard + Orders 全量 t() 化——统计卡/图表卡/
+  表格/空态/状态行/详情弹窗 + 雷达轴名，订单状态下拉走 ORDER_STATUS_KEY（三语 status 段补入）；
+  顺手朴素化 Dashboard 残留世界观词（标本总数→订单总数、标本清单→商品清单等）；ORDER_STATUS_LABEL 改名 KEY
 
 ## [0.13.0] - 2026-09-07
 

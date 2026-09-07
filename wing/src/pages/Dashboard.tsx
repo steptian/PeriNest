@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { orderApi } from "@/api/order";
 import { systemApi } from "@/api/system";
-import { ORDER_STATUS_LABEL, fmtMoney, fmtTime } from "@/utils/format";
+import { ORDER_STATUS_KEY, fmtMoney, fmtTime } from "@/utils/format";
 
 /** 近 7 日趋势：演示数据（demo 环境订单集中同日，真实分日统计无意义） */
 const TREND_DEMO = [3, 5, 2, 8, 6, 9, 4].map((v, i) => ({
@@ -16,11 +17,11 @@ const SPARKS = [
 ];
 /** 五维概览：演示值（模板展示用，接入真实指标后替换） */
 const RADAR_DEMO = [
-  { axis: "订单", value: 78 },
-  { axis: "AI 服务", value: 92 },
-  { axis: "知识库", value: 64 },
-  { axis: "成员", value: 85 },
-  { axis: "反馈", value: 55 },
+  { axis: "dashboard.radarOrders", value: 78 },
+  { axis: "dashboard.radarAi", value: 92 },
+  { axis: "dashboard.radarKb", value: 64 },
+  { axis: "dashboard.radarUsers", value: 85 },
+  { axis: "dashboard.radarFeedback", value: 55 },
 ];
 
 /** 状态色带（琥珀系透明度梯度，cancelled 红例外） */
@@ -40,6 +41,7 @@ const STATUS_HEX: Record<string, string> = {
 };
 
 export default function Dashboard() {
+  const { t } = useTranslation();
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ["orders", "dashboard"],
     queryFn: () => orderApi.list(100),
@@ -75,39 +77,39 @@ export default function Dashboard() {
       <header className="flex items-end justify-between">
         <div>
           <p className="specimen-latin mb-1">specimen overview</p>
-          <h2 className="font-specimen text-3xl font-bold tracking-tight">经营概览</h2>
+          <h2 className="font-specimen text-3xl font-bold tracking-tight">{t("dashboard.title")}</h2>
         </div>
         <span className="specimen-latin hidden md:block">periplaneta americana</span>
       </header>
 
       {/* 统计带（内嵌 sparkline） */}
       <div className="grid grid-cols-3 gap-4">
-        <Stat latin="count" title="标本总数" value={String(orders.length)} spark={SPARKS[0]} />
-        <Stat latin="value" title="累计金额" value={fmtMoney(total)} spark={SPARKS[1]} />
-        <Stat latin="pending" title="待支付" value={String(pending)} highlight={pending > 0} spark={SPARKS[2]} />
+        <Stat latin="count" title={t("dashboard.statOrders")} value={String(orders.length)} spark={SPARKS[0]} />
+        <Stat latin="value" title={t("dashboard.statAmount")} value={fmtMoney(total)} spark={SPARKS[1]} />
+        <Stat latin="pending" title={t("dashboard.statPending")} value={String(pending)} highlight={pending > 0} spark={SPARKS[2]} />
       </div>
 
       {/* 分布 + 趋势 */}
       <div className="grid gap-4 md:grid-cols-2">
         <div className="specimen-card p-5">
           <div className="mb-3 flex items-baseline justify-between">
-            <h3 className="font-specimen text-sm font-bold">订单状态分布</h3>
+            <h3 className="font-specimen text-sm font-bold">{t("dashboard.distTitle")}</h3>
             <span className="specimen-latin !text-[8px]">status spectrum</span>
           </div>
           {byStatus.length === 0 ? (
-            <p className="py-6 text-center text-xs text-muted-foreground">暂无数据</p>
+            <p className="py-6 text-center text-xs text-muted-foreground">{t("dashboard.empty")}</p>
           ) : (
             <>
               <div className="mb-3 flex h-3 overflow-hidden rounded-full">
                 {byStatus.map(([st, n]) => (
-                  <div key={st} className={STATUS_STYLE[st] ?? "bg-muted"} style={{ width: `${(n / orders.length) * 100}%` }} title={`${ORDER_STATUS_LABEL[st] ?? st} × ${n}`} />
+                  <div key={st} className={STATUS_STYLE[st] ?? "bg-muted"} style={{ width: `${(n / orders.length) * 100}%` }} title={`${t(ORDER_STATUS_KEY[st] ?? st)} × ${n}`} />
                 ))}
               </div>
               <div className="flex flex-wrap gap-x-4 gap-y-1.5">
                 {byStatus.map(([st, n]) => (
                   <span key={st} className="flex items-center gap-1.5 text-xs text-muted-foreground">
                     <i className={`inline-block h-2 w-2 rounded-full ${STATUS_STYLE[st] ?? "bg-muted"}`} />
-                    {ORDER_STATUS_LABEL[st] ?? st} · {n}
+                    {t(ORDER_STATUS_KEY[st] ?? st)} · {n}
                   </span>
                 ))}
               </div>
@@ -117,7 +119,7 @@ export default function Dashboard() {
 
         <div className="specimen-card p-5">
           <div className="mb-3 flex items-baseline justify-between">
-            <h3 className="font-specimen text-sm font-bold">近 7 日订单量</h3>
+            <h3 className="font-specimen text-sm font-bold">{t("dashboard.trendTitle")}</h3>
             <span className="specimen-latin !text-[8px] opacity-60">trend · demo</span>
           </div>
           <div className="flex h-28 items-end gap-2">
@@ -127,7 +129,7 @@ export default function Dashboard() {
                 <div
                   className="w-full rounded-t-md bg-gradient-to-t from-primary/25 to-primary/70 transition-all hover:to-primary"
                   style={{ height: `${Math.max((d.value / trendMax) * 88, 8)}%` }}
-                  title={`${d.day} · ${d.value} 单`}
+                  title={`${d.day} · ${t("orders.items", { count: d.value })}`}
                 />
                 <span className="text-[9px] text-muted-foreground">{d.day}</span>
               </div>
@@ -140,17 +142,17 @@ export default function Dashboard() {
       <div className="grid gap-4 md:grid-cols-3">
         <div className="specimen-card flex flex-col p-5">
           <div className="mb-2 flex items-baseline justify-between">
-            <h3 className="font-specimen text-sm font-bold">金额构成</h3>
+            <h3 className="font-specimen text-sm font-bold">{t("dashboard.donutTitle")}</h3>
             <span className="specimen-latin !text-[8px]">donut</span>
           </div>
           <div className="flex flex-1 items-center gap-4">
             <Donut data={amountByStatus} />
             <div className="min-w-0 flex-1 space-y-1.5">
-              {amountByStatus.length === 0 && <p className="text-xs text-muted-foreground">暂无数据</p>}
+              {amountByStatus.length === 0 && <p className="text-xs text-muted-foreground">{t("dashboard.empty")}</p>}
               {amountByStatus.slice(0, 4).map(([st, amt]) => (
                 <div key={st} className="flex items-center gap-1.5 text-[11px]">
                   <i className="h-2 w-2 shrink-0 rounded-full" style={{ background: STATUS_HEX[st] ?? "hsl(35 18% 82%)" }} />
-                  <span className="flex-1 truncate text-muted-foreground">{ORDER_STATUS_LABEL[st] ?? st}</span>
+                  <span className="flex-1 truncate text-muted-foreground">{t(ORDER_STATUS_KEY[st] ?? st)}</span>
                   <span className="font-specimen">{fmtMoney(amt)}</span>
                 </div>
               ))}
@@ -160,11 +162,11 @@ export default function Dashboard() {
 
         <div className="specimen-card p-5">
           <div className="mb-3 flex items-baseline justify-between">
-            <h3 className="font-specimen text-sm font-bold">标本热度 Top 5</h3>
+            <h3 className="font-specimen text-sm font-bold">{t("dashboard.topTitle")}</h3>
             <span className="specimen-latin !text-[8px]">sku ranking</span>
           </div>
           {topSkus.length === 0 ? (
-            <p className="py-6 text-center text-xs text-muted-foreground">暂无商品数据</p>
+            <p className="py-6 text-center text-xs text-muted-foreground">{t("dashboard.emptySku")}</p>
           ) : (
             <div className="space-y-2.5">
               {topSkus.map(([sku, qty], i) => (
@@ -190,7 +192,7 @@ export default function Dashboard() {
 
         <div className="specimen-card p-5">
           <div className="mb-1 flex items-baseline justify-between">
-            <h3 className="font-specimen text-sm font-bold">健康概览</h3>
+            <h3 className="font-specimen text-sm font-bold">{t("dashboard.healthTitle")}</h3>
             <span className="specimen-latin !text-[8px] opacity-60">radar · demo</span>
           </div>
           <Radar data={RADAR_DEMO} />
@@ -201,16 +203,16 @@ export default function Dashboard() {
       <div className="grid gap-4 md:grid-cols-3">
         <div className="specimen-card overflow-hidden !py-0 md:col-span-2">
           <div className="flex items-baseline justify-between px-5 pb-2 pt-4">
-            <h3 className="font-specimen text-sm font-bold">最新标本</h3>
+            <h3 className="font-specimen text-sm font-bold">{t("dashboard.latestTitle")}</h3>
             <span className="specimen-latin !text-[8px]">recent specimens</span>
           </div>
           <table className="w-full text-sm">
             <thead className="border-y border-border/50 text-left text-[11px] uppercase tracking-wide text-muted-foreground">
               <tr>
-                <th className="px-5 py-2 font-normal">订单号</th>
-                <th className="px-4 py-2 font-normal">状态</th>
-                <th className="px-4 py-2 text-right font-normal">金额</th>
-                <th className="px-5 py-2 text-right font-normal">时间</th>
+                <th className="px-5 py-2 font-normal">{t("dashboard.colOrderNo")}</th>
+                <th className="px-4 py-2 font-normal">{t("dashboard.colStatus")}</th>
+                <th className="px-4 py-2 text-right font-normal">{t("dashboard.colAmount")}</th>
+                <th className="px-5 py-2 text-right font-normal">{t("dashboard.colTime")}</th>
               </tr>
             </thead>
             <tbody>
@@ -219,7 +221,7 @@ export default function Dashboard() {
                   <td className="px-5 py-2.5 font-specimen text-xs">#{o.order_no}</td>
                   <td className="px-4 py-2.5">
                     <span className="rounded-full border border-primary/35 px-2 py-0.5 text-[10px] text-primary">
-                      {ORDER_STATUS_LABEL[o.status] ?? o.status}
+                      {t(ORDER_STATUS_KEY[o.status] ?? o.status)}
                     </span>
                   </td>
                   <td className="px-4 py-2.5 text-right font-specimen text-xs">{fmtMoney(Number(o.total_amount))}</td>
@@ -227,7 +229,7 @@ export default function Dashboard() {
                 </tr>
               ))}
               {recent.length === 0 && !isLoading && (
-                <tr><td colSpan={4} className="px-5 py-8 text-center text-xs text-muted-foreground">暂无订单</td></tr>
+                <tr><td colSpan={4} className="px-5 py-8 text-center text-xs text-muted-foreground">{t("dashboard.emptyOrders")}</td></tr>
               )}
             </tbody>
           </table>
@@ -235,17 +237,17 @@ export default function Dashboard() {
 
         <div className="specimen-card space-y-3.5 p-5">
           <div className="flex items-baseline justify-between">
-            <h3 className="font-specimen text-sm font-bold">系统状态</h3>
+            <h3 className="font-specimen text-sm font-bold">{t("dashboard.sysTitle")}</h3>
             <span className="specimen-latin !text-[8px]">nest status</span>
           </div>
-          <StatusRow label="Queen 后端" ok={version !== undefined} />
-          <StatusRow label="当前版本" text={`v${version?.version ?? __APP_VERSION__}`} />
-          <StatusRow label="更新记录" text={`${version?.changelog.length ?? 0} 个版本`} />
-          <StatusRow label="终端" text="Wing · 管理端" ok />
+          <StatusRow label={t("dashboard.rowQueen")} ok={version !== undefined} />
+          <StatusRow label={t("dashboard.rowVersion")} text={`v${version?.version ?? __APP_VERSION__}`} />
+          <StatusRow label={t("dashboard.rowChangelog")} text={t("dashboard.rowChangelogCount", { count: version?.changelog.length ?? 0 })} />
+          <StatusRow label={t("dashboard.rowTerminal")} text={t("dashboard.rowTerminalValue")} ok />
         </div>
       </div>
 
-      {isLoading && <p className="text-sm text-muted-foreground">加载中…</p>}
+      {isLoading && <p className="text-sm text-muted-foreground">{t("common.loading")}</p>}
     </div>
   );
 }
@@ -312,6 +314,7 @@ function Donut({ data }: { data: [string, number][] }) {
 
 /** 巢穴五维雷达（SVG polygon） */
 function Radar({ data }: { data: { axis: string; value: number }[] }) {
+  const { t } = useTranslation();
   const cx = 90, cy = 82, R = 58;
   const pt = (i: number, r: number) => {
     const a = (Math.PI * 2 * i) / data.length - Math.PI / 2;
@@ -337,7 +340,7 @@ function Radar({ data }: { data: { axis: string; value: number }[] }) {
         const [x, y] = pt(i, R + 16);
         return (
           <text key={d.axis} x={x} y={y} textAnchor="middle" dominantBaseline="middle" className="fill-muted-foreground text-[8px]">
-            {d.axis}
+            {t(d.axis)}
           </text>
         );
       })}
@@ -346,13 +349,14 @@ function Radar({ data }: { data: { axis: string; value: number }[] }) {
 }
 
 function StatusRow({ label, text, ok }: { label: string; text?: string; ok?: boolean }) {
+  const { t } = useTranslation();
   return (
     <div className="flex items-center justify-between text-xs">
       <span className="text-muted-foreground">{label}</span>
       {ok !== undefined ? (
         <span className={`flex items-center gap-1.5 ${ok ? "text-emerald-600 dark:text-emerald-400" : "text-red-500"}`}>
           <i className={`inline-block h-1.5 w-1.5 rounded-full ${ok ? "bg-emerald-500" : "bg-red-500"} animate-pulse`} />
-          {text ?? (ok ? "在线" : "离线")}
+          {text ?? (ok ? t("dashboard.online") : t("dashboard.offline"))}
         </span>
       ) : (
         <span className="font-specimen">{text}</span>
