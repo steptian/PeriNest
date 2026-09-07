@@ -12,5 +12,5 @@ wiki:
 
 ## 状态区
 status: Unreleased 五件套：企业四板+内核插件化（四 seam+Cercus 示范插件+experimental 区）；59 测试+冒烟 40+eval 全绿
-next: 发 v0.11.1（Unreleased 收口）；在线 demo 上线（等服务器，docs/DEMO.md）；OA/进销存按 plugins/README 契约孵化
+next: 多语言（中英日三端系统性 i18n，方案见 wiki 待深入）；发下一版收口；在线 demo 上线（等服务器）；OA/进销存按契约孵化
 updated: 2026-09-06
