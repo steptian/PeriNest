@@ -37,6 +37,11 @@
   （unknown/denied/error 全留痕 + 工具异常不再炸问答链路）；
   `GET /system/agent-audit`（system 权限）+ Wing 问答区审计 Modal（admin）
 
+- **RAG 评测体系**（防退化）：`make eval`——种子文档幂等吞入 + 评测集
+  （`scripts/eval_cases.jsonl`，10 条：术语/概念/技术细节/查询多样性/分域
+  红线）→ recall@5 / MRR 报告 → 低于基线 90% 或红线破坏即 exit 1；
+  CI 集成（pytest 后跑 eval），检索质量回归本地秒红
+
 ### Changed
 - Wing 系统设置 tab 重排：默认「巢穴成员」，「模型与凭证」移至最后；越权兜底
   改为按首个可见 tab 通用判定

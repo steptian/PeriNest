@@ -3,6 +3,9 @@
 
 .PHONY: check dev shots plates
 
+eval: ## RAG 检索质量评测（recall@5/MRR/分域红线，低于基线 exit 1）
+	cd queen && .venv/bin/python ../scripts/eval_rag.py
+
 check: ## 全链路自检（改代码后的标准验证，parity 违规本地秒红）
 	cd queen && .venv/bin/python -m pytest tests/ -q
 	cd wing && npm run build > /dev/null && echo "wing build ✅"

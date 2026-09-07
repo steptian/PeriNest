@@ -1,0 +1,10 @@
+{"query": "琥珀标本馆的设计语言", "expect_title": "eval-design-language", "expect_keywords": ["琥珀金", "树脂棕"], "note": "术语命中：设计语言核心概念"}
+{"query": "嗦囊知识库是做什么的", "expect_title": "eval-crop-intro", "expect_keywords": ["先吞后消化"], "note": "概念查询：模块职责"}
+{"query": "共生体原则", "expect_title": "eval-symbiont", "expect_keywords": ["授权用户"], "note": "架构原则：AI 以授权用户身份行事"}
+{"query": "Vector Sets 投影重建", "expect_title": "eval-projection", "expect_keywords": ["VADD"], "note": "技术细节：Redis 命令"}
+{"query": "权限分域 visible_roles", "expect_title": "eval-visibility", "expect_keywords": ["检索前过滤"], "note": "中英混合：新功能关键词"}
+{"query": "混合检索 RRF 融合", "expect_title": "eval-hybrid-search", "expect_keywords": ["关键词"], "note": "检索机制自描述"}
+{"query": "混合检索怎么融合两路排名", "expect_title": "eval-hybrid-search", "expect_keywords": ["RRF"], "note": "同文档换问法：查询多样性"}
+{"query": "web_search 工具什么时候用", "expect_title": "eval-websearch-tool", "expect_keywords": ["联网"], "note": "工具使用场景"}
+{"query": "agent 用量怎么记账", "expect_title": "eval-usage", "expect_keywords": ["token"], "note": "观测能力"}
+{"query": "机密财报数据", "expect_title": "eval-secret-fin", "expect_keywords": ["营收"], "note": "分域红线：wing 视角必须检索不到", "expect_hidden_for": "wing"}

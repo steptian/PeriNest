@@ -47,6 +47,7 @@ Nginx(Carapace) → gunicorn/uvicorn → main.py 中间件(trace_id) → api/v1/
 - ⚠️ 权限匹配必须走 `permissions.has_permission`（域简写"crop"/全称/write 隐含 read 同语义）——裸 `in` 匹配会把 admin（种子是域简写）的 crop_search 误杀（v0.11 踩过，回归 `queen/tests/test_crop.py` test_tools_for_admin_includes_crop_search）
 - ⚠️ **ask 无 mock 降级**（用户拍板 fail-closed）：未配 LLM key 时非流式 503 / SSE error 事件——知识库问答绝不 mock 假答案；链路完整性靠生产冒烟真实 provider 验证
 - MCP：`crop_search`（检索）/`crop_ingest`（吞入）/`crop_ask`（问答，v0.11+），PARITY_MAP 已登记；列表/详情/删除/运维/ask/stream 端点走 EXEMPT（理由见 `queen/tests/test_capability_parity.py:35`）
+- **评测体系**（v0.11.1+，✅ `scripts/eval_rag.py` + `scripts/eval_cases.jsonl`）：`make eval` 出 recall@5/MRR + 分域红线，基线 90% 以下 CI 红（Queen job 内 pytest 后执行）；mock embedding 下靠关键词通道确定性命中——语义泛化评测需真 key 环境另跑；评测文档 `eval-` 前缀幂等清理自建
 - **依赖**：Redis ≥ 8.2（Vector Sets）；Redis 7 无此结构——部署文档见 03
 - 坑：向量操作走独立二进制连接（decode_responses=False），不能复用主池（主池 True 会破坏 FP32 传输）
 

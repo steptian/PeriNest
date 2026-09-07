@@ -57,6 +57,10 @@ jobs:
         run: pytest tests/ -v
         env:
           PERINEST_Q_AI_MOCK: "true"  # CI 走 mock 模式，零 key 零成本
+      - name: RAG eval（检索质量防退化：recall@5 基线 90% + 分域红线）
+        run: python ../scripts/eval_rag.py
+        env:
+          PERINEST_Q_AI_MOCK: "true"
 
   wing:
     name: Wing (tsc + vite build)
