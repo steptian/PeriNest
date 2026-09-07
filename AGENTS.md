@@ -11,6 +11,6 @@ wiki: docs/agent/
 wiki: 
 
 ## 状态区
-status: Unreleased 四板齐：权限分域/agent 审计/RAG 评测(make eval+CI)/demo 引导(make demo)；59 测试全绿
-next: 发 v0.11.1；在线 demo 上线（等服务器信息，见 docs/DEMO.md）；Antenna 真机验证
+status: Unreleased 五件套：企业四板+内核插件化（四 seam+Cercus 示范插件+experimental 区）；59 测试+冒烟 40+eval 全绿
+next: 发 v0.11.1（Unreleased 收口）；在线 demo 上线（等服务器，docs/DEMO.md）；OA/进销存按 plugins/README 契约孵化
 updated: 2026-09-06
