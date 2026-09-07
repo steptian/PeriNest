@@ -5,7 +5,18 @@
 from celery import Celery
 from celery.schedules import crontab
 
+from app.core import plugins
 from app.core.config import settings
+
+# 插件 seam：celery include + beat 动态挂载（插件声明，内核不知细节）
+_plugin_includes: list[str] = []
+_plugin_beat: dict = {}
+for _meta in plugins.discover().values():
+    _plugin_includes.extend(_meta.celery_includes)
+    for _key, _entry in _meta.beat_schedule.items():
+        _sched = _entry["schedule"]
+        _entry = {**_entry, "schedule": crontab(**_sched) if isinstance(_sched, dict) else _sched}
+        _plugin_beat[_key] = _entry
 
 celery_app = Celery(
     "perinest",
@@ -13,7 +24,7 @@ celery_app = Celery(
     backend=settings.CELERY_RESULT_BACKEND,
     include=[
         "app.tasks.email_tasks", "app.tasks.report_tasks", "app.tasks.ai_tasks",
-        "app.tasks.cercus_tasks",
+        *_plugin_includes,
     ],
 )
 
@@ -26,11 +37,5 @@ celery_app.conf.update(
     task_track_started=True,
     # worker 崩溃自动重启（断头再生）
     worker_max_tasks_per_child=500,
-    # Cercus 尾须：每日晨间全量同步兜底（回调精确刷新之外的保险）
-    beat_schedule={
-        "cercus-daily-sync": {
-            "task": "app.tasks.cercus_tasks.sync_all_staff",
-            "schedule": crontab(hour=6, minute=30),
-        },
-    },
+    beat_schedule=_plugin_beat,
 )

@@ -70,12 +70,16 @@ class QueenSettings(BaseSettings):
     AI_MOCK: bool = False  # 显式开启 mock；未配 key 时隐式生效
 
     # ---- Cercus 尾须 (企微私域，未配自动禁用——demo 零成本) ----
+    # ---- Cercus 插件字段（插件化 v1 妥协：settings 类静态，字段留内核注明归属）----
     WECOM_CORP_ID: str = ""
     WECOM_CORP_SECRET: str = ""
     WECOM_AGENT_ID: int = 0
     WECOM_TOKEN: str = ""  # 回调验签 token
     WECOM_ENCODING_AES_KEY: str = ""  # 回调加解密 key（43 字符）
     WECOM_SYNC_STAFF: str = ""  # 定时同步种子员工（逗号分隔 userid，可空）
+
+    # 插件启用清单（逗号分隔目录名；plugins/ 下）；新插件先进 experimental 默认不装
+    PLUGINS: str = "cercus"
 
     # Web 搜索佐证（agent web_search 工具，火山引擎联网搜索 API）
     WEB_SEARCH_API_KEY: str = ""

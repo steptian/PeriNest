@@ -43,7 +43,7 @@ async def _mk_admin(client):
 
 async def _seed_contact(name: str = "测试客户", tags: list | None = None) -> int:
     from app.core.database import AsyncSessionLocal
-    from app.models.wecom import WecomContact
+    from plugins.cercus.models import WecomContact
 
     async with AsyncSessionLocal() as db:
         c = WecomContact(
@@ -61,7 +61,7 @@ async def _seed_contact(name: str = "测试客户", tags: list | None = None) ->
 
 
 def test_wecom_crypto_roundtrip():
-    from app.services import wecom_crypto as wc
+    from plugins.cercus import crypto as wc
 
     aeskey = "b" * 43
     ct = wc.encrypt_msg(aeskey, "wwcorp123", '{"Event":"change_external_contact"}')
@@ -154,14 +154,14 @@ async def test_cercus_callback_refresh_disabled():
 
     注：必须走 session 单 loop（项目铁律），勿在测试内 asyncio.run 另起 loop。
     """
-    from app.api.v1.endpoints.cercus import _refresh_one_contact
+    from plugins.cercus.endpoints import _refresh_one_contact
 
     await _refresh_one_contact("wmExt_nonexistent", "modify")  # 应静默返回
 
 
 async def test_cercus_redis_cache_roundtrip():
     """Nectar 缓存层回环：set/get/delete + fail-open（缓存不影响功能）。"""
-    from app.services import wecom_service as ws
+    import plugins.cercus.service as ws
 
     await ws._cache_set("cercus:test:key", '{"a":1}', 60)
     assert await ws._cache_get("cercus:test:key") == '{"a":1}'
@@ -175,7 +175,7 @@ async def test_wecom_token_cached_in_redis():
     """token 走 Redis 共享缓存：monkeypatch 企微响应后两次调用只打一次外网。"""
     from unittest.mock import AsyncMock, patch
 
-    import app.services.wecom_service as ws
+    import plugins.cercus.service as ws
     from app.core.config import settings
 
     if settings.wecom_enabled:

@@ -11,6 +11,19 @@ from app.core.config import settings
 from app.core.database import Base
 import app.models  # noqa: F401 — 触发全部 model 注册
 
+# 插件 seam：模型注册 + 未来迁移目录（plugins/<name>/versions/）
+import importlib
+from pathlib import Path as _P
+
+from app.core import plugins as _plugins
+
+for _meta in _plugins.discover().values():
+    importlib.import_module(f"plugins.{_meta.name}.models")
+    _vers = _P(__file__).resolve().parents[2] / "plugins" / _meta.name / "versions"
+    if _vers.is_dir():
+        _loc = config.get_main_option("version_locations") or "%(here)s/versions"
+        config.set_main_option("version_locations", f"{_loc};{_vers}")
+
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.db_url)
 

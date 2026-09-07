@@ -18,11 +18,13 @@ from sqlalchemy import func, select
 
 from app.api.deps import CurrentUser, DBSession
 from app.core.config import settings
-from app.core.permissions import WECOM, require_permission
+from app.core.permissions import require_permission
+
+WECOM = "wecom"  # 插件自有权限域
 from app.models.user import User
-from app.models.wecom import WecomContact, WecomFollowup
-from app.services import wecom_service
-from app.services.wecom_crypto import decrypt, encrypt_msg, verify
+from plugins.cercus.models import WecomContact, WecomFollowup
+from plugins.cercus import service as wecom_service
+from plugins.cercus.crypto import decrypt, encrypt_msg, verify
 
 router = APIRouter(prefix="/cercus", tags=["cercus"])
 
@@ -248,7 +250,7 @@ async def wecom_oauth_login(req: WecomOauthLogin, db: DBSession):
 
     from app.core.security import create_access_token
     from app.models.user import User
-    from app.services import wecom_service
+    from plugins.cercus import service as wecom_service
 
     try:
         userid = await wecom_service.get_userid_by_code(req.code)
@@ -345,8 +347,8 @@ async def _refresh_one_contact(external_userid: str, change: str) -> None:
     import structlog
 
     from app.core.database import AsyncSessionLocal
-    from app.models.wecom import WecomContact
-    from app.services import wecom_service
+    from plugins.cercus.models import WecomContact
+    from plugins.cercus import service as wecom_service
 
     logger = structlog.get_logger(__name__)
     async with AsyncSessionLocal() as db:

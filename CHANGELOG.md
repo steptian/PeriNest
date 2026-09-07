@@ -15,6 +15,17 @@
 ## [Unreleased]
 
 ### Added
+- **内核插件化**（dsh ctx-seam 模式，v1）：`plugins/` 目录 + `PluginMeta`
+  契约 + 四挂载点（路由/权限域/MCP+agent 工具/迁移）+ celery beat/include
+  与运行时配置键动态挂载；`PERINEST_Q_PLUGINS` 启用（默认 cercus）
+- **Cercus 重构为示范插件**：endpoints/models/service/crypto/tasks/tools
+  迁入 `plugins/cercus/`（git mv 保历史），内核五处硬编码点（router/
+  permissions/celery/spiracle/models）全部去 cercus 化
+- `plugins/experimental/` 实验区（dsh 机械隔离：默认不装/发布排除/稳定区
+  禁依赖/不降质量标准）——OA 审批流、进销存将按契约在此孵化
+- 契约文档 `plugins/README.md`（新插件流程 + v2 议题）
+
+### Added
 - 版本说明弹窗/页渲染行内 markdown：后端解析 `**加粗**`/`` `代码` `` 为 runs
   结构，三端按 runs 渲染（Wing/Leg `<strong>`/`<code>`，Antenna class 分支）
 

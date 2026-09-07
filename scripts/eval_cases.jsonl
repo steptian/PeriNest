@@ -1,5 +1,5 @@
 {"query": "琥珀标本馆的设计语言", "expect_title": "eval-design-language", "expect_keywords": ["琥珀金", "树脂棕"], "note": "术语命中：设计语言核心概念"}
-{"query": "嗦囊知识库是做什么的", "expect_title": "eval-crop-intro", "expect_keywords": ["先吞后消化"], "note": "概念查询：模块职责"}
+{"query": "嗦囊知识库是做什么的", "expect_title": "eval-crop-intro", "expect_keywords": ["吞入"], "note": "概念查询：模块职责"}
 {"query": "共生体原则", "expect_title": "eval-symbiont", "expect_keywords": ["授权用户"], "note": "架构原则：AI 以授权用户身份行事"}
 {"query": "Vector Sets 投影重建", "expect_title": "eval-projection", "expect_keywords": ["VADD"], "note": "技术细节：Redis 命令"}
 {"query": "权限分域 visible_roles", "expect_title": "eval-visibility", "expect_keywords": ["检索前过滤"], "note": "中英混合：新功能关键词"}

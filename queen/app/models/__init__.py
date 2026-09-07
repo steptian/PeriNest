@@ -6,10 +6,9 @@ from app.models.role import Role, RolePerm
 from app.models.sys_config import SysConfig
 from app.models.sys_log import SysLog
 from app.models.user import User
-from app.models.wecom import WecomContact, WecomFollowup
 
 __all__ = [
     "User", "Order", "OrderItem", "SysLog", "PermOverride", "Role", "RolePerm",
-    "CropDocument", "CropChunk", "WecomContact", "WecomFollowup", "SysConfig", "AgentUsage", "AgentMessage",
+    "CropDocument", "CropChunk", "SysConfig", "AgentUsage", "AgentMessage",
 ]
 from app.models.agent import AgentMessage, AgentUsage  # noqa: F401

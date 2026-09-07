@@ -24,7 +24,11 @@ from app.services import user_service
 
 def test_matrix_shape():
     """种子矩阵核心形状：admin 全域、operator 读用户、wing/antenna 终端域。"""
-    assert DEFAULT_ROLE_SEEDS["admin"][1] == ["users", "orders", "feedback", "ai", "system", "crop", "wecom"]
+    # 种子为内置域（插件域运行时经 seam 动态并入 admin——cercus 启用时含 wecom）
+    assert DEFAULT_ROLE_SEEDS["admin"][1] == ["users", "orders", "feedback", "ai", "system", "crop"]
+    from app.core import plugins as _plugins
+    assert set(_plugins.plugin_perm_domains()) == {"wecom"}  # cercus 插件域挂载
+    assert "wecom" in base_permissions("admin")  # 动态并入生效
     assert "wecom" in DEFAULT_ROLE_SEEDS["operator"][1]  # 私域客户域给运营
     assert "users" not in DEFAULT_ROLE_SEEDS["operator"][1]  # 只读不可写
     assert DEFAULT_ROLE_SEEDS["wing"][1] == ["orders", "feedback", "ai", "crop:read"]  # 终端可检索知识库，不可管理

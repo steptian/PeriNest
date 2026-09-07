@@ -69,7 +69,7 @@ ack-agent（旭化成 RAG）验证过的失败模式，Crop 不走这条路：
 - Nectar 缓存层（Redis 共享，fail-open）：access_token/jsapi_ticket TTL 7000s（多 worker+celery 共用，进程内缓存会撞企微限频）、联系人详情 300s 短缓存（吸收侧边栏高频）；回调刷新/全量同步后精确失效
 - 数据：pn_wecom_contact 镜像（tags/kv 运营扩展位，**企微为权威源**，sync 只刷新镜像字段不动 tags/kv）+ pn_wecom_followup append-only 时间线
 - 回调精确刷新（v2）：change_external_contact → `_refresh_one_contact`（✅ `queen/app/api/v1/endpoints/cercus.py` delete 删镜像不级联运营数据；失败仅记日志）
-- 定时同步（v2）：`queen/app/tasks/cercus_tasks.py:17` sync_all_staff（celery beat 每日 06:30；员工集=存量 ∪ WECOM_SYNC_STAFF 种子）
+- 定时同步（v2）：`plugins/cercus/tasks.py` sync_all_staff（插件化后随插件挂载，celery beat 经 seam 动态注册）（celery beat 每日 06:30；员工集=存量 ∪ WECOM_SYNC_STAFF 种子）
 - OAuth 免登（v2）：`POST /cercus/wecom/oauth-login`（✅ 同文件 :240）——**约定式映射：系统用户名=企微 userid** 即自动免登；匹配不上 403 fail-closed 不自动建号；EXEMPT 已登记（身份入口，与 /auth/login 同性质）
 - Leg 侧边栏 `/wecom/sidebar?external_userid=x[&code=y]`：带 code 走 useEffect 免登换 token
 - MCP：wecom_contact_search；Wing 尾须管理页（列表/标签/跟进/手动同步）

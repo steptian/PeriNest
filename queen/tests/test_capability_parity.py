@@ -93,9 +93,21 @@ async def test_capability_parity(client, auth_headers):
     tools = await _mcp_tools(client, auth_headers)
 
     # 1. 正向：能力端点 → MCP 工具存在
+    # 插件端点：插件禁用时端点/工具一起消失（合法），启用时必须对账
+    from app.core import plugins as _plugins
+
+    _plugin_prefixes = tuple(
+        f"/api/v1/{m.name}" for m in _plugins.discover().values()
+    )
+
+    def _plugin_disabled(path: str) -> bool:
+        return path.startswith(_plugin_prefixes) and path not in paths
+
     uncovered: list[str] = []
     for path, mapped_tools in PARITY_MAP.items():
         if path not in paths:
+            if _plugin_disabled(path):
+                continue  # 插件禁用：端点与工具同进退，跳过
             uncovered.append(f"{path}: 已从 OpenAPI 消失，请更新 PARITY_MAP")
             continue
         for t in mapped_tools:

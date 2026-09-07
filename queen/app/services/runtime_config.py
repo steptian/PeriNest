@@ -22,13 +22,6 @@ AI_CONFIG_KEYS = {
     "embedding.api_key": "EMBEDDING_API_KEY",
     "embedding.model": "EMBEDDING_MODEL",
     "embedding.dim": "EMBEDDING_DIM",
-    # Cercus 尾须（企微私域）——归拢进同一配置面（DB > env）
-    "wecom.corp_id": "WECOM_CORP_ID",
-    "wecom.corp_secret": "WECOM_CORP_SECRET",
-    "wecom.agent_id": "WECOM_AGENT_ID",
-    "wecom.token": "WECOM_TOKEN",
-    "wecom.aes_key": "WECOM_ENCODING_AES_KEY",
-    "wecom.sync_staff": "WECOM_SYNC_STAFF",
     # Web 搜索佐证（agent web_search 工具，火山引擎联网搜索 API）
     "web_search.api_key": "WEB_SEARCH_API_KEY",
     "web_search.enabled": "WEB_SEARCH_ENABLED",
@@ -37,6 +30,25 @@ AI_CONFIG_KEYS = {
 SENSITIVE_KEYS = {"ai.api_key", "embedding.api_key", "wecom.corp_secret", "wecom.aes_key", "web_search.api_key"}
 # 数值型键（int 转换）
 _NUMERIC_KEYS = {"ai.timeout", "embedding.dim", "wecom.agent_id"}
+
+
+def plugin_config_keys() -> dict[str, str]:
+    """插件 seam：cercus 等插件的运行时配置键（启用才有）。
+
+    v1 以代码表而非插件声明——config 键与 settings 字段强耦合（.env 回退
+    需要 settings 属性存在），插件化收益集中在路由/权限/工具/迁移四 seam，
+    此处保持显式映射并注明归属（settings.WECOM_* 为 cercus 插件字段）。
+    """
+    from app.core.config import settings
+
+    return {
+        "wecom.corp_id": "WECOM_CORP_ID",
+        "wecom.corp_secret": "WECOM_CORP_SECRET",
+        "wecom.agent_id": "WECOM_AGENT_ID",
+        "wecom.token": "WECOM_TOKEN",
+        "wecom.aes_key": "WECOM_ENCODING_AES_KEY",
+        "wecom.sync_staff": "WECOM_SYNC_STAFF",
+    }
 
 _cache: dict = {"values": {}, "loaded": False}
 
@@ -49,7 +61,8 @@ def _mask(value: str) -> str:
 
 async def _load(db) -> dict[str, str]:
     rows = (await db.execute(select(SysConfig))).scalars().all()
-    return {r.key: r.value for r in rows if r.key in AI_CONFIG_KEYS and r.value}
+    valid = AI_CONFIG_KEYS | plugin_config_keys()
+    return {r.key: r.value for r in rows if r.key in valid and r.value}
 
 
 async def get_overrides() -> dict[str, str]:
@@ -67,7 +80,7 @@ def invalidate_cache() -> None:
 
 async def resolve(key: str):
     """解析一个配置项：DB > .env。key 形如 'ai.api_key'。"""
-    env_attr = AI_CONFIG_KEYS.get(key)
+    env_attr = _all_keys().get(key)
     if env_attr is None:
         raise KeyError(f"未知配置键: {key}")
     overrides = await get_overrides()
@@ -122,11 +135,16 @@ class AiRuntimeConfig:
         }
 
 
+def _all_keys() -> dict[str, str]:
+    """内置 ∪ 已启用插件键。"""
+    return {**AI_CONFIG_KEYS, **plugin_config_keys()}
+
+
 async def read_all_masked() -> list[dict]:
     """管理端读视图：当前生效值 + 来源 + 打码。"""
     overrides = await get_overrides()
     out = []
-    for key, env_attr in AI_CONFIG_KEYS.items():
+    for key, env_attr in _all_keys().items():
         raw = await resolve(key)
         out.append(
             {
@@ -142,7 +160,7 @@ async def write(updates: dict[str, str], updated_by: str) -> dict:
     """管理端写入（白名单校验 + 空值=删除覆盖回落 env）。"""
     import datetime
 
-    invalid = set(updates) - set(AI_CONFIG_KEYS)
+    invalid = set(updates) - set(_all_keys())
     if invalid:
         raise ValueError(f"非法配置键: {sorted(invalid)}")
     written = []

@@ -24,8 +24,8 @@ def sync_all_staff(staff_userids: list[str] | None = None) -> dict:
 
     from app.core.config import settings
     from app.core.database import AsyncSessionLocal
-    from app.models.wecom import WecomContact
-    from app.services import wecom_service
+    from plugins.cercus.models import WecomContact
+    from plugins.cercus import service as wecom_service
 
     async def _run() -> dict:
         from app.services.runtime_config import AiRuntimeConfig
@@ -62,7 +62,7 @@ def sync_all_staff(staff_userids: list[str] | None = None) -> dict:
                             setattr(contact, k, r[k])
                         total += 1
                 await db.commit()
-            from app.services import wecom_service as _ws
+            from plugins.cercus import service as wecom_service as _ws
 
             await _ws.invalidate_contact_cache()  # 全量后失效详情缓存
             logger.info("cercus_sync_done", staffs=len(staff_userids), contacts=total)

@@ -50,8 +50,15 @@ FEEDBACK = "feedback"
 AI = "ai"
 SYSTEM = "system"
 CROP = "crop"  # RAG 知识库（crop 嗦囊：先吞后消化）
-WECOM = "wecom"  # 企微私域（cercus 尾须：感知客户动态）
-ALL_PERMS = [USERS, ORDERS, FEEDBACK, AI, SYSTEM, CROP, WECOM]
+# 内核域（插件域经 seam 动态并入——见 _plugin_domains；循环 import 用惰性函数）
+ALL_PERMS = [USERS, ORDERS, FEEDBACK, AI, SYSTEM, CROP]
+
+
+def _plugin_domains() -> list[str]:
+    """已启用插件的权限域（防循环 import 的惰性读取）。"""
+    from app.core import plugins
+
+    return plugins.plugin_perm_domains()
 
 READ = "read"
 WRITE = "write"
@@ -62,7 +69,7 @@ _READ_METHODS = {"GET", "HEAD", "OPTIONS"}
 DEFAULT_ROLE_SEEDS: dict[str, tuple[str, list[str], bool]] = {
     # key: (显示名, 权限点, 锁定)
     "admin": ("管理员", ALL_PERMS, True),
-    "operator": ("运营", [f"{USERS}:{READ}", ORDERS, FEEDBACK, AI, CROP, WECOM], False),
+    "operator": ("运营", [f"{USERS}:{READ}", ORDERS, FEEDBACK, AI, CROP, "wecom"], False),
     # 终端用户：能"用"订单/反馈/AI 域与知识库检索；"只见自己的"由 Service 层归属过滤强制
     "wing": ("终端用户", [ORDERS, FEEDBACK, AI, f"{CROP}:{READ}"], False),
     "antenna": ("终端用户(微信)", [ORDERS, FEEDBACK, AI, f"{CROP}:{READ}"], False),
@@ -89,8 +96,18 @@ def _check_perm(perms: list[str], domain: str, action: str) -> bool:
 
 
 def base_permissions(role: str) -> list[str]:
-    """内置种子的角色权限（仅用于迁移/兜底展示）。"""
-    return DEFAULT_ROLE_SEEDS.get(role, (None, [], False))[1]
+    """内置种子的角色权限（仅用于迁移/兜底展示）。
+
+    admin 的 ALL_PERMS 在种子数据里是静态的（迁移时写入 DB）——运行时
+    插件域经 _plugin_domains 动态并入 admin 视图（role_permissions 处理）。
+    """
+    perms = DEFAULT_ROLE_SEEDS.get(role, (None, [], False))[1]
+    if role == "admin":
+        # admin 种子含全部内置域；插件域动态追加（防种子数据过时）
+        for d in _plugin_domains():
+            if d not in perms:
+                perms = perms + [d]
+    return perms
 
 
 async def role_permissions(db, role_key: str) -> list[str]:

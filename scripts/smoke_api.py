@@ -189,8 +189,8 @@ async def main():
         if admin_h:
             r = await c.get(f"{API}/system/ai-config", headers=admin_h)
             cfgs = {x["key"]: x for x in r.json().get("configs", [])}
-            ok = r.status_code == 200 and len(cfgs) == 14 and "***" in cfgs["ai.api_key"]["value"]
-            check("ai-config 读（14 键+key 打码）", ok)
+            ok = r.status_code == 200 and len(cfgs) == 16 and "***" in cfgs["ai.api_key"]["value"]
+            check("ai-config 读（16 键=内置8+企微6+web搜索2，key 打码）", ok)
             r = await c.put(f"{API}/system/ai-config", headers=admin_h, json={"updates": {"ai.timeout": "90"}})
             check("ai-config 写（即时生效）", r.status_code == 200)
             r = await c.post(f"{API}/system/ai-config/test", headers=admin_h)

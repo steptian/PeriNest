@@ -63,4 +63,4 @@ select = ["E", "F", "I", "W"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 asyncio_default_test_loop_scope = "session"  # 全部测试共享单一 event loop，消除全局资源跨 loop 冲突
-testpaths = ["tests"]
+testpaths = ["tests", "../plugins"]  # 插件测试同跑（experimental 不降质量标准）
