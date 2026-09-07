@@ -14,6 +14,13 @@
 
 ## [Unreleased]
 
+### Fixed
+- **Antenna AI 气泡溢出**：流结束切 md 富渲染后长代码/列表把气泡撑破——`.msg` `min-width:0` 关住 flex；
+  代码块改 `pre-wrap` 换行（微信横向滚动基本无效）；列表正文 `.md-li-body`；有序列表序号不再误用外层 message index
+- **Antenna 聊天页主区域/键盘**：去掉 `100vh` 估高，列 flex 铺满导航与 tabBar 之间；监听键盘高度抬底栏（减去原生 tabBar），避免输入法盖住输入框
+- **AI 助手工具条吸顶**（Antenna + Leg）：历史 / 引用知识库 / 搜索固定在对话列表上方；小程序把 ctl-bar 移出 scroll-view（微信内部 sticky 会跟着滚）
+- **Antenna AI 回答可复制**：段落/标题/列表/代码块 `<text user-select>`，长按出系统复制菜单
+
 ### Added
 - **多语言 i18n Leg 试点**（中/英/日，三端系统性 i18n 第一站）：react-i18next +
   静态 JSON 三语资源（`leg/src/i18n/`，~120 条文案）；语言偏好 localStorage
@@ -36,8 +43,10 @@
   弹窗/文档状态四态/审计列表）；**管理端语言切换改弹层选择**（Languages 图标 → 向上弹
   中文/EN/日本語 面板+当前✓，点击外部关闭；修复 glass backdrop-filter stacking context 致
   弹层被主内容遮挡——aside z-40 提升）
-- **i18n 全端状态**：Leg ✅ + Wing 100% ✅（外壳+全部业务页）；Antenna 轻量 dict 待做
-  详情弹窗（标签·跟进时间线·打标·记录跟进）
+- **多语言 i18n Antenna**：自研轻量 dict（无 i18next/React），`antenna/miniprogram/i18n/` 三语 TS 模块（微信 require 不认 JSON）；
+  偏好 wx.Storage `perinest-antenna-lang`；「我的」页 pill 切换器（中文/EN/日本語）；tabBar 与
+  导航标题运行时刷新；6 页 UI + toast/modal 全量 t()；后端 detail / CHANGELOG 正文 / AI 回答不翻
+- **i18n 全端状态**：Leg ✅ + Wing 100% ✅ + Antenna 轻量 dict ✅
 - **多语言 i18n Wing 收尾**：crop 页三 tab 全量 t() 化（管理/问答/试验 ~70 key，含批量导入
   弹窗/文档状态四态/审计列表）；**管理端语言切换改弹层选择**（Languages 图标 → 向上弹
   中文/EN/日本語 面板+当前✓，点击外部关闭；修复 glass backdrop-filter stacking context 致

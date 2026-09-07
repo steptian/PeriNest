@@ -1,14 +1,14 @@
 <!-- 未登录占位 -->
 <view wx:if="{{!isLoggedIn}}" class="empty-container">
   <image class="empty-icon" src="/images/icons/empty-box.png" mode="aspectFit" />
-  <text class="empty-text">尚未入巢，登录后查看你的订单标本</text>
-  <navigator url="/pages/login/login" class="empty-btn">去登录</navigator>
+  <text class="empty-text">{{i18n.needLogin}}</text>
+  <navigator url="/pages/login/login" class="empty-btn">{{i18n.goLogin}}</navigator>
 </view>
 <!-- 空态占位 -->
 <view wx:elif="{{orders.length === 0 && !loading}}" class="empty-container">
   <image class="empty-icon" src="/images/icons/empty-box.png" mode="aspectFit" />
-  <text class="empty-text">巢穴暂无标本</text>
-  <navigator url="/pages/chat/chat" class="empty-btn">去神经索聊聊</navigator>
+  <text class="empty-text">{{i18n.empty}}</text>
+  <navigator url="/pages/chat/chat" open-type="switchTab" class="empty-btn">{{i18n.goChat}}</navigator>
 </view>
 <!-- 订单列表 -->
 <view wx:for="{{orders}}" wx:key="id" class="specimen-card">
@@ -18,7 +18,7 @@
   </view>
   <view class="row-main">
     <text class="status badge-amber">{{statusLabel[item.status]}}</text>
-    <text class="count">{{item.items.length}} 件商品</text>
+    <text class="count">{{item.items.length}} {{i18n.itemUnit}}</text>
   </view>
   <view class="order-no font-specimen">{{item.order_no}}</view>
 </view>

@@ -1,15 +1,12 @@
 import { ensureLogin } from "../../utils/wx_auth";
 import { request } from "../../utils/request";
+import { applyNavTitle, applyTabBar, ns, statusLabels, t } from "../../i18n/index";
 
 interface Me { id: number; username: string; role: string }
 interface Order {
   id: number; order_no: string; status: string;
   total_amount: number; created_at: string;
 }
-const STATUS_LABEL: Record<string, string> = {
-  pending: "待处理", paid: "已支付", shipped: "已发货",
-  completed: "已完成", cancelled: "已取消",
-};
 
 Page({
   data: {
@@ -17,15 +14,34 @@ Page({
     username: "",
     today: "",
     recentOrders: [] as Array<Order & { statusLabel: string }>,
+    welcomeTitle: "",
+    i18n: {} as Record<string, string>,
   },
   onLoad() {
     // 首页静默登录，后续请求自动带 Token
     ensureLogin()
       .then(() => this.refresh())
-      .catch(() => wx.showToast({ title: "登录失败", icon: "none" }));
+      .catch(() => wx.showToast({ title: t("home.loginFail"), icon: "none" }));
     const d = new Date();
     this.setData({
       today: `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`,
+    });
+  },
+  onShow() {
+    applyTabBar();
+    this.applyI18n();
+  },
+  applyI18n() {
+    applyNavTitle("home.navTitle");
+    const labels = statusLabels();
+    const username = this.data.username;
+    this.setData({
+      i18n: ns("home"),
+      welcomeTitle: username ? t("home.welcomeName", { name: username }) : t("home.welcome"),
+      recentOrders: this.data.recentOrders.map((o) => ({
+        ...o,
+        statusLabel: labels[o.status] || o.status,
+      })),
     });
   },
   goOrders() {
@@ -38,9 +54,11 @@ Page({
     } catch { /* 下次再拉 */ }
     try {
       const orders = await request<Order[]>("/orders", { data: { limit: 2 } });
+      const labels = statusLabels();
       this.setData({
-        recentOrders: orders.map((o) => ({ ...o, statusLabel: STATUS_LABEL[o.status] || o.status })),
+        recentOrders: orders.map((o) => ({ ...o, statusLabel: labels[o.status] || o.status })),
       });
     } catch { /* 空态兜底 */ }
+    this.applyI18n();
   },
 });

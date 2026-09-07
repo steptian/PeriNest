@@ -206,9 +206,9 @@ export default function Chat() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] flex-col">
-      {/* 头部 */}
-      <header className="flex items-baseline justify-between border-b border-border/60 px-5 pt-4 pb-2.5">
+    <div className="flex h-[calc(100dvh-4rem)] flex-col overflow-hidden">
+      {/* 吸顶：历史 / 引用知识库 / 搜索 */}
+      <header className="glass sticky top-0 z-20 flex shrink-0 items-baseline justify-between !rounded-none border-x-0 border-t-0 px-5 pt-4 pb-2.5">
         <div>
           <h1 className="font-specimen text-lg font-bold">{t("chat.title")}</h1>
           <p className="text-[11px] text-muted-foreground">{t("chat.subtitle")}</p>
@@ -245,7 +245,7 @@ export default function Chat() {
 
       {/* 搜索模式：原文分块 */}
       {mode === "search" && (
-        <div className="flex-1 space-y-3 overflow-y-auto px-4 py-3">
+        <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-3">
           {hits === null && <p className="py-10 text-center text-sm text-muted-foreground">{t("chat.searchHint")}</p>}
           {hits?.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">{t("chat.noResults")}</p>}
           {hits?.map((h) => (
@@ -263,7 +263,7 @@ export default function Chat() {
 
       {/* 对话模式 */}
       {mode === "chat" && (
-        <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-4">
           {messages.map((m, i) =>
             m.role === "user" ? (
               <div key={i} className="msg-in flex justify-end">

@@ -57,7 +57,7 @@
 
 ## 📌 待深入
 
-- Antenna 端未真机验证（仅 tsc）⚠️
+- Antenna 端未真机验证（仅 tsc；i18n 切语言 / 聊天键盘吸顶复制需开发者工具或真机看）⚠️
 - gunicorn.conf.py 生产参数未压测调优 ⚠️
-- **多语言 i18n（中/英/日，用户已拍板列入计划）**：①范围=三端 UI 文案（后端错误 detail v1 保持中文，模板务实）；②Web 两端 react-i18next + JSON 资源（zh/en/ja），Antenna 自实现轻量 dict（语言偏好 wx.Storage）+ app.json 无需 locale 配置；③切换入口=设置/我的页（localStorage + wx.Storage 持久化）；④AI 回答语言已天然支持（prompt 同语言规则）；⑤预估 2-3 天（~200 条文案×3 语种提取+机制+设置 UI）；⑥先做 Leg（用户面最广）验证模式再推 Wing/Antenna
+- **多语言 i18n（中/英/日）✅ 三端齐**：范围=三端 UI 文案（后端错误 detail v1 保持中文）；Leg/Wing = react-i18next + JSON；Antenna = 自研 dict（✅ `antenna/miniprogram/i18n/index.ts:45`）+ wx.Storage `perinest-antenna-lang`，tabBar/导航标题运行时 set（app.json 无 locale）；切换入口=设置/我的页；AI 回答跟随提问
 - **pi SDK 工作台形态**（方案③，v0.11 排队）：照 ack-agent agent-service（pi coding agent SDK + express + skills + session 池）为管理员/开发者建「能编程自长能力」的工作台，与终端用户封闭工具面分层；触发条件=出现真实多步操作需求；现有 tool-call 循环引擎同构可迁移

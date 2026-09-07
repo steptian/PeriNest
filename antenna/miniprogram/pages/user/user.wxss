@@ -14,3 +14,24 @@
 
 .login-link { color: var(--amber); font-size: 28rpx; font-weight: 500; }
 .version { color: var(--ink-soft); }
+
+.lang-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24rpx;
+}
+.lang-title { font-size: 28rpx; margin-top: 4rpx; }
+.lang-pills { display: flex; gap: 12rpx; flex-shrink: 0; }
+.lang-pill {
+  padding: 8rpx 20rpx;
+  font-size: 22rpx;
+  border-radius: 999rpx;
+  border: 1px solid var(--line);
+  color: var(--ink-soft);
+}
+.lang-pill-on {
+  background: linear-gradient(160deg, var(--amber), var(--amber-light));
+  color: #fff8ee;
+  border-color: transparent;
+}

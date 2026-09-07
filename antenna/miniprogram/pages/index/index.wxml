@@ -1,39 +1,39 @@
 <view class="specimen-card welcome-card">
   <view class="specimen-latin">{{today}} · nest registry</view>
-  <view class="welcome-title font-specimen">欢迎回来{{username ? "，" + username : ""}}</view>
+  <view class="welcome-title font-specimen">{{welcomeTitle}}</view>
   <view class="slogan">built to survive, designed to adapt.</view>
 </view>
 
 <view class="specimen-card">
   <view class="specimen-latin">assistant · ask</view>
-  <view class="section-title font-specimen">AI 助手</view>
-  <view class="hint">对话/搜知识库一体——可开引用，回答附来源</view>
-  <navigator url="/pages/chat/chat" open-type="switchTab" class="btn-amber main-cta">开始提问</navigator>
+  <view class="section-title font-specimen">{{i18n.kbTitle}}</view>
+  <view class="hint">{{i18n.askHint}}</view>
+  <navigator url="/pages/chat/chat" open-type="switchTab" class="btn-amber main-cta">{{i18n.askCta}}</navigator>
 </view>
 
 <view class="specimen-card">
   <view class="specimen-latin">crop · knowledge</view>
-  <view class="section-title font-specimen">知识库问答</view>
-  <view class="hint">回答基于企业知识，附引用来源与检索过程</view>
-  <navigator url="/pages/chat/chat" open-type="switchTab" class="btn-amber main-cta">去问 AI 助手</navigator>
+  <view class="section-title font-specimen">{{i18n.kbAskTitle}}</view>
+  <view class="hint">{{i18n.kbAskHint}}</view>
+  <navigator url="/pages/chat/chat" open-type="switchTab" class="btn-amber main-cta">{{i18n.kbAskCta}}</navigator>
 </view>
 
 <view class="specimen-card">
   <view class="specimen-latin">recent specimens</view>
-  <view class="section-title font-specimen">最近订单</view>
+  <view class="section-title font-specimen">{{i18n.recent}}</view>
   <block wx:if="{{recentOrders.length}}">
     <view wx:for="{{recentOrders}}" wx:key="id" class="order-row" bindtap="goOrders">
       <view class="order-no font-specimen">#{{item.order_no}}</view>
       <view class="badge-amber">{{item.statusLabel}}</view>
       <view class="order-amount font-specimen">¥{{item.total_amount}}</view>
     </view>
-    <navigator url="/pages/order/order" open-type="switchTab" class="more-link">查看全部 →</navigator>
+    <navigator url="/pages/order/order" open-type="switchTab" class="more-link">{{i18n.viewAll}}</navigator>
   </block>
-  <view wx:else class="empty-text">嗉囊空空——还没有标本入巢</view>
+  <view wx:else class="empty-text">{{i18n.empty}}</view>
 </view>
 
 <view class="specimen-card lore-card">
   <view class="specimen-latin">compendium</view>
-  <view class="lore">鹰要风，狼要群，鲸要海——蜚蠊什么都不需要。</view>
-  <view class="lore-sub">它靠一整套生存系统活过了三亿年、四次大灭绝。PeriNest 把这套系统翻译成了软件。</view>
+  <view class="lore">{{i18n.quote}}</view>
+  <view class="lore-sub">{{i18n.quoteSub}}</view>
 </view>

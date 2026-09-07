@@ -1,25 +1,25 @@
-<scroll-view scroll-y scroll-into-view="{{bottomId}}" class="chat-scroll">
-  <!-- 头部控制：知识库开关 + 模式切换 -->
+<view class="chat-page" style="padding-bottom: {{kbLift}}px;">
+  <!-- 吸顶：必须在 scroll-view 外（微信内部 position:sticky 不可靠） -->
   <view class="ctl-bar">
-    <view class="hist-btn" bindtap="openHistory"><text>🕘 历史</text></view>
+    <view class="hist-btn" bindtap="openHistory"><text>🕘 {{i18n.historyShort}}</text></view>
     <view class="kb-toggle {{useKb ? 'kb-on' : ''}}" bindtap="toggleKb">
-      <text>{{useKb ? "☑ 引用知识库" : "☐ 知识库已关"}}</text>
+      <text>{{useKb ? "☑ " + i18n.kbOn : "☐ " + i18n.kbOff}}</text>
     </view>
     <view class="mode-toggle {{mode === 'search' ? 'mode-on' : ''}}" bindtap="toggleMode">
-      <text>{{mode === 'chat' ? "🔍 搜索" : "💬 对话"}}</text>
+      <text>{{mode === 'chat' ? "🔍 " + i18n.search : "💬 " + i18n.talk}}</text>
     </view>
   </view>
-
+<scroll-view scroll-y scroll-into-view="{{bottomId}}" class="chat-scroll">
   <!-- 搜索模式 -->
   <block wx:if="{{mode === 'search'}}">
-    <view wx:if="{{!searched}}" class="empty-guide"><text class="empty-main">输入关键词，直查知识库原文</text></view>
-    <view wx:if="{{searched && !hits.length}}" class="empty-guide"><text class="empty-main">没有找到相关内容</text></view>
+    <view wx:if="{{!searched}}" class="empty-guide"><text class="empty-main">{{i18n.searchHint}}</text></view>
+    <view wx:if="{{searched && !hits.length}}" class="empty-guide"><text class="empty-main">{{i18n.noResults}}</text></view>
     <view wx:for="{{hits}}" wx:key="chunk_id" class="specimen-card hit-card">
       <view class="hit-head">
         <text class="hit-src">《{{item.document_title}}》 #{{item.seq}}</text>
         <text class="specimen-latin">sim {{item.score}}</text>
       </view>
-      <text class="hit-content">{{item.content}}</text>
+      <text class="hit-content" user-select>{{item.content}}</text>
     </view>
   </block>
 
@@ -27,34 +27,36 @@
   <block wx:if="{{mode === 'chat'}}">
     <view wx:for="{{messages}}" wx:key="index" class="msg-row {{item.role === 'user' ? 'msg-right' : ''}}">
       <view class="msg {{item.role === 'user' ? 'msg-user' : 'msg-ai'}}">
-        <text class="specimen-latin" wx:if="{{item.role === 'assistant'}}">{{useKb ? 'assistant · 知识库引用' : 'assistant'}}</text>
+        <text class="specimen-latin" wx:if="{{item.role === 'assistant'}}">{{useKb ? i18n.assistantKb : 'assistant'}}</text>
         <block wx:if="{{item.steps && item.steps.length}}">
           <text wx:for="{{item.steps}}" wx:for-item="st" wx:key="*this" class="step-text">◌ {{st}}</text>
         </block>
         <block wx:if="{{!item.md}}">
-          <text class="msg-text">{{item.content}}{{streaming && index === messages.length - 1 ? "▍" : ""}}</text>
+          <text class="msg-text" user-select>{{item.content}}{{streaming && index === messages.length - 1 ? "▍" : ""}}</text>
         </block>
         <block wx:else>
           <view wx:for="{{item.md}}" wx:for-item="blk" wx:for-index="bi" wx:key="bi" class="md-block">
-            <view wx:if="{{blk.type === 'code'}}" class="md-codeblock"><text class="md-codetext">{{blk.text}}</text></view>
-            <text wx:elif="{{blk.type === 'h'}}" class="md-h md-h{{blk.level}}"><text wx:for="{{blk.runs}}" wx:for-item="r" wx:key="*this" class="md-{{r.t}}">{{r.s}}</text></text>
+            <view wx:if="{{blk.type === 'code'}}" class="md-codeblock"><text class="md-codetext" user-select>{{blk.text}}</text></view>
+            <text wx:elif="{{blk.type === 'h'}}" class="md-h md-h{{blk.level}}" user-select><text wx:for="{{blk.runs}}" wx:for-item="r" wx:key="*this" class="md-{{r.t}}">{{r.s}}</text></text>
             <view wx:elif="{{blk.type === 'list'}}" class="md-list">
-              <view wx:for="{{blk.items}}" wx:for-item="row" wx:key="*this" class="md-li">
-                <text class="md-bullet">{{blk.ordered ? (index + 1 + '. ') : '• '}}</text>
-                <text wx:for="{{row}}" wx:for-item="r" wx:key="*this" class="md-{{r.t}}">{{r.s}}</text>
+              <view wx:for="{{blk.items}}" wx:for-item="row" wx:for-index="li" wx:key="li" class="md-li">
+                <text class="md-bullet">{{blk.ordered ? (li + 1 + '. ') : '• '}}</text>
+                <text class="md-li-body" user-select>
+                  <text wx:for="{{row}}" wx:for-item="r" wx:key="*this" class="md-{{r.t}}">{{r.s}}</text>
+                </text>
               </view>
             </view>
-            <view wx:elif="{{blk.type === 'quote'}}" class="md-quote">
+            <text wx:elif="{{blk.type === 'quote'}}" class="md-quote" user-select>
               <text wx:for="{{blk.runs}}" wx:for-item="r" wx:key="*this" class="md-{{r.t}}">{{r.s}}</text>
-            </view>
+            </text>
             <view wx:elif="{{blk.type === 'hr'}}" class="md-hr" />
-            <text wx:else class="md-p">
+            <text wx:else class="md-p" user-select>
               <text wx:for="{{blk.runs}}" wx:for-item="r" wx:key="*this" class="md-{{r.t}}">{{r.s}}</text>
             </text>
           </view>
         </block>
         <view wx:if="{{item.citations && item.citations.length}}" class="citations">
-          <text class="specimen-latin cite-title">citations · 引用来源</text>
+          <text class="specimen-latin cite-title">{{i18n.citations}}</text>
           <text wx:for="{{item.citations}}" wx:key="chunk_id" class="cite-item">📎 《{{item.document_title}}》#{{item.seq}}</text>
         </view>
       </view>
@@ -65,10 +67,11 @@
 </scroll-view>
 
 <view class="chat-input-bar">
-  <input class="chat-input" placeholder="{{mode === 'search' ? '关键词搜索知识库…' : (useKb ? '基于知识库提问…' : '随便聊聊…')}}"
+  <input class="chat-input" placeholder="{{inputPlaceholder}}"
     value="{{input}}" bindinput="onInput" bindconfirm="send" confirm-type="send" confirm-hold="{{true}}"
-    maxlength="2000" />
-  <button class="empty-btn chat-send" bindtap="send" loading="{{streaming}}">发送</button>
+    adjust-position="{{false}}" maxlength="2000" />
+  <button class="empty-btn chat-send" bindtap="send" loading="{{streaming}}">{{i18n.send}}</button>
+</view>
 </view>
 <!-- md 结构渲染：streaming 时纯文本，结束后富渲染 -->
 
@@ -76,15 +79,15 @@
 <view wx:if="{{historyOpen}}" class="hist-mask" bindtap="closeHistory">
   <view class="hist-sheet" catchtap="">
     <view class="hist-head">
-      <text class="hist-title font-specimen">历史会话</text>
-      <view class="hist-new" bindtap="pickConversation" data-sid="">＋ 新对话</view>
+      <text class="hist-title font-specimen">{{i18n.history}}</text>
+      <view class="hist-new" bindtap="pickConversation" data-sid="">＋ {{i18n.newConversation}}</view>
     </view>
     <scroll-view scroll-y class="hist-list">
-      <view wx:if="{{!convs.length}}" class="empty-guide"><text class="empty-main">还没有会话</text></view>
+      <view wx:if="{{!convs.length}}" class="empty-guide"><text class="empty-main">{{i18n.noConversations}}</text></view>
       <view wx:for="{{convs}}" wx:key="session_id" class="hist-row">
         <view class="hist-info" bindtap="pickConversation" data-sid="{{item.session_id}}">
           <text class="hist-item-title">{{item.title}}</text>
-          <text class="hist-item-meta">{{item.channel === 'free' ? '闲聊' : '知识库'}} · {{item.message_count}}条 · {{item.last_time}}</text>
+          <text class="hist-item-meta">{{item.meta}}</text>
         </view>
         <view class="hist-rename" catchtap="renameConversation" data-sid="{{item.session_id}}"><text>✎</text></view>
       </view>

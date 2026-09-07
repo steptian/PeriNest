@@ -11,6 +11,6 @@ wiki: docs/agent/
 wiki: 
 
 ## 状态区
-status: v0.13.0 已发布；i18n：Leg ✅ + Wing 100%（外壳+全部业务页，切换弹层）；64 测试+冒烟 40+eval 全绿
-next: Antenna 轻量 dict i18n（wx.Storage 语言偏好 + 三语字典，逐页替换）；在线 demo 上线（等服务器）；OA/进销存按契约孵化
+status: v0.13.0 已发布；i18n 三端齐（Leg ✅ Wing 100% Antenna dict ✅）；Antenna 聊天 UX（铺满/键盘/吸顶/长按复制）已收；64 测试全绿
+next: 在线 demo 上线（等服务器）；Antenna 真机验收 i18n+聊天；OA/进销存按契约孵化
 updated: 2026-09-07

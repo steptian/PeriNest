@@ -1,5 +1,6 @@
 /** AI 助手 —— 单入口：引用知识库开关（agentic 问答/自由对话）+ 搜索模式（查原文） */
 import { request } from "../../utils/request";
+import { applyNavTitle, applyTabBar, ns, t } from "../../i18n/index";
 
 interface CropHit {
   chunk_id: number;
@@ -12,10 +13,43 @@ interface CropHit {
 interface ChatMsg { role: "user" | "assistant"; content: string; citations?: CropHit[]; steps?: string[]; md?: unknown[] }
 interface MdInline { t: string; s: string; href?: string }
 interface MdBlock { type: string; lang?: string; level?: number; ordered?: boolean; items?: MdInline[][]; runs?: MdInline[]; text?: string }
+interface Conv {
+  session_id: string;
+  title: string;
+  channel: string;
+  message_count: number;
+  last_time: string;
+  meta?: string;
+}
+
+function welcomeMsg(): ChatMsg {
+  return { role: "assistant", content: t("chat.welcome") };
+}
+
+function convMeta(c: Conv): string {
+  const ch = c.channel === "free" ? t("chat.channelFree") : t("chat.channelKb");
+  return `${ch} · ${t("chat.messageCount", { count: c.message_count })} · ${c.last_time}`;
+}
+
+/** tabBar 页窗口底已在原生 tab 之上；键盘高度从屏幕底算，抬升量要减掉 tabBar。 */
+function measureTabBarPx(): number {
+  const sys = wx.getSystemInfoSync();
+  const inset = sys.screenHeight - (sys.safeArea?.bottom ?? sys.screenHeight);
+  const fallback = 48 + Math.max(0, inset);
+  try {
+    const menu = wx.getMenuButtonBoundingClientRect();
+    const navHeight =
+      (menu.top - sys.statusBarHeight) * 2 + menu.height + sys.statusBarHeight;
+    const tab = sys.screenHeight - sys.windowHeight - navHeight;
+    return tab > 20 ? tab : fallback;
+  } catch {
+    return fallback;
+  }
+}
 
 Page({
   data: {
-    messages: [{ role: "assistant", content: "你好，我是 AI 助手。可开知识库引用——回答基于你的企业知识，附来源。" } as ChatMsg],
+    messages: [welcomeMsg()] as ChatMsg[],
     input: "",
     streaming: false,
     useKb: true,
@@ -25,28 +59,79 @@ Page({
     bottomId: "",
     convId: "" as string,
     historyOpen: false,
-    convs: [] as Array<{ session_id: string; title: string; channel: string; message_count: number; last_time: string }>,
+    convs: [] as Conv[],
+    i18n: {} as Record<string, string>,
+    inputPlaceholder: "",
+    kbLift: 0,
+    tabBarPx: 48,
   },
+  _onKb: undefined as undefined | ((res: { height: number }) => void),
   onLoad() {
     const saved = wx.getStorageSync("ant-use-kb");
-    this.setData({ useKb: saved === "" ? true : saved === "1" });
+    this.setData({
+      useKb: saved === "" ? true : saved === "1",
+      tabBarPx: measureTabBarPx(),
+    });
+  },
+  onShow() {
+    applyTabBar();
+    this.applyI18n();
+    if (this._onKb) wx.offKeyboardHeightChange(this._onKb);
+    this._onKb = (res: { height: number }) => {
+      const h = res.height || 0;
+      const lift = h > 0 ? Math.max(0, h - this.data.tabBarPx) : 0;
+      this.setData({ kbLift: lift, bottomId: lift > 0 ? "bottom" : this.data.bottomId });
+    };
+    wx.onKeyboardHeightChange(this._onKb);
+  },
+  onHide() {
+    if (this._onKb) wx.offKeyboardHeightChange(this._onKb);
+    this.setData({ kbLift: 0 });
+  },
+  onUnload() {
+    if (this._onKb) wx.offKeyboardHeightChange(this._onKb);
+  },
+  applyI18n() {
+    applyNavTitle("chat.navTitle");
+    const patch: Record<string, unknown> = {
+      i18n: ns("chat"),
+      inputPlaceholder: this.placeholder(),
+      convs: this.data.convs.map((c) => ({ ...c, meta: convMeta(c) })),
+    };
+    if (!this.data.convId && this.data.messages.length === 1 && this.data.messages[0].role === "assistant") {
+      patch.messages = [welcomeMsg()];
+    }
+    this.setData(patch);
+  },
+  placeholder(): string {
+    if (this.data.mode === "search") return t("chat.searchPlaceholder");
+    return this.data.useKb ? t("chat.kbPlaceholder") : t("chat.freePlaceholder");
   },
   toggleKb() {
     const v = !this.data.useKb;
     wx.setStorageSync("ant-use-kb", v ? "1" : "0");
-    this.setData({ useKb: v, convId: "" }); // 切换通道即新会话
+    this.setData({ useKb: v, convId: "", inputPlaceholder: v ? t("chat.kbPlaceholder") : t("chat.freePlaceholder") });
   },
   toggleMode() {
-    this.setData({ mode: this.data.mode === "chat" ? "search" : "chat", hits: [], searched: false });
+    const mode = this.data.mode === "chat" ? "search" : "chat";
+    this.setData({
+      mode,
+      hits: [],
+      searched: false,
+      inputPlaceholder: mode === "search"
+        ? t("chat.searchPlaceholder")
+        : (this.data.useKb ? t("chat.kbPlaceholder") : t("chat.freePlaceholder")),
+    });
   },
   async openHistory() {
     try {
-      const convs = await request<{ session_id: string; title: string; channel: string; message_count: number; last_time: string }[]>(
-        "/crop/conversations"
-      );
-      this.setData({ historyOpen: true, convs: convs || [] });
+      const convs = await request<Conv[]>("/crop/conversations");
+      this.setData({
+        historyOpen: true,
+        convs: (convs || []).map((c) => ({ ...c, meta: convMeta(c) })),
+      });
     } catch {
-      wx.showToast({ title: "加载失败", icon: "none" });
+      wx.showToast({ title: t("chat.loadFail"), icon: "none" });
     }
   },
   closeHistory() {
@@ -55,28 +140,41 @@ Page({
   async pickConversation(e: WechatMiniprogram.TouchEvent) {
     const sid = e.currentTarget.dataset.sid as string;
     if (!sid) {
-      this.setData({ historyOpen: false, messages: [{ role: "assistant", content: "你好，我是 AI 助手。可开知识库引用——回答基于你的企业知识，附来源。" }], convId: "" });
+      this.setData({ historyOpen: false, messages: [welcomeMsg()], convId: "" });
       return;
     }
     try {
       const d = await request<{ messages: { role: string; content: string }[] }>(`/crop/conversations/${sid}`);
-      const msgs: ChatMsg[] = (d.messages || []).map((m) => ({ role: m.role as "user" | "assistant", content: m.content }));
+      const { parseMd } = require("../../utils/md-lite");
+      const msgs: ChatMsg[] = (d.messages || []).map((m) => {
+        const msg: ChatMsg = { role: m.role as "user" | "assistant", content: m.content };
+        if (msg.role === "assistant" && msg.content) {
+          msg.md = parseMd(msg.content) as MdBlock[];
+        }
+        return msg;
+      });
       this.setData({ historyOpen: false, messages: msgs.length ? msgs : this.data.messages, convId: sid, mode: "chat" });
     } catch {
-      wx.showToast({ title: "恢复失败", icon: "none" });
+      wx.showToast({ title: t("chat.restoreFail"), icon: "none" });
     }
   },
   async renameConversation(e: WechatMiniprogram.TouchEvent) {
     const sid = e.currentTarget.dataset.sid as string;
     const cur = this.data.convs.find((c) => c.session_id === sid);
-    const res = await wx.showModal({ title: "重命名会话", editable: true, placeholderText: cur?.title || "" });
+    const res = await wx.showModal({
+      title: t("chat.renameTitle"),
+      editable: true,
+      placeholderText: cur?.title || "",
+      confirmText: t("common.confirm"),
+      cancelText: t("common.cancel"),
+    });
     if (!res.confirm || !res.content?.trim()) return;
     try {
       await request(`/crop/conversations/${sid}/title`, { method: "PUT", data: { title: res.content.trim() } });
-      const convs = await request<typeof this.data.convs>("/crop/conversations");
-      this.setData({ convs: convs || [] });
+      const convs = await request<Conv[]>("/crop/conversations");
+      this.setData({ convs: (convs || []).map((c) => ({ ...c, meta: convMeta(c) })) });
     } catch {
-      wx.showToast({ title: "改名失败", icon: "none" });
+      wx.showToast({ title: t("chat.renameFail"), icon: "none" });
     }
   },
   onInput(e: WechatMiniprogram.Input) {
@@ -93,7 +191,7 @@ Page({
         const res = await request<{ hits: CropHit[] }>("/crop/search", { data: { query: text, top_k: 5 } });
         this.setData({ hits: res.hits || [], searched: true, bottomId: "bottom" });
       } catch (e) {
-        wx.showToast({ title: "搜索失败", icon: "none" });
+        wx.showToast({ title: t("chat.searchFail"), icon: "none" });
       } finally {
         this.setData({ streaming: false });
       }
@@ -129,7 +227,7 @@ Page({
                 const tc = ev.tool_call as { round: number; query: string };
                 const msgs = this.data.messages as ChatMsg[];
                 const last = msgs[msgs.length - 1];
-                patchLast({ steps: [...(last.steps || []), `检索：${tc.query}`] });
+                patchLast({ steps: [...(last.steps || []), t("chat.retrieving", { query: tc.query })] });
               } else if (ev.delta) {
                 const msgs = this.data.messages as ChatMsg[];
                 const last = msgs[msgs.length - 1];
@@ -159,7 +257,7 @@ Page({
         );
       }
     } catch (e) {
-      patchLast({ content: `出错了：${(e as Error).message}` });
+      patchLast({ content: t("chat.errorPrefix", { message: (e as Error).message }) });
     } finally {
       // 流结束：解析 markdown 为结构块（流中用纯文本，结束富渲染）
       const msgs = this.data.messages as ChatMsg[];

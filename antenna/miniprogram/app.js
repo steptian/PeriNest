@@ -1,4 +1,6 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const index_1 = require("./i18n/index");
 const APP_VERSION = "0.13.0";
 App({
     globalData: {
@@ -11,5 +13,6 @@ App({
         const token = wx.getStorageSync("perinest_token");
         if (token)
             this.globalData.token = token;
+        (0, index_1.applyTabBar)();
     },
 });

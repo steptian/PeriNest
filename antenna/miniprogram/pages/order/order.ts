@@ -1,4 +1,5 @@
 import { request } from "../../utils/request";
+import { applyNavTitle, applyTabBar, ns, statusLabels } from "../../i18n/index";
 
 interface OrderItem { id: number; sku_name: string; quantity: number; unit_price: number }
 interface Order {
@@ -11,9 +12,12 @@ Page({
     orders: [] as Order[],
     isLoggedIn: false,
     loading: true,
-    statusLabel: { pending: "待支付", paid: "已支付", shipped: "已发货", completed: "已完成", cancelled: "已取消" } as Record<string, string>,
+    statusLabel: {} as Record<string, string>,
+    i18n: {} as Record<string, string>,
   },
   onShow() {
+    applyTabBar();
+    this.applyI18n();
     const token = getApp().globalData.token;
     if (!token) {
       this.setData({ isLoggedIn: false, loading: false, orders: [] });
@@ -26,5 +30,9 @@ Page({
         this.setData({ loading: false });
         wx.showToast({ title: e.message.slice(0, 30), icon: "none" });
       });
+  },
+  applyI18n() {
+    applyNavTitle("orders.navTitle");
+    this.setData({ i18n: ns("orders"), statusLabel: statusLabels() });
   },
 });
