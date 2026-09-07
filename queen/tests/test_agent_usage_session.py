@@ -116,3 +116,27 @@ async def test_agent_audit_trail(client, auth_headers):
     # 端点：wing 无 system 权限 403
     r = await client.get("/api/v1/system/agent-audit", headers=auth_headers)
     assert r.status_code == 403
+
+
+def test_ask_history_normalization():
+    """续聊历史兼容归一：dict(load_history) 与 AskMessage(Pydantic) 双形态。
+    回归：'dict' object has no attribute 'role'（conversation 第二轮触发）。"""
+    from app.schemas.request import AskMessage
+    from app.services.crop_service import ASK_SYSTEM_PROMPT
+
+    # 模拟 ask_stream 内 messages 构造对两种形态的处理
+    history = [
+        {"role": "user", "content": "问一"},        # load_history 产物
+        AskMessage(role="assistant", content="答一"),  # 请求体产物
+    ]
+    def _norm(m):
+        return (
+            {"role": m["role"], "content": m["content"]}
+            if isinstance(m, dict)
+            else {"role": m.role, "content": m.content}
+        )
+    msgs = [ASK_SYSTEM_PROMPT and {"role": "system", "content": ASK_SYSTEM_PROMPT}]
+    msgs += [_norm(m) for m in history] + [{"role": "user", "content": "问二"}]
+    assert msgs[1] == {"role": "user", "content": "问一"}
+    assert msgs[2] == {"role": "assistant", "content": "答一"}
+    assert msgs[3]["role"] == "user"

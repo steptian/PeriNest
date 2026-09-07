@@ -443,9 +443,17 @@ async def ask_stream(
         )
         return result
 
+    def _norm(m) -> dict:
+        """history 兼容归一：AskMessage(Pydantic) / dict(load_history) 两种形态。"""
+        return (
+            {"role": m["role"], "content": m["content"]}
+            if isinstance(m, dict)
+            else {"role": m.role, "content": m.content}
+        )
+
     messages: list[dict] = [
         {"role": "system", "content": ASK_SYSTEM_PROMPT},
-        *({"role": m.role, "content": m.content} for m in history),
+        *(_norm(m) for m in history),
         {"role": "user", "content": query},
     ]
 
