@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { BookCheck, Search, Send } from "lucide-react";
 import { aiApi, type ChatMsg } from "@/api/ai";
 import { askStream, cropApi, type CropSearchHit } from "@/api/crop";
+import { parseMd, type InlineRun } from "@/utils/md-lite";
 
 const WELCOME: ChatMsg = {
   role: "assistant",
@@ -15,6 +16,72 @@ interface UiMsg extends ChatMsg {
 
 /** AI 助手——单入口双模式：引用知识库（agentic 问答，带引用）/ 自由对话；
  *  右上角可切搜索模式（直查知识库原文分块）。 */
+
+function Runs({ runs }: { runs: InlineRun[] }) {
+  return (
+    <>
+      {runs.map((r, j) =>
+        r.t === "bold" ? (
+          <strong key={j} className="font-semibold">{r.s}</strong>
+        ) : r.t === "italic" ? (
+          <em key={j}>{r.s}</em>
+        ) : r.t === "code" ? (
+          <code key={j} className="rounded bg-muted px-1 py-0.5 font-mono text-[13px]">{r.s}</code>
+        ) : r.t === "link" ? (
+          <a key={j} href={r.href} target="_blank" rel="noreferrer" className="text-primary underline underline-offset-2">{r.s}</a>
+        ) : (
+          <span key={j}>{r.s}</span>
+        )
+      )}
+    </>
+  );
+}
+
+function MdBlocks({ src }: { src: string }) {
+  return (
+    <>
+      {parseMd(src).map((b, i) => {
+        switch (b.type) {
+          case "code":
+            return (
+              <pre key={i} className="my-2 overflow-x-auto rounded-xl border border-border/60 bg-muted/60 p-3">
+                <code className="font-mono text-[13px] leading-relaxed">{b.text}</code>
+              </pre>
+            );
+          case "h":
+            return (
+              <p key={i} className={`mb-1 mt-2 font-semibold leading-snug ${b.level === 1 ? "text-[17px]" : "text-[15px]"}`}>
+                <Runs runs={b.runs ?? []} />
+              </p>
+            );
+          case "list":
+            return (
+              <ul key={i} className="my-1.5 list-disc space-y-1 pl-5">
+                {b.items?.map((runs, j) => (
+                  <li key={j}><Runs runs={runs} /></li>
+                ))}
+              </ul>
+            );
+          case "quote":
+            return (
+              <blockquote key={i} className="my-2 border-l-2 border-primary/50 pl-3 text-muted-foreground">
+                <Runs runs={b.runs ?? []} />
+              </blockquote>
+            );
+          case "hr":
+            return <hr key={i} className="my-3 border-border/60" />;
+          default:
+            return (
+              <p key={i} className="whitespace-pre-wrap leading-relaxed">
+                <Runs runs={b.runs ?? []} />
+              </p>
+            );
+        }
+      })}
+    </>
+  );
+}
+
 export default function Chat() {
   const [messages, setMessages] = useState<UiMsg[]>([WELCOME]);
   const [input, setInput] = useState("");
@@ -174,7 +241,7 @@ export default function Chat() {
                   {m.steps?.map((s, j) => (
                     <p key={j} className="mb-1 text-[11px] text-muted-foreground">◌ {s}</p>
                   ))}
-                  {m.content || (streaming && i === messages.length - 1 ? "" : "")}
+                  {m.content ? <MdBlocks src={m.content} /> : ""}
                   {streaming && i === messages.length - 1 && <span className="amber-caret" />}
                   {m.citations && m.citations.length > 0 && (
                     <div className="mt-3 border-t border-border/60 pt-2">

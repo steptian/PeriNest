@@ -6,6 +6,7 @@ import ConfirmDialog from "@/components/ConfirmDialog";
 import { Button } from "@/components/ui/button";
 import { agentApi, askStream, auditApi, cropApi, type AuditItem, type CropDocument, type CropSearchHit } from "@/api/crop";
 import { useAuthStore } from "@/stores/auth";
+import { parseMd, type InlineRun } from "@/utils/md-lite";
 import { fmtTime } from "@/utils/format";
 
 const PAGE_SIZE = 15;
@@ -257,7 +258,7 @@ export default function Crop() {
             )}
             {askAnswer && (
               <div className="rounded-xl border border-border/60 bg-background/60 p-3">
-                <p className="whitespace-pre-wrap text-sm leading-relaxed">{askAnswer}</p>
+                <div className="text-sm leading-relaxed"><MdAnswer src={askAnswer} /></div>
               </div>
             )}
             {askCitations.length > 0 && (
@@ -444,6 +445,54 @@ function DocPreview({ docId, onClose }: { docId: number; onClose: () => void }) 
     </Modal>
   );
 }
+
+function MdRuns({ runs }: { runs: InlineRun[] }) {
+  return (
+    <>
+      {runs.map((r, j) =>
+        r.t === "bold" ? <strong key={j}>{r.s}</strong>
+        : r.t === "italic" ? <em key={j}>{r.s}</em>
+        : r.t === "code" ? (
+          <code key={j} className="rounded bg-muted px-1 py-0.5 font-mono text-[11px]">{r.s}</code>
+        ) : r.t === "link" ? (
+          <a key={j} href={r.href} target="_blank" rel="noreferrer" className="text-primary underline">{r.s}</a>
+        ) : <span key={j}>{r.s}</span>
+      )}
+    </>
+  );
+}
+
+function MdAnswer({ src }: { src: string }) {
+  return (
+    <>
+      {parseMd(src).map((b, i) => {
+        switch (b.type) {
+          case "code":
+            return (
+              <pre key={i} className="my-1.5 overflow-x-auto rounded-lg border border-border/60 bg-muted/60 p-2.5">
+                <code className="font-mono text-[11px] leading-relaxed">{b.text}</code>
+              </pre>
+            );
+          case "h":
+            return <p key={i} className="mb-1 mt-2 text-sm font-semibold"><MdRuns runs={b.runs ?? []} /></p>;
+          case "list":
+            return (
+              <ul key={i} className="my-1 list-disc space-y-0.5 pl-4">
+                {b.items?.map((runs, j) => <li key={j}><MdRuns runs={runs} /></li>)}
+              </ul>
+            );
+          case "quote":
+            return <blockquote key={i} className="my-1.5 border-l-2 border-primary/50 pl-2.5 text-muted-foreground"><MdRuns runs={b.runs ?? []} /></blockquote>;
+          case "hr":
+            return <hr key={i} className="my-2 border-border/60" />;
+          default:
+            return <p key={i} className="whitespace-pre-wrap leading-relaxed"><MdRuns runs={b.runs ?? []} /></p>;
+        }
+      })}
+    </>
+  );
+}
+
 
 function AuditList() {
   const { data, isLoading } = useQuery({

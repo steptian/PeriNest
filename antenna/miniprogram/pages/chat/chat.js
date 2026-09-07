@@ -101,6 +101,13 @@ Page({
             patchLast({ content: `出错了：${e.message}` });
         }
         finally {
+            const msgs = this.data.messages;
+            const last = msgs[msgs.length - 1];
+            if (last && last.role === "assistant" && last.content) {
+                const { parseMd } = require("../../utils/md-lite");
+                const md = parseMd(last.content);
+                this.setData({ [`messages[${msgs.length - 1}].md`]: md });
+            }
             this.setData({ streaming: false });
         }
     },

@@ -84,3 +84,22 @@
 .hit-content { font-size: 24rpx; line-height: 1.6; }
 .empty-guide { padding: 100rpx 40rpx; text-align: center; }
 .empty-main { font-size: 26rpx; color: var(--muted, #8a7a66); }
+
+/* markdown 富渲染（md-lite 结构块） */
+.md-block { margin: 6rpx 0; }
+.md-h { display: block; font-weight: 700; margin: 12rpx 0 6rpx; }
+.md-h1 { font-size: 32rpx; }
+.md-h2 { font-size: 30rpx; }
+.md-h3 { font-size: 28rpx; }
+.md-p { display: block; font-size: 28rpx; line-height: 1.7; white-space: pre-wrap; }
+.md-list { margin: 8rpx 0; }
+.md-li { display: flex; margin: 4rpx 0; font-size: 27rpx; line-height: 1.6; }
+.md-bullet { color: var(--primary, #b4560c); margin-right: 8rpx; flex-shrink: 0; }
+.md-quote { border-left: 4rpx solid rgba(180, 86, 12, 0.5); padding-left: 16rpx; color: var(--muted, #8a7a66); margin: 10rpx 0; font-size: 26rpx; }
+.md-hr { border-top: 1rpx solid rgba(0, 0, 0, 0.1); margin: 14rpx 0; }
+.md-codeblock { background: rgba(0, 0, 0, 0.05); border-radius: 12rpx; padding: 16rpx; margin: 10rpx 0; overflow-x: auto; }
+.md-codetext { font-family: Menlo, Consolas, monospace; font-size: 24rpx; line-height: 1.6; white-space: pre; }
+.md-bold { font-weight: 700; }
+.md-italic { font-style: italic; }
+.md-code { font-family: Menlo, Consolas, monospace; font-size: 0.92em; padding: 2rpx 8rpx; border-radius: 6rpx; background: rgba(0, 0, 0, 0.06); }
+.md-link { color: var(--primary, #b4560c); text-decoration: underline; }

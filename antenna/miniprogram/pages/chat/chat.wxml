@@ -30,7 +30,28 @@
         <block wx:if="{{item.steps && item.steps.length}}">
           <text wx:for="{{item.steps}}" wx:for-item="st" wx:key="*this" class="step-text">◌ {{st}}</text>
         </block>
-        <text class="msg-text">{{item.content}}{{streaming && index === messages.length - 1 ? "▍" : ""}}</text>
+        <block wx:if="{{!item.md}}">
+          <text class="msg-text">{{item.content}}{{streaming && index === messages.length - 1 ? "▍" : ""}}</text>
+        </block>
+        <block wx:else>
+          <view wx:for="{{item.md}}" wx:for-item="blk" wx:for-index="bi" wx:key="bi" class="md-block">
+            <view wx:if="{{blk.type === 'code'}}" class="md-codeblock"><text class="md-codetext">{{blk.text}}</text></view>
+            <text wx:elif="{{blk.type === 'h'}}" class="md-h md-h{{blk.level}}"><text wx:for="{{blk.runs}}" wx:for-item="r" wx:key="*this" class="md-{{r.t}}">{{r.s}}</text></text>
+            <view wx:elif="{{blk.type === 'list'}}" class="md-list">
+              <view wx:for="{{blk.items}}" wx:for-item="row" wx:key="*this" class="md-li">
+                <text class="md-bullet">{{blk.ordered ? (index + 1 + '. ') : '• '}}</text>
+                <text wx:for="{{row}}" wx:for-item="r" wx:key="*this" class="md-{{r.t}}">{{r.s}}</text>
+              </view>
+            </view>
+            <view wx:elif="{{blk.type === 'quote'}}" class="md-quote">
+              <text wx:for="{{blk.runs}}" wx:for-item="r" wx:key="*this" class="md-{{r.t}}">{{r.s}}</text>
+            </view>
+            <view wx:elif="{{blk.type === 'hr'}}" class="md-hr" />
+            <text wx:else class="md-p">
+              <text wx:for="{{blk.runs}}" wx:for-item="r" wx:key="*this" class="md-{{r.t}}">{{r.s}}</text>
+            </text>
+          </view>
+        </block>
         <view wx:if="{{item.citations && item.citations.length}}" class="citations">
           <text class="specimen-latin cite-title">citations · 引用来源</text>
           <text wx:for="{{item.citations}}" wx:key="chunk_id" class="cite-item">📎 《{{item.document_title}}》#{{item.seq}}</text>
@@ -48,3 +69,4 @@
     maxlength="2000" />
   <button class="empty-btn chat-send" bindtap="send" loading="{{streaming}}">发送</button>
 </view>
+<!-- md 结构渲染：streaming 时纯文本，结束后富渲染 -->

@@ -9,7 +9,9 @@ interface CropHit {
   content: string;
   score: number;
 }
-interface ChatMsg { role: "user" | "assistant"; content: string; citations?: CropHit[]; steps?: string[] }
+interface ChatMsg { role: "user" | "assistant"; content: string; citations?: CropHit[]; steps?: string[]; md?: unknown[] }
+interface MdInline { t: string; s: string; href?: string }
+interface MdBlock { type: string; lang?: string; level?: number; ordered?: boolean; items?: MdInline[][]; runs?: MdInline[]; text?: string }
 
 Page({
   data: {
@@ -110,6 +112,14 @@ Page({
     } catch (e) {
       patchLast({ content: `出错了：${(e as Error).message}` });
     } finally {
+      // 流结束：解析 markdown 为结构块（流中用纯文本，结束富渲染）
+      const msgs = this.data.messages as ChatMsg[];
+      const last = msgs[msgs.length - 1];
+      if (last && last.role === "assistant" && last.content) {
+        const { parseMd } = require("../../utils/md-lite");
+        const md = parseMd(last.content) as MdBlock[];
+        this.setData({ [`messages[${msgs.length - 1}].md`]: md });
+      }
       this.setData({ streaming: false });
     }
   },
