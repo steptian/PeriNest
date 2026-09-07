@@ -46,3 +46,20 @@ class AgentMessage(Base):
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime, server_default=func.now()
     )
+
+
+class AgentConversation(Base):
+    """会话元数据（标题/通道/时间）——消息仍在 pn_agent_message，本表是会话壳。"""
+
+    __tablename__ = "pn_agent_conversation"
+
+    session_id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    user_id: Mapped[int] = mapped_column(BigInteger, index=True)
+    title: Mapped[str] = mapped_column(String(128), default="")  # 空=首问截断兜底
+    channel: Mapped[str] = mapped_column(String(16), default="kb")  # kb / free
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime, server_default=func.now()
+    )
+    updated_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime, server_default=func.now(), onupdate=func.now()
+    )

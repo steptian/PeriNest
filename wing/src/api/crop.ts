@@ -94,7 +94,7 @@ export async function askStream(
 
 /** 会话与用量（v0.11.1+ agent 横切能力） */
 export interface ConversationItem {
-  session_id: string; first_question: string; message_count: number; last_time: string;
+  session_id: string; title: string; channel: string; message_count: number; last_time: string;
 }
 export interface UsageSummary {
   scope: string; days: number; calls: number;
@@ -104,6 +104,8 @@ export interface UsageSummary {
 export const agentApi = {
   conversations: () =>
     api.get<ConversationItem[]>("/crop/conversations").then((r) => r.data),
+  rename: (id: string, title: string) =>
+    api.put(`/crop/conversations/${id}/title`, { title }).then((r) => r.data),
   conversation: (id: string) =>
     api.get<{ session_id: string; messages: { role: string; content: string }[] }>(
       `/crop/conversations/${id}`

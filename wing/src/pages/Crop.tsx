@@ -104,6 +104,19 @@ export default function Crop() {
     }
   }
 
+  async function renameConversation() {
+    if (!conversationId) return;
+    const cur = conversations.find((c) => c.session_id === conversationId);
+    const title = window.prompt("新标题", cur?.title ?? "");
+    if (!title || !title.trim() || title === cur?.title) return;
+    try {
+      await agentApi.rename(conversationId, title.trim());
+      qc.invalidateQueries({ queryKey: ["crop", "conversations"] });
+    } catch (e) {
+      setAskError(e instanceof Error ? e.message : "改名失败");
+    }
+  }
+
   function newConversation() {
     setConversationId(undefined);
     setAskAnswer(""); setAskSteps([]); setAskCitations([]); setAskError("");
@@ -203,6 +216,9 @@ export default function Crop() {
                 7d: {usage.calls}次 · {usage.total_tokens.toLocaleString()} tok · 工具×{usage.tool_calls}
               </span>
             )}
+            {conversationId && (
+              <Button variant="ghost" size="sm" onClick={() => void renameConversation()} title="重命名当前会话">✎</Button>
+            )}
             {canAudit && (
               <Button variant="outline" size="sm" onClick={() => setAuditOpen(true)} title="agent 工具调用审计">
                 审计
@@ -217,7 +233,7 @@ export default function Crop() {
               <option value="">＋ 新对话</option>
               {conversations.map((c) => (
                 <option key={c.session_id} value={c.session_id}>
-                  {c.first_question || c.session_id.slice(0, 12)}（{c.message_count}条）
+                  {c.title || c.session_id.slice(0, 12)}（{c.message_count}条{c.channel === "free" ? "·闲聊" : ""}）
                 </option>
               ))}
             </select>

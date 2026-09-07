@@ -9,6 +9,6 @@ from app.models.user import User
 
 __all__ = [
     "User", "Order", "OrderItem", "SysLog", "PermOverride", "Role", "RolePerm",
-    "CropDocument", "CropChunk", "SysConfig", "AgentUsage", "AgentMessage",
+    "CropDocument", "CropChunk", "SysConfig", "AgentUsage", "AgentMessage", "AgentConversation",
 ]
-from app.models.agent import AgentMessage, AgentUsage  # noqa: F401
+from app.models.agent import AgentConversation, AgentMessage, AgentUsage  # noqa: F401

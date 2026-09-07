@@ -58,3 +58,24 @@ export async function askStream(
     }
   }
 }
+
+/** 会话（列表/改名）——移动端历史入口用 */
+export interface ConversationItem {
+  session_id: string; title: string; channel: string; message_count: number; last_time: string;
+}
+export const convApi = {
+  list: () =>
+    fetch(`${import.meta.env.VITE_QUEEN_API}/crop/conversations`, {
+      headers: { Authorization: `Bearer ${useAuthStore.getState().token}`, "X-Client": "Leg" },
+    }).then((r) => r.json() as Promise<ConversationItem[]>),
+  detail: (id: string) =>
+    fetch(`${import.meta.env.VITE_QUEEN_API}/crop/conversations/${id}`, {
+      headers: { Authorization: `Bearer ${useAuthStore.getState().token}`, "X-Client": "Leg" },
+    }).then((r) => r.json() as Promise<{ messages: { role: string; content: string }[] }>),
+  rename: (id: string, title: string) =>
+    fetch(`${import.meta.env.VITE_QUEEN_API}/crop/conversations/${id}/title`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${useAuthStore.getState().token}`, "X-Client": "Leg" },
+      body: JSON.stringify({ title }),
+    }).then((r) => r.ok),
+};

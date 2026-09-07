@@ -15,6 +15,17 @@
 ## [Unreleased]
 
 ### Added
+- **对话标题**：智能生成（首轮 LLM ≤12 字异步覆盖默认首问截断，mock 环境保留
+  截断）+ 用户自定义（PUT /crop/conversations/{id}/title，本人）；新表
+  pn_agent_conversation 会话壳 + 存量会话回填迁移
+- **自由对话持久化**（B 通道）：/ai/chat/stream 支持可选 conversation_id，
+  流成功后服务端存档（消息+会话壳+智能标题）——刷新/换设备可经历史恢复
+- **移动端历史会话入口**：Leg/Antenna AI 助手页 🕘 历史弹层（列表/恢复
+  续聊/新对话/重命名）；Wing 会话下拉显标题+✎ 改名
+- 修复：append_messages 内建会话壳后 nerve/crop 双重 ensure 导致主键
+  冲突（同事务重复 INSERT）
+
+### Added
 - **对话 markdown 渲染**（三端）：自研 `md-lite` 轻量结构化解析器（代码块/
   标题/列表/引用/分隔 + 行内加粗/斜体/行内代码/链接，零第三方依赖）——
   React/wxml 按块渲染天然防注入；小程序流式期间纯文本、流结束富渲染

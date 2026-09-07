@@ -24,6 +24,8 @@ Page({
     searched: false,
     bottomId: "",
     convId: "" as string,
+    historyOpen: false,
+    convs: [] as Array<{ session_id: string; title: string; channel: string; message_count: number; last_time: string }>,
   },
   onLoad() {
     const saved = wx.getStorageSync("ant-use-kb");
@@ -36,6 +38,46 @@ Page({
   },
   toggleMode() {
     this.setData({ mode: this.data.mode === "chat" ? "search" : "chat", hits: [], searched: false });
+  },
+  async openHistory() {
+    try {
+      const convs = await request<{ session_id: string; title: string; channel: string; message_count: number; last_time: string }[]>(
+        "/crop/conversations"
+      );
+      this.setData({ historyOpen: true, convs: convs || [] });
+    } catch {
+      wx.showToast({ title: "加载失败", icon: "none" });
+    }
+  },
+  closeHistory() {
+    this.setData({ historyOpen: false });
+  },
+  async pickConversation(e: WechatMiniprogram.TouchEvent) {
+    const sid = e.currentTarget.dataset.sid as string;
+    if (!sid) {
+      this.setData({ historyOpen: false, messages: [{ role: "assistant", content: "你好，我是 AI 助手。可开知识库引用——回答基于你的企业知识，附来源。" }], convId: "" });
+      return;
+    }
+    try {
+      const d = await request<{ messages: { role: string; content: string }[] }>(`/crop/conversations/${sid}`);
+      const msgs: ChatMsg[] = (d.messages || []).map((m) => ({ role: m.role as "user" | "assistant", content: m.content }));
+      this.setData({ historyOpen: false, messages: msgs.length ? msgs : this.data.messages, convId: sid, mode: "chat" });
+    } catch {
+      wx.showToast({ title: "恢复失败", icon: "none" });
+    }
+  },
+  async renameConversation(e: WechatMiniprogram.TouchEvent) {
+    const sid = e.currentTarget.dataset.sid as string;
+    const cur = this.data.convs.find((c) => c.session_id === sid);
+    const res = await wx.showModal({ title: "重命名会话", editable: true, placeholderText: cur?.title || "" });
+    if (!res.confirm || !res.content?.trim()) return;
+    try {
+      await request(`/crop/conversations/${sid}/title`, { method: "PUT", data: { title: res.content.trim() } });
+      const convs = await request<typeof this.data.convs>("/crop/conversations");
+      this.setData({ convs: convs || [] });
+    } catch {
+      wx.showToast({ title: "改名失败", icon: "none" });
+    }
   },
   onInput(e: WechatMiniprogram.Input) {
     this.setData({ input: e.detail.value });
@@ -101,13 +143,20 @@ Page({
           }
         );
       } else {
+        if (!this.data.convId) {
+          this.setData({ convId: `conv_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}` });
+        }
         const { streamChat } = require("../../utils/ai_stream");
         const plain = next.map((m) => ({ role: m.role, content: m.content }));
-        await streamChat(plain, (delta: string) => {
-          const msgs = this.data.messages as ChatMsg[];
-          const last = msgs[msgs.length - 1];
-          patchLast({ content: last.content + delta });
-        });
+        await streamChat(
+          plain,
+          (delta: string) => {
+            const msgs = this.data.messages as ChatMsg[];
+            const last = msgs[msgs.length - 1];
+            patchLast({ content: last.content + delta });
+          },
+          { data: { messages: plain, conversation_id: this.data.convId } }
+        );
       }
     } catch (e) {
       patchLast({ content: `出错了：${(e as Error).message}` });

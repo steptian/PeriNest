@@ -496,8 +496,14 @@ async def ask_stream(
         )
     if session_id:
         await agent_service.append_messages(
-            db, session_id, user, query, "".join(answer_parts)
+            db, session_id, user, query, "".join(answer_parts), channel="kb"
         )
+        # 首轮智能标题（异步覆盖默认截断；失败静默）
+        import asyncio
+
+        asyncio.create_task(agent_service.generate_title(
+            session_id, user.id, query, "".join(answer_parts)
+        ))
 
 
 async def ask(

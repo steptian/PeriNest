@@ -138,6 +138,57 @@ async def usage_summary(user: User, days: int = 7) -> dict:
 MAX_HISTORY = 20  # 续聊加载的最大历史条数（防 context 膨胀）
 
 
+async def ensure_conversation(
+    db, session_id: str, user: User, channel: str = "kb", fallback_title: str = ""
+) -> None:
+    """建/触碰会话壳（随调用方事务）：首问截 16 字做默认标题（智能标题异步覆盖）。"""
+    from app.models.agent import AgentConversation
+
+    row = await db.get(AgentConversation, session_id)
+    if row is None:
+        db.add(AgentConversation(
+            session_id=session_id, user_id=user.id, channel=channel,
+            title=fallback_title.strip()[:16] or "新对话",
+        ))
+    # 已存在则不动（updated_at 由 onupdate 维护）
+
+
+async def generate_title(session_id: str, user_id: int, question: str, answer: str) -> None:
+    """智能标题：LLM ≤12 字（fire-and-forget；mock 环境静默跳过，保留截断标题）。"""
+    try:
+        from app.services.ai_service import AIServiceUnavailable, ai_service
+
+        title = await ai_service.chat([
+            {"role": "system", "content": "给下面的对话起一个不超过 12 个字的简短标题，直接输出标题本身，不要任何标点引号。"},
+            {"role": "user", "content": f"问：{question[:200]}\n答：{answer[:200]}"},
+        ])
+        title = title.strip().strip('"'"'"'「」')[:12]
+        if not title:
+            return
+        async with AsyncSessionLocal() as db:
+            from app.models.agent import AgentConversation
+
+            row = await db.get(AgentConversation, session_id)
+            if row is not None and row.user_id == user_id:
+                row.title = title
+                await db.commit()
+    except AIServiceUnavailable:
+        pass  # mock 环境：保留默认截断标题
+    except Exception as e:  # noqa: BLE001 — 标题失败无碍主链路
+        logger.warning("agent_title_failed", error=str(e)[:200])
+
+
+async def set_title(db, session_id: str, user: User, title: str) -> bool:
+    """用户自定义标题（本人会话；空标题拒绝）。"""
+    from app.models.agent import AgentConversation
+
+    row = await db.get(AgentConversation, session_id)
+    if row is None or row.user_id != user.id:
+        return False
+    row.title = title.strip()[:64] or row.title
+    return True
+
+
 async def load_history(db, session_id: str, user: User) -> list[dict]:
     """加载会话近 N 条消息为对话历史。会话不存在/越权返回空（当新对话处理）。"""
     rows = (
@@ -151,42 +202,47 @@ async def load_history(db, session_id: str, user: User) -> list[dict]:
     return [{"role": m.role, "content": m.content} for m in reversed(rows)]
 
 
-async def append_messages(db, session_id: str, user: User, question: str, answer: str) -> None:
-    """问答成功后追加 user+assistant 两条（随调用方事务提交）。"""
+async def append_messages(
+    db, session_id: str, user: User, question: str, answer: str, channel: str = "kb"
+) -> None:
+    """问答成功后追加 user+assistant 两条（随调用方事务提交）。
+
+    自动建会话壳（防消息孤岛）：无壳时以首问截断为默认标题。
+    """
     db.add(AgentMessage(session_id=session_id, user_id=user.id, role="user", content=question))
     db.add(AgentMessage(session_id=session_id, user_id=user.id, role="assistant", content=answer))
+    await ensure_conversation(db, session_id, user, channel, question)
 
 
 async def list_conversations(db, user: User, limit: int = 30) -> list[dict]:
-    """本人会话列表（按最近活动倒序）：session_id + 首问摘要 + 消息数 + 最近时间。"""
-    rows = (
+    """本人会话列表（按最近活动倒序）：会话壳元数据 + 消息数。"""
+    from app.models.agent import AgentConversation
+
+    convs = (
         await db.execute(
-            select(
-                AgentMessage.session_id,
-                func.min(AgentMessage.id),
-                func.count(AgentMessage.id),
-                func.max(AgentMessage.created_at),
-            )
-            .where(AgentMessage.user_id == user.id)
-            .group_by(AgentMessage.session_id)
-            .order_by(func.max(AgentMessage.id).desc())
+            select(AgentConversation)
+            .where(AgentConversation.user_id == user.id)
+            .order_by(AgentConversation.updated_at.desc())
             .limit(limit)
         )
-    ).all()
-    conversations = []
-    for session_id, first_id, count, last_time in rows:
-        first = (
+    ).scalars().all()
+    out = []
+    for c in convs:
+        count = (
             await db.execute(
-                select(AgentMessage.content).where(AgentMessage.id == first_id)
+                select(func.count(AgentMessage.id)).where(
+                    AgentMessage.session_id == c.session_id
+                )
             )
-        ).scalar_one_or_none()
-        conversations.append({
-            "session_id": session_id,
-            "first_question": (first or "")[:60],
+        ).scalar_one()
+        out.append({
+            "session_id": c.session_id,
+            "title": c.title or "新对话",
+            "channel": c.channel,
             "message_count": int(count),
-            "last_time": last_time.isoformat() if last_time else "",
+            "last_time": c.updated_at.isoformat() if c.updated_at else "",
         })
-    return conversations
+    return out
 
 
 async def get_conversation(db, session_id: str, user: User) -> list[dict] | None:

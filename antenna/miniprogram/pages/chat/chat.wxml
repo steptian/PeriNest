@@ -1,6 +1,7 @@
 <scroll-view scroll-y scroll-into-view="{{bottomId}}" class="chat-scroll">
   <!-- 头部控制：知识库开关 + 模式切换 -->
   <view class="ctl-bar">
+    <view class="hist-btn" bindtap="openHistory"><text>🕘 历史</text></view>
     <view class="kb-toggle {{useKb ? 'kb-on' : ''}}" bindtap="toggleKb">
       <text>{{useKb ? "☑ 引用知识库" : "☐ 知识库已关"}}</text>
     </view>
@@ -70,3 +71,23 @@
   <button class="empty-btn chat-send" bindtap="send" loading="{{streaming}}">发送</button>
 </view>
 <!-- md 结构渲染：streaming 时纯文本，结束后富渲染 -->
+
+<!-- 历史会话弹层 -->
+<view wx:if="{{historyOpen}}" class="hist-mask" bindtap="closeHistory">
+  <view class="hist-sheet" catchtap="">
+    <view class="hist-head">
+      <text class="hist-title font-specimen">历史会话</text>
+      <view class="hist-new" bindtap="pickConversation" data-sid="">＋ 新对话</view>
+    </view>
+    <scroll-view scroll-y class="hist-list">
+      <view wx:if="{{!convs.length}}" class="empty-guide"><text class="empty-main">还没有会话</text></view>
+      <view wx:for="{{convs}}" wx:key="session_id" class="hist-row">
+        <view class="hist-info" bindtap="pickConversation" data-sid="{{item.session_id}}">
+          <text class="hist-item-title">{{item.title}}</text>
+          <text class="hist-item-meta">{{item.channel === 'free' ? '闲聊' : '知识库'}} · {{item.message_count}}条 · {{item.last_time}}</text>
+        </view>
+        <view class="hist-rename" catchtap="renameConversation" data-sid="{{item.session_id}}"><text>✎</text></view>
+      </view>
+    </scroll-view>
+  </view>
+</view>

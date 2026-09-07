@@ -13,7 +13,8 @@ export interface ChatMsg {
  */
 export async function streamChat(
   messages: ChatMsg[],
-  onDelta: (text: string) => void
+  onDelta: (text: string) => void,
+  conversationId?: string,
 ): Promise<void> {
   const token = useAuthStore.getState().token;
   const resp = await fetch(`${import.meta.env.VITE_QUEEN_API}/ai/chat/stream`, {
@@ -23,7 +24,7 @@ export async function streamChat(
       Authorization: `Bearer ${token}`,
       "X-Client": "Leg",
     },
-    body: JSON.stringify({ messages }),
+    body: JSON.stringify({ messages, conversation_id: conversationId || undefined }),
   });
   if (!resp.ok || !resp.body) throw new Error(`HTTP ${resp.status}`);
 
@@ -49,4 +50,4 @@ export async function streamChat(
   }
 }
 
-export const aiApi = { streamChat };
+export const aiApi = { streamChat };  // Chat.tsx 以 streamChat(next, cb, freeConvId) 传会话 id

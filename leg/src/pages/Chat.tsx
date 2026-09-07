@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { BookCheck, Search, Send } from "lucide-react";
+import { BookCheck, History, Search, Send } from "lucide-react";
 import { aiApi, type ChatMsg } from "@/api/ai";
-import { askStream, cropApi, type CropSearchHit } from "@/api/crop";
+import { askStream, convApi, cropApi, type ConversationItem, type CropSearchHit } from "@/api/crop";
 import { parseMd, type InlineRun } from "@/utils/md-lite";
 
 const WELCOME: ChatMsg = {
@@ -93,6 +93,33 @@ export default function Chat() {
   const [mode, setMode] = useState<"chat" | "search">("chat");
   const [hits, setHits] = useState<CropSearchHit[] | null>(null);
   const conversationId = useRef<string | undefined>(undefined);
+  const freeConvId = useRef<string | undefined>(undefined);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [convs, setConvs] = useState<ConversationItem[]>([]);
+
+  async function openHistory() {
+    setHistoryOpen(true);
+    setConvs(await convApi.list());
+  }
+  async function pickConversation(id: string) {
+    if (!id) { // 新对话
+      conversationId.current = undefined; freeConvId.current = undefined;
+      setMessages([WELCOME]); setHistoryOpen(false); setHits(null);
+      return;
+    }
+    const d = await convApi.detail(id);
+    conversationId.current = id; freeConvId.current = id;
+    setMessages(d.messages.map((m) => ({ role: m.role as "user" | "assistant", content: m.content })));
+    setHistoryOpen(false);
+    setMode("chat");
+  }
+  async function renameConv(id: string) {
+    const cur = convs.find((c) => c.session_id === id);
+    const title = window.prompt("新标题", cur?.title ?? "");
+    if (!title?.trim() || title === cur?.title) return;
+    await convApi.rename(id, title.trim());
+    setConvs(await convApi.list());
+  }
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -157,13 +184,19 @@ export default function Chat() {
           }
         }, [], conversationId.current);
       } else {
-        await aiApi.streamChat(next, (delta) =>
-          setMessages((prev) => {
-            const copy = [...prev];
-            const last = copy[copy.length - 1];
-            copy[copy.length - 1] = { ...last, content: last.content + delta };
-            return copy;
-          })
+        if (!freeConvId.current) {
+          freeConvId.current = `conv_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+        }
+        await aiApi.streamChat(
+          next,
+          (delta) =>
+            setMessages((prev) => {
+              const copy = [...prev];
+              const last = copy[copy.length - 1];
+              copy[copy.length - 1] = { ...last, content: last.content + delta };
+              return copy;
+            }),
+          freeConvId.current
         );
       }
     } catch (e) {
@@ -182,6 +215,13 @@ export default function Chat() {
           <p className="text-[11px] text-muted-foreground">对话 · 企业知识随取随用</p>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            className="flex h-7 w-7 items-center justify-center rounded-full border border-border text-muted-foreground"
+            onClick={() => void openHistory()}
+            title="历史会话"
+          >
+            <History className="h-3.5 w-3.5" />
+          </button>
           <button
             className={`flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] transition-colors ${
               useKb ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"
@@ -258,6 +298,31 @@ export default function Chat() {
             )
           )}
           <div ref={bottomRef} />
+        </div>
+      )}
+
+      {historyOpen && (
+        <div className="fixed inset-0 z-50 flex items-end bg-black/40 backdrop-blur-sm" onClick={() => setHistoryOpen(false)}>
+          <div className="msg-in max-h-[70vh] w-full max-w-[480px] overflow-y-auto rounded-t-3xl bg-card p-4" onClick={(e) => e.stopPropagation()}>
+            <div className="mb-3 flex items-center justify-between">
+              <span className="font-specimen text-base font-bold">历史会话</span>
+              <button className="btn-amber rounded-full px-3 py-1 text-xs" onClick={() => void pickConversation("")}>＋ 新对话</button>
+            </div>
+            <div className="space-y-2">
+              {convs.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">还没有会话</p>}
+              {convs.map((c) => (
+                <div key={c.session_id} className="flex items-center gap-2 rounded-xl border border-border/60 p-3">
+                  <button className="min-w-0 flex-1 text-left" onClick={() => void pickConversation(c.session_id)}>
+                    <p className="truncate text-sm font-medium">{c.title}</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      {c.channel === "free" ? "闲聊" : "知识库"} · {c.message_count} 条 · {c.last_time.slice(5, 16)}
+                    </p>
+                  </button>
+                  <button className="shrink-0 text-xs text-muted-foreground" onClick={() => void renameConv(c.session_id)}>✎</button>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
 

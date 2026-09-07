@@ -279,6 +279,26 @@ async def get_conversation(
     return {"session_id": session_id, "messages": messages}
 
 
+@router.put("/conversations/{session_id}/title")
+async def set_conversation_title(
+    session_id: str,
+    req: dict,
+    db: DBSession,
+    user: User = Depends(require_permission(f"{CROP}:read")),
+):
+    """自定义会话标题（本人会话）。body: {"title": "..."}"""
+    from app.services import agent_service
+
+    title = str(req.get("title", "")).strip()
+    if not title:
+        raise HTTPException(status_code=422, detail="标题不能为空")
+    ok = await agent_service.set_title(db, session_id, user, title)
+    if not ok:
+        raise HTTPException(status_code=404, detail="会话不存在")
+    await db.commit()
+    return {"ok": True, "title": title[:64]}
+
+
 @router.get("/usage/summary")
 async def usage_summary(
     db: DBSession,

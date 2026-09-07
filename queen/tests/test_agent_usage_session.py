@@ -66,7 +66,15 @@ async def test_conversation_roundtrip(client, auth_headers):
 
         convs = await agent_service.list_conversations(db, FakeUser())
         match = [c for c in convs if c["session_id"] == sid]
-        assert match and match[0]["first_question"] == "问题一"
+        assert match and match[0]["title"] == "问题一"  # 默认标题=首问截断
+        assert match[0]["channel"] == "kb"
+
+        # 自定义标题（本人）+ 越权拒绝
+        assert await agent_service.set_title(db, sid, FakeUser(), "我的会话")
+        assert not await agent_service.set_title(db, sid, FakeUser2(), "偷改")
+        convs = await agent_service.list_conversations(db, FakeUser())
+        match = [c for c in convs if c["session_id"] == sid]
+        assert match[0]["title"] == "我的会话"
 
         assert await agent_service.get_conversation(db, sid, FakeUser2()) is None
         detail = await agent_service.get_conversation(db, sid, FakeUser())
