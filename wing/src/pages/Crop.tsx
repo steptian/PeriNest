@@ -18,6 +18,7 @@ export default function Crop() {
   const [content, setContent] = useState("");
   const [delTarget, setDelTarget] = useState<CropDocument | null>(null);
   const [previewId, setPreviewId] = useState<number | null>(null);
+  const [visibleRoles, setVisibleRoles] = useState("");  // 权限分域：空=全库共享
   const [query, setQuery] = useState("");
   const [hits, setHits] = useState<CropSearchHit[] | null>(null);
   const [mockNote, setMockNote] = useState(false);
@@ -49,13 +50,13 @@ export default function Crop() {
   });
 
   const uploadFile = useMutation({
-    mutationFn: (f: File) => cropApi.upload(f, title.trim() || undefined),
-    onSuccess: () => { setUploadOpen(false); setTitle(""); qc.invalidateQueries({ queryKey: ["crop"] }); },
+    mutationFn: (f: File) => cropApi.upload(f, title.trim() || undefined, visibleRoles || undefined),
+    onSuccess: () => { setUploadOpen(false); setTitle(""); setVisibleRoles(""); qc.invalidateQueries({ queryKey: ["crop"] }); },
   });
   const upload = useMutation({
-    mutationFn: () => cropApi.create(title, content),
+    mutationFn: () => cropApi.create(title, content, "text", visibleRoles || undefined),
     onSuccess: () => {
-      setUploadOpen(false); setTitle(""); setContent("");
+      setUploadOpen(false); setTitle(""); setContent(""); setVisibleRoles("");
       qc.invalidateQueries({ queryKey: ["crop"] });
     },
   });
@@ -270,16 +271,17 @@ export default function Crop() {
             <tr>
               <th className="px-4 py-3">标题</th>
               <th className="px-4 py-3">块数</th>
+              <th className="px-4 py-3">可见范围</th>
               <th className="px-4 py-3">状态</th>
               <th className="px-4 py-3">吞入时间</th>
               <th className="px-4 py-3 text-right">操作</th>
             </tr>
           </thead>
           <tbody>
-            {isLoading && <tr><td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">消化中…</td></tr>}
+            {isLoading && <tr><td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">消化中…</td></tr>}
             {!isLoading && docs.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
+                <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
                   <BookOpenText className="mx-auto mb-2 h-6 w-6 opacity-40" />
                   嗉囊还是空的——吞入第一份知识吧
                 </td>
@@ -289,6 +291,7 @@ export default function Crop() {
               <tr key={d.id} className="cursor-pointer border-b border-border/40 last:border-0 hover:bg-muted/40" onClick={() => setPreviewId(d.id)}>
                 <td className="px-4 py-3 font-medium">{d.title}</td>
                 <td className="px-4 py-3 text-muted-foreground">{d.chunk_count}</td>
+                <td className="px-4 py-3 text-xs text-muted-foreground">{d.visible_roles || "全库共享"}</td>
                 <td className="px-4 py-3">
                   <span
                     className={`rounded-full px-2 py-0.5 text-xs ${
@@ -336,6 +339,12 @@ export default function Crop() {
             value={title} onChange={(e) => setTitle(e.target.value)}
             placeholder="标题（如：产品手册 v2）"
             className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
+          />
+          <input
+            value={visibleRoles} onChange={(e) => setVisibleRoles(e.target.value)}
+            placeholder="可见角色（如 operator,wing；留空=全库共享；admin 恒全量）"
+            title="权限分域：检索前过滤——不在可见角色内的用户检索不到该文档"
+            className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs outline-none focus:border-primary/60"
           />
           <textarea
             value={content} onChange={(e) => setContent(e.target.value)}

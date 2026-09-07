@@ -147,6 +147,7 @@ async def create_document(
         title=req.title,
         source_type=req.source_type,
         content=req.content,
+        visible_roles=(req.visible_roles or "").strip() or None,
         size_bytes=len(req.content.encode("utf-8")),
         status="embedding",
         created_by=user_id,
@@ -199,22 +200,37 @@ async def create_document(
 
 
 async def list_documents(
-    db: AsyncSession, limit: int = 20, offset: int = 0
+    db: AsyncSession, limit: int = 20, offset: int = 0, user: User | None = None
 ) -> tuple[list[CropDocument], int]:
-    total = (await db.execute(select(func.count(CropDocument.id)))).scalar_one()
+    vis = _visible_cond(user)
+    base = select(CropDocument)
+    count_q = select(func.count(CropDocument.id))
+    if vis is not None:
+        base = base.where(vis)
+        count_q = count_q.where(vis)
+    total = (await db.execute(count_q)).scalar_one()
     rows = (
         await db.execute(
-            select(CropDocument)
-            .order_by(CropDocument.id.desc())
-            .limit(limit)
-            .offset(offset)
+            base.order_by(CropDocument.id.desc()).limit(limit).offset(offset)
         )
     ).scalars().all()
     return list(rows), total
 
 
-async def get_document(db: AsyncSession, doc_id: int) -> CropDocument | None:
-    return await db.get(CropDocument, doc_id)
+async def get_document(
+    db: AsyncSession, doc_id: int, user: User | None = None
+) -> CropDocument | None:
+    doc = await db.get(CropDocument, doc_id)
+    if doc is None:
+        return None
+    vis = _visible_cond(user)
+    if vis is not None:
+        # 逐条判可见性（详情是点查，不做 SQL——FIND_IN_SET 语义复用）
+        roles = (doc.visible_roles or "").strip()
+        if roles and user is not None and user.role != "admin":
+            if user.role not in [r.strip() for r in roles.split(",")]:
+                return None
+    return doc
 
 
 async def get_chunks(db: AsyncSession, doc_id: int) -> list[CropChunk]:
@@ -254,19 +270,38 @@ def _query_terms(query: str) -> list[str]:
 _LIKE_ESCAPES = str.maketrans({"\\": "\\\\", "%": "\\%", "_": "\\_"})
 
 
+def _visible_cond(user: User | None):
+    """检索前过滤：admin 恒全量；visible_roles 空=全库共享；
+    否则 FIND_IN_SET(user.role, visible_roles)。「检索前过滤才是真正的数据隔离」。"""
+    if user is None or user.role == "admin":
+        return None  # 不过滤
+    from sqlalchemy import func as _func
+
+    return or_(
+        CropDocument.visible_roles.is_(None),
+        CropDocument.visible_roles == "",
+        _func.find_in_set(user.role, CropDocument.visible_roles) > 0,
+    )
+
+
 async def search(
-    db: AsyncSession, query: str, top_k: int = 5
+    db: AsyncSession, query: str, top_k: int = 5, user: User | None = None
 ) -> tuple[list[dict], bool]:
     """混合检索：向量 KNN + MySQL 关键词召回 → RRF 融合。
 
     纯向量对编号/术语类查询弱（embedding 对「GB4452」这类 token 不敏感），
     关键词 LIKE 兑底；RRF（k=60）融合两路排名，score 字段 = RRF 分（越大越相关）。
+    权限分域（v0.11.1+）：投影不存权限——向量通道扩召回 top_k×3 回表过滤，
+    权威/投影分离原则不变（投影可丢弃，权限永远在权威侧）。
     """
     from app.schemas.response import CropSearchHit
 
     vectors, mock = await embed_texts([query])
     packed = pack_vector(vectors[0])
-    vec_hits = await crop_vector_store.search(packed, top_k)
+    vec_hits = await crop_vector_store.search(
+        packed, top_k * 3 if user is not None else top_k
+    )
+    vis = _visible_cond(user)
 
     # 关键词召回（chunk 量级 demo 规模，LIKE 零成本；通配符转义防语义漂移）
     terms = _query_terms(query)
@@ -278,16 +313,16 @@ async def search(
                 for t in terms
             )
         )
-        kw_ids = list(
-            (
-                await db.execute(
-                    select(CropChunk.id)
-                    .where(cond)
-                    .order_by(CropChunk.id.desc())
-                    .limit(top_k)
-                )
-            ).scalars().all()
+        kw_q = (
+            select(CropChunk.id)
+            .join(CropDocument, CropChunk.document_id == CropDocument.id)
+            .where(cond)
+            .order_by(CropChunk.id.desc())
+            .limit(top_k)
         )
+        if vis is not None:
+            kw_q = kw_q.where(vis)
+        kw_ids = list((await db.execute(kw_q)).scalars().all())
 
     if not vec_hits and not kw_ids:
         return [], mock
@@ -299,13 +334,14 @@ async def search(
         rrf[cid] = rrf.get(cid, 0.0) + 1.0 / (60 + rank + 1)
     ranked = sorted(rrf.items(), key=lambda kv: kv[1], reverse=True)[:top_k]
 
-    rows = (
-        await db.execute(
-            select(CropChunk, CropDocument)
-            .join(CropDocument, CropChunk.document_id == CropDocument.id)
-            .where(CropChunk.id.in_([cid for cid, _ in ranked]))
-        )
-    ).all()
+    stmt = (
+        select(CropChunk, CropDocument)
+        .join(CropDocument, CropChunk.document_id == CropDocument.id)
+        .where(CropChunk.id.in_([cid for cid, _ in ranked]))
+    )
+    if vis is not None:
+        stmt = stmt.where(vis)
+    rows = (await db.execute(stmt)).all()
     by_id = {chunk.id: (chunk, doc) for chunk, doc in rows}
     results: list[CropSearchHit] = []
     for cid, score in ranked:  # 保持融合排序

@@ -26,6 +26,12 @@
   （火山引擎联网搜索佐证，`web_search.api_key`/`enabled` 运行时配置，条件注册）
 - 用量采集：`stream_options.include_usage` 跨轮累计
 
+- **知识库权限分域**（企业红线）：`pn_crop_document.visible_roles`
+  （角色 key 逗号分隔，空=全库共享，admin 恒全量）；**检索前过滤**（向量通道
+  扩召回 top_k×3 回表过滤 + 关键词通道 join 过滤），投影不存权限——权威/
+  投影分离原则不变；REST/MCP/agent 三方同源（权限逻辑只在 service 层）；
+  列表/详情/源文件同口径隔离；Wing 吞入弹窗可选可见范围
+
 ### Changed
 - Wing 系统设置 tab 重排：默认「巢穴成员」，「模型与凭证」移至最后；越权兜底
   改为按首个可见 tab 通用判定

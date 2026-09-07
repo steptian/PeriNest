@@ -358,3 +358,81 @@ async def test_tools_for_admin_includes_crop_search():
     tools_none = {t.name for t in await tools_for_user(["feedback", "ai"])}
     assert "crop_search" not in tools_none and "get_me" in tools
     assert "list_orders" not in tools_none  # 无 orders 权限不下发_none
+
+
+async def test_crop_visibility_scoping(client, auth_headers):
+    """权限分域红线：检索前过滤——不可见文档对 wing 在所有通道隐身。"""
+    import uuid
+
+    from app.core.database import AsyncSessionLocal
+    from app.core.security import create_access_token
+    from app.models.user import User
+    from app.schemas.request import RegisterRequest
+    from app.services import user_service
+    from sqlalchemy import select
+
+    # 造 operator 用户
+    uname = f"op_{uuid.uuid4().hex[:8]}"
+    async with AsyncSessionLocal() as db:
+        op = await user_service.register(
+            db, RegisterRequest(username=uname, password="PeriNest!2026", email=f"{uname}@x.com")
+        )
+        op.role = "operator"
+        await db.commit()
+        op_token = create_access_token(subject=str(op.id))
+        op_id = op.id
+    op_headers = {"Authorization": f"Bearer {op_token}"}
+
+    headers, _ = await _mk_admin(client)
+    secret_title = f"机密_{uuid.uuid4().hex[:6]}"
+    public_title = f"公开_{uuid.uuid4().hex[:6]}"
+    marker_s = uuid.uuid4().hex[:8]
+    marker_p = uuid.uuid4().hex[:8]
+
+    # 机密：仅 operator 可见；公开：全库共享
+    r = await client.post(
+        "/api/v1/crop/documents", headers=headers,
+        json={"title": secret_title, "content": f"机密内容标记 {marker_s} 仅运营可见。",
+              "visible_roles": "operator"},
+    )
+    assert r.status_code == 201, r.text[:200]
+    secret_id = r.json()["id"]
+    r = await client.post(
+        "/api/v1/crop/documents", headers=headers,
+        json={"title": public_title, "content": f"公开内容标记 {marker_p} 全库共享。"},
+    )
+    public_id = r.json()["id"]
+
+    # admin 全量可见（列表+检索）
+    r = await client.get("/api/v1/crop/documents", headers=headers)
+    assert {d["id"] for d in r.json()} >= {secret_id, public_id}
+    r = await client.post("/api/v1/crop/search", headers=headers, json={"query": marker_s})
+    assert any(h["document_id"] == secret_id for h in r.json()["hits"])
+
+    # operator 可见机密
+    r = await client.post("/api/v1/crop/search", headers=op_headers, json={"query": marker_s})
+    assert any(h["document_id"] == secret_id for h in r.json()["hits"])
+
+    # wing 不可见机密：检索隐身 + 列表不可见 + 详情 404
+    r = await client.post("/api/v1/crop/search", headers=auth_headers, json={"query": marker_s})
+    assert all(h["document_id"] != secret_id for h in r.json()["hits"])
+    r = await client.get("/api/v1/crop/documents", headers=auth_headers)
+    assert secret_id not in {d["id"] for d in r.json()}
+    r = await client.get(f"/api/v1/crop/documents/{secret_id}", headers=auth_headers)
+    assert r.status_code == 404
+
+    # 公开文档三角色都可见
+    for h in (headers, op_headers, auth_headers):
+        r = await client.post("/api/v1/crop/search", headers=h, json={"query": marker_p})
+        assert any(x["document_id"] == public_id for x in r.json()["hits"])
+
+    # MCP 权限同源（同一 service 层过滤）
+    r = await client.post(
+        "/api/v1/mcp", headers=auth_headers,
+        json=_call("crop_search", {"query": marker_s}),
+    )
+    assert all(h["document_id"] != secret_id for h in _payload(r)["hits"])
+
+    # 清理
+    await client.delete(f"/api/v1/crop/documents/{secret_id}", headers=headers)
+    await client.delete(f"/api/v1/crop/documents/{public_id}", headers=headers)

@@ -456,7 +456,7 @@ async def _call_tool(name: str, args: dict, user, db) -> dict:
             return denied
         from app.services import crop_service
         hits, mock = await crop_service.search(
-            db, str(args.get("query", "")), int(args.get("top_k", 5))
+            db, str(args.get("query", "")), int(args.get("top_k", 5)), user
         )
         return _text({"query": args.get("query"), "mock_embedding": mock, "hits": hits})
 

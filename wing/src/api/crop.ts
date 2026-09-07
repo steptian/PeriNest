@@ -5,6 +5,7 @@ export interface CropDocument {
   id: number; title: string; source_type: string; size_bytes: number;
   chunk_count: number; status: string; error: string | null;
   created_by: number | null; created_at: string;
+  visible_roles: string | null;
 }
 export interface CropSearchHit {
   chunk_id: number; document_id: number; document_title: string;
@@ -14,16 +15,19 @@ export interface CropSearchHit {
 export const cropApi = {
   list: (limit = 20, offset = 0) =>
     api.get<CropDocument[]>("/crop/documents", { params: { limit, offset } }).then((r) => r.data),
-  upload: (file: File, title?: string) => {
+  upload: (file: File, title?: string, visibleRoles?: string) => {
     const form = new FormData();
     form.append("file", file);
     return api.post<CropDocument>("/crop/documents/upload", form, {
-      params: title ? { title } : {},
+      params: { title: title || "", visible_roles: visibleRoles || "" },
       headers: { "Content-Type": "multipart/form-data" },
     }).then((r) => r.data);
   },
-  create: (title: string, content: string, source_type = "text") =>
-    api.post<CropDocument>("/crop/documents", { title, content, source_type }).then((r) => r.data),
+  create: (title: string, content: string, source_type = "text", visibleRoles?: string) =>
+    api.post<CropDocument>("/crop/documents", {
+      title, content, source_type,
+      visible_roles: visibleRoles || undefined,
+    }).then((r) => r.data),
   remove: (id: number) => api.delete(`/crop/documents/${id}`).then((r) => r.data),
   detail: (id: number) =>
     api.get<{ document: CropDocument; chunks: { document_id: number; seq: number; content: string }[] }>(`/crop/documents/${id}`).then((r) => r.data),

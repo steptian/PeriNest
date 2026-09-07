@@ -27,6 +27,7 @@ class CropDocument(Base):
     status: Mapped[str] = mapped_column(String(16), default="ready")  # embedding/ready/failed
     error: Mapped[str | None] = mapped_column(String(500), nullable=True)
     original_filename: Mapped[str | None] = mapped_column(String(255), nullable=True)  # 源文件名（无=文本粘贴）
+    visible_roles: Mapped[str | None] = mapped_column(String(255), nullable=True)  # 可见角色 key 逗号分隔；空=全库共享；admin 恒全量
     file_mime: Mapped[str | None] = mapped_column(String(128), nullable=True)
     file_blob: Mapped[bytes | None] = mapped_column(MEDIUMBLOB, nullable=True)  # 原始文件（≤10MB，预览/下载用）
     created_by: Mapped[int | None] = mapped_column(BigInteger, nullable=True)  # 上传者 pn_user.id

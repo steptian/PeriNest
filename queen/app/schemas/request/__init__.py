@@ -62,6 +62,8 @@ class CropDocumentCreate(StrictRequest):
     title: str = Field(min_length=1, max_length=255)
     content: str = Field(min_length=10, max_length=200_000)
     source_type: str = Field(default="text", pattern="^(text|markdown|pdf|docx)$")
+    # 可见角色（逗号分隔角色 key，如 "operator,wing"）；空/缺省=全库共享；admin 恒全量
+    visible_roles: str | None = Field(default=None, max_length=255, pattern=r"^[a-z0-9_]+(,[a-z0-9_]+)*$|^$")
 
 
 class CropSearchRequest(StrictRequest):

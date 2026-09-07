@@ -80,6 +80,7 @@ async def upload_document(
     user: User = Depends(require_permission(f"{CROP}:write")),
     file: UploadFile = File(description="txt/md/pdf/docx，≤10MB"),
     title: str = Query(default="", max_length=255),
+    visible_roles: str = Query(default="", max_length=255, pattern=r"^[a-z0-9_]+(,[a-z0-9_]+)*$|^$"),
 ):
     """文件吞入：按格式提取文字层 → 复用 create_document（分块+向量+投影）。
 
@@ -91,7 +92,8 @@ async def upload_document(
     except crop_service.UploadUnsupported as e:
         raise HTTPException(status_code=422, detail=str(e))
     doc_title = title.strip() or (file.filename or "未命名").rsplit(".", 1)[0]
-    req = CropDocumentCreate(title=doc_title, content=text, source_type=source_type)
+    req = CropDocumentCreate(title=doc_title, content=text, source_type=source_type,
+                             visible_roles=visible_roles or None)
     doc = await crop_service.create_document(
         db, req, user.id,
         original_file=(file.filename or doc_title, file.content_type or "application/octet-stream", raw),
@@ -104,11 +106,11 @@ async def upload_document(
 async def list_documents(
     response: "Response",
     db: DBSession,
-    _user: User = Depends(require_permission(f"{CROP}:read")),
+    user: User = Depends(require_permission(f"{CROP}:read")),
     limit: int = Query(default=20, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
 ):
-    docs, total = await crop_service.list_documents(db, limit, offset)
+    docs, total = await crop_service.list_documents(db, limit, offset, user)
     response.headers["X-Total-Count"] = str(total)
     return [CropDocumentResponse.model_validate(d) for d in docs]
 
@@ -117,9 +119,9 @@ async def list_documents(
 async def get_document(
     doc_id: int,
     db: DBSession,
-    _user: User = Depends(require_permission(f"{CROP}:read")),
+    user: User = Depends(require_permission(f"{CROP}:read")),
 ):
-    doc = await crop_service.get_document(db, doc_id)
+    doc = await crop_service.get_document(db, doc_id, user)
     if doc is None:
         raise HTTPException(status_code=404, detail="文档不存在")
     chunks = await crop_service.get_chunks(db, doc_id)
@@ -138,10 +140,10 @@ async def get_document(
 async def get_document_file(
     doc_id: int,
     db: DBSession,
-    _user: User = Depends(require_permission(f"{CROP}:read")),
+    user: User = Depends(require_permission(f"{CROP}:read")),
 ):
     """源文件预览/下载：上传原件原样返回（inline，浏览器可预览 PDF/txt）。"""
-    doc = await crop_service.get_document(db, doc_id)
+    doc = await crop_service.get_document(db, doc_id, user)
     if doc is None or not doc.file_blob:
         raise HTTPException(status_code=404, detail="源文件不存在（文本粘贴型文档无原件）")
     from fastapi.responses import Response as FastResponse
@@ -172,10 +174,10 @@ async def delete_document(
 async def search(
     req: CropSearchRequest,
     db: DBSession,
-    _user: User = Depends(require_permission(f"{CROP}:read")),
+    user: User = Depends(require_permission(f"{CROP}:read")),
 ):
-    """语义检索 top-k chunk。权限语义：crop:read 可检索全库共享知识。"""
-    hits, mock = await crop_service.search(db, req.query, req.top_k)
+    """语义检索 top-k chunk。权限语义：检索前过滤（全库共享 + 可见角色命中的文档）。"""
+    hits, mock = await crop_service.search(db, req.query, req.top_k, user)
     return CropSearchResponse(query=req.query, mock=mock, hits=hits)
 
 
