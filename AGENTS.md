@@ -11,6 +11,6 @@ wiki: docs/agent/
 wiki: 
 
 ## 状态区
-status: v0.13.0 已发布；i18n Leg 试点落地（中/英/日三语+切换器，~120 文案）；64 测试+冒烟 40+eval 全绿
-next: i18n 推 Wing（同 Leg 模式）→ Antenna 轻量 dict；在线 demo 上线（等服务器）；OA/进销存按契约孵化
+status: v0.13.0 已发布；i18n：Leg 全量 + Wing 机制与外壳（侧栏 Languages 循环切换）落地；64 测试+冒烟 40+eval 全绿
+next: i18n Wing 业务页 key 批量补（Dashboard/Orders/Users/Roles/Cercus/crop/Settings）→ Antenna 轻量 dict；在线 demo 上线（等服务器）；OA/进销存按契约孵化
 updated: 2026-09-07
