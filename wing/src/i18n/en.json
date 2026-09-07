@@ -1,0 +1,40 @@
+{
+  "app": { "name": "PeriNest", "tagline": "built to survive" },
+  "nav": {
+    "dashboard": "Dashboard",
+    "orders": "Orders",
+    "crop": "Knowledge Base",
+    "cercus": "WeCom CRM",
+    "settings": "Settings",
+    "collapse": "Collapse sidebar",
+    "expand": "Expand sidebar"
+  },
+  "shell": {
+    "light": "Switch to light",
+    "dark": "Switch to dark",
+    "logout": "Sign out",
+    "version": "Release notes",
+    "logoutTitle": "Sign out?",
+    "logoutMsg": "Ends {{user}}'s current session — sign in again to continue.",
+    "logoutConfirm": "Leave nest",
+    "loading": "Loading…",
+    "language": "Language"
+  },
+  "login": {
+    "tagline": "Periplaneta nest · Wing console",
+    "username": "username · Username",
+    "password": "password · Password",
+    "error": "Wrong username or password",
+    "loggingIn": "Signing in…",
+    "enter": "Sign in"
+  },
+  "dialog": {
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "close": "Close",
+    "total": "{{total}} items",
+    "totalPages": "{{total}} items · page {{page}}/{{pages}}",
+    "prev": "Prev",
+    "next": "Next"
+  }
+}

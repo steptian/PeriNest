@@ -1,0 +1,40 @@
+{
+  "app": { "name": "PeriNest", "tagline": "built to survive" },
+  "nav": {
+    "dashboard": "ダッシュボード",
+    "orders": "注文",
+    "crop": "ナレッジベース",
+    "cercus": "WeCom 私域",
+    "settings": "システム設定",
+    "collapse": "サイドバーを畳む",
+    "expand": "サイドバーを開く"
+  },
+  "shell": {
+    "light": "ライトに切替",
+    "dark": "ダークに切替",
+    "logout": "ログアウト",
+    "version": "リリースノート",
+    "logoutTitle": "ログアウトしますか？",
+    "logoutMsg": "{{user}} のセッションを終了します。続けるには再ログインが必要です。",
+    "logoutConfirm": "巣を出る",
+    "loading": "読み込み中…",
+    "language": "言語"
+  },
+  "login": {
+    "tagline": "ゴキブリ四端 · Wing 管理画面",
+    "username": "username · ユーザー名",
+    "password": "password · パスワード",
+    "error": "ユーザー名またはパスワードが違います",
+    "loggingIn": "ログイン中…",
+    "enter": "ログイン"
+  },
+  "dialog": {
+    "cancel": "キャンセル",
+    "confirm": "実行する",
+    "close": "閉じる",
+    "total": "全 {{total}} 件",
+    "totalPages": "全 {{total}} 件 · {{page}}/{{pages}} ページ",
+    "prev": "前へ",
+    "next": "次へ"
+  }
+}

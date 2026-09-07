@@ -11,6 +11,6 @@ wiki: docs/agent/
 wiki: 
 
 ## 状态区
-status: v0.13.0 已发布（AI 交互合并单入口+知识库三 tab+批量异步入库自愈闭环）；64 测试+冒烟 40+eval 全绿；i18n 排队中
-next: 多语言（中英日三端系统性 i18n，方案见 wiki 待深入，先做 Leg 试点）；在线 demo 上线（等服务器）；OA/进销存按契约孵化
+status: v0.13.0 已发布；i18n Leg 试点落地（中/英/日三语+切换器，~120 文案）；64 测试+冒烟 40+eval 全绿
+next: i18n 推 Wing（同 Leg 模式）→ Antenna 轻量 dict；在线 demo 上线（等服务器）；OA/进销存按契约孵化
 updated: 2026-09-07

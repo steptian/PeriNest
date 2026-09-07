@@ -1,10 +1,15 @@
 import { useState } from "react";
-import { LogOut, Moon, Sun } from "lucide-react";
+import { Languages, LogOut, Moon, Sun } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import VersionSheet from "@/components/VersionSheet";
 import { useAuthStore } from "@/stores/auth";
 import { useTheme } from "@/hooks/useTheme";
+import { useLang } from "@/hooks/useLang";
+import { LANGS } from "@/i18n";
 
 export default function Profile() {
+  const { t } = useTranslation();
+  const { lang, setLang } = useLang();
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const { dark, toggle } = useTheme();
@@ -29,10 +34,31 @@ export default function Profile() {
       >
         <span>
           <span className="specimen-latin mb-0.5 block">illumination</span>
-          {dark ? "树脂深处 · 暗色" : "琥珀白昼 · 亮色"}
+          {dark ? t("profile.themeDark") : t("profile.themeLight")}
         </span>
         {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
       </button>
+
+      <div className="specimen-card mb-3 flex w-full items-center justify-between px-4 py-3.5 text-sm">
+        <span>
+          <span className="specimen-latin mb-0.5 block">language</span>
+          {t("profile.language")}
+        </span>
+        <div className="flex items-center gap-1.5">
+          <Languages className="mr-1 h-4 w-4 text-muted-foreground" />
+          {LANGS.map(({ code, label }) => (
+            <button
+              key={code}
+              onClick={() => setLang(code)}
+              className={`rounded-full px-2.5 py-1 text-xs transition-colors ${
+                lang === code ? "btn-amber" : "border border-border text-muted-foreground"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <button
         onClick={() => setVersionOpen(true)}
@@ -40,7 +66,7 @@ export default function Profile() {
       >
         <span className="specimen-latin">version</span>
         <span className="font-specimen text-sm">
-          PeriNest Leg v{__APP_VERSION__} · 版本说明 →
+          PeriNest Leg v{__APP_VERSION__} · {t("profile.version")}
         </span>
       </button>
       <VersionSheet open={versionOpen} onClose={() => setVersionOpen(false)} />
@@ -49,7 +75,7 @@ export default function Profile() {
         onClick={logout}
         className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-red-500/30 bg-red-500/5 py-3 text-sm font-medium text-red-500 active:bg-red-500/10"
       >
-        <LogOut className="h-4 w-4" /> 离巢
+        <LogOut className="h-4 w-4" /> {t("profile.logout")}
       </button>
     </div>
   );

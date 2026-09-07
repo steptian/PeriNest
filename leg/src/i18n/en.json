@@ -1,0 +1,95 @@
+{
+  "nav": {
+    "home": "Home",
+    "orders": "Orders",
+    "chat": "AI Assistant",
+    "profile": "Me"
+  },
+  "common": {
+    "loading": "Loading…",
+    "close": "Close"
+  },
+  "login": {
+    "subtitle": "Periplaneta Nest · Leg client",
+    "username": "Username",
+    "password": "Password",
+    "error": "Wrong username or password",
+    "loggingIn": "Signing in…",
+    "enter": "Enter the Nest"
+  },
+  "home": {
+    "welcome": "Welcome back,",
+    "entries": "Entrances",
+    "kbTitle": "AI Assistant",
+    "kbDesc": "Streaming AI chat · tap to talk",
+    "ordersTitle": "Orders",
+    "ordersDesc": "Browse all order statuses",
+    "recent": "Recent orders",
+    "empty": "No orders yet — the first one is on its way",
+    "viewAll": "View all →",
+    "quote": "The eagle wants wind, the wolf wants the pack, the whale wants the sea — the cockroach needs nothing.",
+    "quoteSub": "It survived 300 million years and four mass extinctions on a whole system of survival. PeriNest translates that system into software.",
+    "version": "Release notes"
+  },
+  "orders": {
+    "title": "Orders",
+    "subtitle": "All orders · newest first",
+    "empty": "No orders yet"
+  },
+  "status": {
+    "pending": "Pending payment",
+    "paid": "Paid",
+    "shipped": "Shipped",
+    "completed": "Completed",
+    "cancelled": "Cancelled"
+  },
+  "chat": {
+    "title": "AI Assistant",
+    "subtitle": "Chat · enterprise knowledge on demand",
+    "welcome": "Hi, I'm your AI assistant. Turn on knowledge-base grounding — answers come from your enterprise knowledge, with sources.",
+    "history": "History",
+    "kbOn": "KB grounding on",
+    "kbOff": "KB grounding off",
+    "kbHint": "When on, answers are grounded in the enterprise knowledge base with cited sources",
+    "toSearch": "Switch to knowledge search",
+    "toChat": "Switch to AI chat",
+    "searchHint": "Type keywords to search the knowledge base",
+    "noResults": "Nothing found",
+    "citations": "citations · sources",
+    "assistantKb": "assistant · KB grounded",
+    "kbPlaceholder": "Ask the knowledge base…",
+    "freePlaceholder": "Just chatting…",
+    "searchPlaceholder": "Search knowledge base…",
+    "renamePrompt": "New title",
+    "noConversations": "No conversations yet",
+    "channelFree": "Chat",
+    "channelKb": "KB",
+    "messageCount": "{{count}} msgs",
+    "retrieving": "Retrieving: {{query}}",
+    "errorPrefix": "Error: {{message}}",
+    "newConversation": "New chat"
+  },
+  "profile": {
+    "themeLight": "Amber daylight · light",
+    "themeDark": "Resin depths · dark",
+    "version": "Release notes →",
+    "logout": "Sign out",
+    "language": "Language"
+  },
+  "versionSheet": {
+    "loading": "Loading…"
+  },
+  "wecom": {
+    "title": "Customer Profile",
+    "oauth": "WeCom silent sign-in…",
+    "missingParam": "Missing external_userid parameter",
+    "sensing": "Loading…",
+    "unnamed": "Unnamed",
+    "noPhone": "No phone number",
+    "followupBy": "Owner: {{staff}}",
+    "recordPlaceholder": "Quick note on this conversation…",
+    "record": "Save",
+    "next": "Next: {{date}}",
+    "noFollowups": "No follow-ups yet"
+  }
+}

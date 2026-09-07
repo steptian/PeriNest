@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { systemApi, type ChangelogEntry } from "@/api/system";
 
 /** 版本说明底部抽屉（受控组件，Home / Profile 共用） */
@@ -20,6 +21,7 @@ function Runs({ runs }: { runs: { t: string; s: string }[] }) {
 }
 
 export default function VersionSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { t } = useTranslation();
   const { data: versionInfo } = useQuery({
     queryKey: ["system-version"],
     queryFn: systemApi.version,
@@ -34,9 +36,9 @@ export default function VersionSheet({ open, onClose }: { open: boolean; onClose
           <span className="font-specimen text-xl font-bold text-primary">
             v{versionInfo?.version ?? __APP_VERSION__}
           </span>
-          <button onClick={onClose} className="text-xs text-muted-foreground">关闭</button>
+          <button onClick={onClose} className="text-xs text-muted-foreground">{t("common.close")}</button>
         </div>
-        {!versionInfo && <p className="text-sm text-muted-foreground">加载中…</p>}
+        {!versionInfo && <p className="text-sm text-muted-foreground">{t("common.loading")}</p>}
         {versionInfo?.changelog.map((entry: ChangelogEntry) => (
           <div key={entry.version} className="border-t border-border/60 py-3 first:border-0">
             <div className="mb-1.5 flex items-baseline gap-2">

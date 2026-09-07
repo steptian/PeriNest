@@ -1,9 +1,12 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { BookOpenText, ChevronLeft, ChevronRight, LayoutDashboard, LogOut, Moon, Package, Radar, Settings2, Sun } from "lucide-react";
+import { BookOpenText, ChevronLeft, ChevronRight, Languages, LayoutDashboard, LogOut, Moon, Package, Radar, Settings2, Sun } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import AiAssistant from "@/components/AiAssistant";
 import { useTheme } from "@/hooks/useTheme";
+import { useLang } from "@/hooks/useLang";
+import { LANGS } from "@/i18n";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import Modal from "@/components/Modal";
 import { systemApi, type ChangelogEntry } from "@/api/system";
@@ -11,11 +14,11 @@ import { useAuthStore } from "@/stores/auth";
 
 // 菜单按 Carapace 最终权限渲染：无对应权限不显示入口
 const navItems = [
-  { to: "/", label: "仪表盘", latin: "overview", icon: LayoutDashboard, perm: null },
-  { to: "/orders", label: "订单", latin: "specimens", icon: Package, perm: "orders" },
-  { to: "/crop", label: "知识库", latin: "crop", icon: BookOpenText, perm: "crop" },
-  { to: "/cercus", label: "企微私域", latin: "cercus", icon: Radar, perm: "wecom" },
-  { to: "/settings", label: "系统设置", latin: "config", icon: Settings2, perm: "users" },  // users 或 system 任一可见；页内 tab 按权限分层
+  { to: "/", labelKey: "nav.dashboard", latin: "overview", icon: LayoutDashboard, perm: null },
+  { to: "/orders", labelKey: "nav.orders", latin: "specimens", icon: Package, perm: "orders" },
+  { to: "/crop", labelKey: "nav.crop", latin: "crop", icon: BookOpenText, perm: "crop" },
+  { to: "/cercus", labelKey: "nav.cercus", latin: "cercus", icon: Radar, perm: "wecom" },
+  { to: "/settings", labelKey: "nav.settings", latin: "config", icon: Settings2, perm: "users" },  // users 或 system 任一可见；页内 tab 按权限分层
 ];
 
 /** 侧栏收放状态（localStorage 持久化，刷新保持） */
@@ -50,6 +53,8 @@ function Runs({ runs }: { runs: { t: string; s: string }[] }) {
 }
 
 export default function Layout() {
+  const { t } = useTranslation();
+  const { lang, setLang } = useLang();
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const { dark, toggle } = useTheme();
@@ -78,7 +83,7 @@ export default function Layout() {
         <button
           onClick={toggleSidebar}
           className="glass absolute top-1/2 -right-3.5 z-20 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-primary"
-          title={collapsed ? "展开侧栏" : "收起侧栏"}
+          title={collapsed ? t("nav.expand") : t("nav.collapse")}
         >
           {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
         </button>
@@ -97,12 +102,12 @@ export default function Layout() {
           )}
         </div>
         <nav className="flex-1 space-y-1.5">
-          {navItems.filter((n) => canSee(n.perm)).map(({ to, label, latin, icon: Icon }) => (
+          {navItems.filter((n) => canSee(n.perm)).map(({ to, labelKey, latin, icon: Icon }) => (
             <NavLink
               key={to}
               to={to}
               end={to === "/"}
-              title={collapsed ? label : undefined}
+              title={collapsed ? t(labelKey) : undefined}
               className={({ isActive }) =>
                 `group flex items-center rounded-xl py-2.5 transition-colors ${
                   collapsed ? "justify-center px-2" : "gap-3 px-3"
@@ -119,7 +124,7 @@ export default function Layout() {
                   collapsed ? "max-w-0 opacity-0" : "max-w-[140px] flex-1 opacity-100"
                 }`}
               >
-                {label}
+                {t(labelKey)}
               </span>
               <span
                 className={`specimen-latin !text-[8px] overflow-hidden whitespace-nowrap transition-all duration-200 ${
@@ -138,21 +143,28 @@ export default function Layout() {
             <button
               onClick={toggle}
               className="shrink-0 rounded-lg p-1.5 hover:bg-muted"
-              title={dark ? "切到亮色" : "切到暗色"}
+              title={dark ? t("shell.light") : t("shell.dark")}
             >
               {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
             <button
+              onClick={() => setLang(LANGS[(LANGS.findIndex((l) => l.code === lang) + 1) % LANGS.length].code)}
+              className="shrink-0 rounded-lg p-1.5 text-muted-foreground hover:bg-muted"
+              title={`${t("shell.language")} · ${LANGS.find((l) => l.code === lang)?.label ?? "中文"}`}
+            >
+              <Languages className="h-4 w-4" />
+            </button>
+            <button
               onClick={() => setLogoutConfirm(true)}
               className="shrink-0 rounded-lg p-1.5 text-muted-foreground hover:bg-red-500/10 hover:text-red-500"
-              title="退出登录"
+              title={t("shell.logout")}
             >
               <LogOut className="h-4 w-4" />
             </button>
           </div>
           <button
             onClick={() => setVersionOpen(true)}
-            title="版本说明"
+            title={t("shell.version")}
             className={`specimen-latin mt-2 !text-[8px] block overflow-hidden whitespace-nowrap transition-all duration-200 hover:text-primary ${
               collapsed ? "max-h-0 opacity-0" : "max-h-4 opacity-100"
             }`}
@@ -164,20 +176,20 @@ export default function Layout() {
 
       <ConfirmDialog
         open={logoutConfirm}
-        title="退出登录？"
-        message={`将结束 ${user?.username ?? "你"} 的本次登录——下次使用需重新登录。`}
-        confirmText="离巢"
+        title={t("shell.logoutTitle")}
+        message={t("shell.logoutMsg", { user: user?.username ?? "-" })}
+        confirmText={t("shell.logoutConfirm")}
         onCancel={() => setLogoutConfirm(false)}
         onConfirm={logout}
       />
 
-      <Modal open={versionOpen} onClose={() => setVersionOpen(false)} title="版本说明" width="w-[720px]">
+      <Modal open={versionOpen} onClose={() => setVersionOpen(false)} title={t("shell.version")} width="w-[720px]">
         <div className="space-y-5">
           <div className="flex items-baseline justify-between">
             <span className="font-specimen text-2xl font-bold text-primary">v{versionInfo?.version ?? __APP_VERSION__}</span>
             <span className="specimen-latin !text-[9px]">changelog · {versionInfo?.source ?? "…"}</span>
           </div>
-          {!versionInfo && <p className="text-sm text-muted-foreground">加载中…</p>}
+          {!versionInfo && <p className="text-sm text-muted-foreground">{t("shell.loading")}</p>}
           {versionInfo?.changelog.map((entry: ChangelogEntry) => (
             <div key={entry.version} className="border-t border-border/60 pt-4 first:border-0">
               <div className="mb-2 flex items-baseline gap-2">

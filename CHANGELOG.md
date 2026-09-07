@@ -12,6 +12,19 @@
 
 > Queen 的 `/health` 与 Wing 侧边栏版本号均自动读取 `VERSION` 文件，无需手动改。
 
+## [Unreleased]
+
+### Added
+- **多语言 i18n Leg 试点**（中/英/日，三端系统性 i18n 第一站）：react-i18next +
+  静态 JSON 三语资源（`leg/src/i18n/`，~120 条文案）；语言偏好 localStorage
+  `perinest-leg-lang` 持久化 + `<html lang>` 同步；「我的」页语言切换器
+  （中/EN/日本語 pill，label 恒自称）；全部 UI 文案走 `t()`（订单状态映射
+  `ORDER_STATUS_KEY`，动态串用插值）；顺带收尾 C 端朴素化漏网
+  （神经索→AI 助手、离巢→退出登录等）
+- **多语言 i18n Wing 外壳**（同 Leg 模式第二批）：`wing/src/i18n/` 三 JSON；侧栏 Languages 循环
+  切换器（持久化 + `<html lang>` 同步）；Layout/Login/Modal/ConfirmDialog/Pagination 文案 t() 化；
+  业务页 key 渐进补充（缺 key 回退中文，任意时刻可发布）
+
 ## [0.13.0] - 2026-09-07
 
 ### Added

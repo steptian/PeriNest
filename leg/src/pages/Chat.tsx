@@ -1,13 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { BookCheck, History, Search, Send } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { aiApi, type ChatMsg } from "@/api/ai";
 import { askStream, convApi, cropApi, type ConversationItem, type CropSearchHit } from "@/api/crop";
 import { parseMd, type InlineRun } from "@/utils/md-lite";
-
-const WELCOME: ChatMsg = {
-  role: "assistant",
-  content: "你好，我是 AI 助手。可开知识库引用——回答基于你的企业知识，附来源。",
-};
 
 interface UiMsg extends ChatMsg {
   citations?: CropSearchHit[];
@@ -83,7 +79,10 @@ function MdBlocks({ src }: { src: string }) {
 }
 
 export default function Chat() {
-  const [messages, setMessages] = useState<UiMsg[]>([WELCOME]);
+  const { t } = useTranslation();
+  const [messages, setMessages] = useState<UiMsg[]>(() => [
+    { role: "assistant", content: t("chat.welcome") },
+  ]);
   const [input, setInput] = useState("");
   const taRef = useRef<HTMLTextAreaElement>(null);
   const [streaming, setStreaming] = useState(false);
@@ -104,7 +103,7 @@ export default function Chat() {
   async function pickConversation(id: string) {
     if (!id) { // 新对话
       conversationId.current = undefined; freeConvId.current = undefined;
-      setMessages([WELCOME]); setHistoryOpen(false); setHits(null);
+      setMessages([{ role: "assistant", content: t("chat.welcome") }]); setHistoryOpen(false); setHits(null);
       return;
     }
     const d = await convApi.detail(id);
@@ -115,7 +114,7 @@ export default function Chat() {
   }
   async function renameConv(id: string) {
     const cur = convs.find((c) => c.session_id === id);
-    const title = window.prompt("新标题", cur?.title ?? "");
+    const title = window.prompt(t("chat.renamePrompt"), cur?.title ?? "");
     if (!title?.trim() || title === cur?.title) return;
     await convApi.rename(id, title.trim());
     setConvs(await convApi.list());
@@ -167,7 +166,7 @@ export default function Chat() {
             setMessages((prev) => {
               const copy = [...prev];
               const last = copy[copy.length - 1];
-              copy[copy.length - 1] = { ...last, steps: [...(last.steps ?? []), `检索：${ev.tool_call?.query}`] };
+              copy[copy.length - 1] = { ...last, steps: [...(last.steps ?? []), t("chat.retrieving", { query: ev.tool_call?.query })] };
               return copy;
             });
           } else if (ev.delta) {
@@ -200,7 +199,7 @@ export default function Chat() {
         );
       }
     } catch (e) {
-      patchLast({ content: `出错了：${(e as Error).message}` });
+      patchLast({ content: t("chat.errorPrefix", { message: (e as Error).message }) });
     } finally {
       setStreaming(false);
     }
@@ -211,14 +210,14 @@ export default function Chat() {
       {/* 头部 */}
       <header className="flex items-baseline justify-between border-b border-border/60 px-5 pt-4 pb-2.5">
         <div>
-          <h1 className="font-specimen text-lg font-bold">AI 助手</h1>
-          <p className="text-[11px] text-muted-foreground">对话 · 企业知识随取随用</p>
+          <h1 className="font-specimen text-lg font-bold">{t("chat.title")}</h1>
+          <p className="text-[11px] text-muted-foreground">{t("chat.subtitle")}</p>
         </div>
         <div className="flex items-center gap-2">
           <button
             className="flex h-7 w-7 items-center justify-center rounded-full border border-border text-muted-foreground"
             onClick={() => void openHistory()}
-            title="历史会话"
+            title={t("chat.history")}
           >
             <History className="h-3.5 w-3.5" />
           </button>
@@ -227,17 +226,17 @@ export default function Chat() {
               useKb ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"
             }`}
             onClick={toggleKb}
-            title="开启后回答基于企业知识库并附引用来源"
+            title={t("chat.kbHint")}
           >
             <BookCheck className="h-3.5 w-3.5" />
-            {useKb ? "引用知识库" : "知识库已关"}
+            {useKb ? t("chat.kbOn") : t("chat.kbOff")}
           </button>
           <button
             className={`flex h-7 w-7 items-center justify-center rounded-full border transition-colors ${
               mode === "search" ? "border-primary text-primary" : "border-border text-muted-foreground"
             }`}
             onClick={() => setMode(mode === "chat" ? "search" : "chat")}
-            title={mode === "chat" ? "切换为知识库搜索" : "切换为 AI 对话"}
+            title={mode === "chat" ? t("chat.toSearch") : t("chat.toChat")}
           >
             <Search className="h-3.5 w-3.5" />
           </button>
@@ -247,8 +246,8 @@ export default function Chat() {
       {/* 搜索模式：原文分块 */}
       {mode === "search" && (
         <div className="flex-1 space-y-3 overflow-y-auto px-4 py-3">
-          {hits === null && <p className="py-10 text-center text-sm text-muted-foreground">输入关键词，直查知识库原文</p>}
-          {hits?.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">没有找到相关内容</p>}
+          {hits === null && <p className="py-10 text-center text-sm text-muted-foreground">{t("chat.searchHint")}</p>}
+          {hits?.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">{t("chat.noResults")}</p>}
           {hits?.map((h) => (
             <div key={h.chunk_id} className="msg-in specimen-card px-4 pb-3 pt-3">
               <div className="mb-1 flex items-center justify-between">
@@ -276,7 +275,7 @@ export default function Chat() {
               <div key={i} className="msg-in flex flex-col items-start">
                 <div className="specimen-card max-w-[86%] px-4 pb-3 pt-4 text-[15px] leading-relaxed">
                   <span className="specimen-latin mb-1.5 block">
-                    {i === 0 ? "assistant" : useKb ? "assistant · 知识库引用" : "assistant"}
+                    {i === 0 ? "assistant" : useKb ? t("chat.assistantKb") : "assistant"}
                   </span>
                   {m.steps?.map((s, j) => (
                     <p key={j} className="mb-1 text-[11px] text-muted-foreground">◌ {s}</p>
@@ -285,7 +284,7 @@ export default function Chat() {
                   {streaming && i === messages.length - 1 && <span className="amber-caret" />}
                   {m.citations && m.citations.length > 0 && (
                     <div className="mt-3 border-t border-border/60 pt-2">
-                      <span className="specimen-latin !text-[9px] text-muted-foreground">citations · 引用来源</span>
+                      <span className="specimen-latin !text-[9px] text-muted-foreground">{t("chat.citations")}</span>
                       {m.citations.map((h) => (
                         <p key={h.chunk_id} className="mt-1 text-[11px] text-muted-foreground">
                           📎 《{h.document_title}》#{h.seq}
@@ -305,17 +304,17 @@ export default function Chat() {
         <div className="fixed inset-0 z-50 flex items-end bg-black/40 backdrop-blur-sm" onClick={() => setHistoryOpen(false)}>
           <div className="msg-in max-h-[70vh] w-full max-w-[480px] overflow-y-auto rounded-t-3xl bg-card p-4" onClick={(e) => e.stopPropagation()}>
             <div className="mb-3 flex items-center justify-between">
-              <span className="font-specimen text-base font-bold">历史会话</span>
-              <button className="btn-amber rounded-full px-3 py-1 text-xs" onClick={() => void pickConversation("")}>＋ 新对话</button>
+              <span className="font-specimen text-base font-bold">{t("chat.history")}</span>
+              <button className="btn-amber rounded-full px-3 py-1 text-xs" onClick={() => void pickConversation("")}>＋ {t("chat.newConversation")}</button>
             </div>
             <div className="space-y-2">
-              {convs.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">还没有会话</p>}
+              {convs.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">{t("chat.noConversations")}</p>}
               {convs.map((c) => (
                 <div key={c.session_id} className="flex items-center gap-2 rounded-xl border border-border/60 p-3">
                   <button className="min-w-0 flex-1 text-left" onClick={() => void pickConversation(c.session_id)}>
                     <p className="truncate text-sm font-medium">{c.title}</p>
                     <p className="text-[11px] text-muted-foreground">
-                      {c.channel === "free" ? "闲聊" : "知识库"} · {c.message_count} 条 · {c.last_time.slice(5, 16)}
+                      {c.channel === "free" ? t("chat.channelFree") : t("chat.channelKb")} · {t("chat.messageCount", { count: c.message_count })} · {c.last_time.slice(5, 16)}
                     </p>
                   </button>
                   <button className="shrink-0 text-xs text-muted-foreground" onClick={() => void renameConv(c.session_id)}>✎</button>
@@ -332,7 +331,7 @@ export default function Chat() {
             ref={taRef}
             rows={1}
             className="flex-1 resize-none rounded-2xl border bg-card px-4 py-2.5 text-[15px] leading-normal outline-none transition-colors focus:border-primary"
-            placeholder={mode === "chat" ? (useKb ? "基于知识库提问…" : "随便聊聊…") : "关键词搜索知识库…"}
+            placeholder={mode === "chat" ? (useKb ? t("chat.kbPlaceholder") : t("chat.freePlaceholder")) : t("chat.searchPlaceholder")}
             value={input}
             onChange={(e) => {
               setInput(e.target.value);

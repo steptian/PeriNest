@@ -1,8 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { orderApi } from "@/api/order";
-import { ORDER_STATUS_LABEL, fmtMoney, fmtTime } from "@/utils/format";
+import { ORDER_STATUS_KEY, fmtMoney, fmtTime } from "@/utils/format";
 
 export default function Orders() {
+  const { t } = useTranslation();
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ["orders", "leg"],
     queryFn: () => orderApi.list(50),
@@ -12,16 +14,16 @@ export default function Orders() {
     <div className="p-5">
       <div className="mb-4 flex items-baseline justify-between">
         <div>
-          <h2 className="font-specimen text-lg font-bold">订单巢</h2>
-          <p className="text-[11px] text-muted-foreground">全部订单 · 按时间倒序</p>
+          <h2 className="font-specimen text-lg font-bold">{t("orders.title")}</h2>
+          <p className="text-[11px] text-muted-foreground">{t("orders.subtitle")}</p>
         </div>
         <span className="specimen-latin">specimens</span>
       </div>
 
-      {isLoading && <p className="text-sm text-muted-foreground">加载中…</p>}
+      {isLoading && <p className="text-sm text-muted-foreground">{t("common.loading")}</p>}
       {!isLoading && orders.length === 0 && (
         <div className="specimen-card p-8 text-center text-sm text-muted-foreground">
-          巢穴暂无标本
+          {t("orders.empty")}
         </div>
       )}
 
@@ -48,7 +50,7 @@ export default function Orders() {
 
             <div className="mt-2.5 flex items-center justify-between border-t border-border/60 pt-2.5">
               <span className="rounded-full border border-primary/40 px-2.5 py-0.5 text-[11px] text-primary">
-                {ORDER_STATUS_LABEL[o.status] ?? o.status}
+                {t(ORDER_STATUS_KEY[o.status] ?? o.status)}
               </span>
               <span className="font-specimen text-[11px] text-muted-foreground">
                 {o.order_no.slice(-8)} · {fmtTime(o.created_at)}

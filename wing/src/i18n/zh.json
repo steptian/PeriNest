@@ -1,0 +1,40 @@
+{
+  "app": { "name": "PeriNest", "tagline": "built to survive" },
+  "nav": {
+    "dashboard": "仪表盘",
+    "orders": "订单",
+    "crop": "知识库",
+    "cercus": "企微私域",
+    "settings": "系统设置",
+    "collapse": "收起侧栏",
+    "expand": "展开侧栏"
+  },
+  "shell": {
+    "light": "切到亮色",
+    "dark": "切到暗色",
+    "logout": "退出登录",
+    "version": "版本说明",
+    "logoutTitle": "退出登录？",
+    "logoutMsg": "将结束 {{user}} 的本次登录——下次使用需重新登录。",
+    "logoutConfirm": "离巢",
+    "loading": "加载中…",
+    "language": "语言"
+  },
+  "login": {
+    "tagline": "蜚蠊四端 · Wing 管理端",
+    "username": "username · 用户名",
+    "password": "password · 密码",
+    "error": "用户名或密码错误",
+    "loggingIn": "登录中…",
+    "enter": "登 录"
+  },
+  "dialog": {
+    "cancel": "取消",
+    "confirm": "确认执行",
+    "close": "关闭",
+    "total": "共 {{total}} 条",
+    "totalPages": "共 {{total}} 条 · {{page}}/{{pages}} 页",
+    "prev": "上一页",
+    "next": "下一页"
+  }
+}

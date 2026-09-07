@@ -1,0 +1,95 @@
+{
+  "nav": {
+    "home": "巢穴",
+    "orders": "订单",
+    "chat": "AI 助手",
+    "profile": "我的"
+  },
+  "common": {
+    "loading": "加载中…",
+    "close": "关闭"
+  },
+  "login": {
+    "subtitle": "蜚蠊巢穴 · Leg 足端",
+    "username": "用户名",
+    "password": "密码",
+    "error": "用户名或密码错误",
+    "loggingIn": "登录中…",
+    "enter": "进入巢穴"
+  },
+  "home": {
+    "welcome": "欢迎回巢，",
+    "entries": "巢穴入口",
+    "kbTitle": "AI 助手",
+    "kbDesc": "AI 流式对话 · 点开即聊",
+    "ordersTitle": "订单巢",
+    "ordersDesc": "查看全部订单状态",
+    "recent": "最近订单",
+    "empty": "还没有订单——第一单还在路上",
+    "viewAll": "查看全部 →",
+    "quote": "鹰要风，狼要群，鲸要海——蜚蠊什么都不需要。",
+    "quoteSub": "它靠一整套生存系统活过了三亿年、四次大灭绝。PeriNest 把这套系统翻译成了软件。",
+    "version": "版本说明"
+  },
+  "orders": {
+    "title": "订单",
+    "subtitle": "全部订单 · 按时间倒序",
+    "empty": "还没有订单"
+  },
+  "status": {
+    "pending": "待支付",
+    "paid": "已支付",
+    "shipped": "已发货",
+    "completed": "已完成",
+    "cancelled": "已取消"
+  },
+  "chat": {
+    "title": "AI 助手",
+    "subtitle": "对话 · 企业知识随取随用",
+    "welcome": "你好，我是 AI 助手。可开知识库引用——回答基于你的企业知识，附来源。",
+    "history": "历史会话",
+    "kbOn": "引用知识库",
+    "kbOff": "知识库已关",
+    "kbHint": "开启后回答基于企业知识库并附引用来源",
+    "toSearch": "切换为知识库搜索",
+    "toChat": "切换为 AI 对话",
+    "searchHint": "输入关键词，直查知识库原文",
+    "noResults": "没有找到相关内容",
+    "citations": "citations · 引用来源",
+    "assistantKb": "assistant · 知识库引用",
+    "kbPlaceholder": "基于知识库提问…",
+    "freePlaceholder": "随便聊聊…",
+    "searchPlaceholder": "关键词搜索知识库…",
+    "renamePrompt": "新标题",
+    "noConversations": "还没有会话",
+    "channelFree": "闲聊",
+    "channelKb": "知识库",
+    "messageCount": "{{count}} 条",
+    "retrieving": "检索：{{query}}",
+    "errorPrefix": "出错了：{{message}}",
+    "newConversation": "新对话"
+  },
+  "profile": {
+    "themeLight": "琥珀白昼 · 亮色",
+    "themeDark": "树脂深处 · 暗色",
+    "version": "版本说明 →",
+    "logout": "退出登录",
+    "language": "语言"
+  },
+  "versionSheet": {
+    "loading": "加载中…"
+  },
+  "wecom": {
+    "title": "客户档案",
+    "oauth": "企微免登中…",
+    "missingParam": "缺少 external_userid 参数",
+    "sensing": "感知中…",
+    "unnamed": "未命名",
+    "noPhone": "无手机号",
+    "followupBy": "跟进人：{{staff}}",
+    "recordPlaceholder": "快速记录本次沟通…",
+    "record": "记录",
+    "next": "下次 {{date}}",
+    "noFollowups": "暂无跟进记录"
+  }
+}

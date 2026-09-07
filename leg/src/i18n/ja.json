@@ -1,0 +1,95 @@
+{
+  "nav": {
+    "home": "ホーム",
+    "orders": "注文",
+    "chat": "AI アシスタント",
+    "profile": "マイページ"
+  },
+  "common": {
+    "loading": "読み込み中…",
+    "close": "閉じる"
+  },
+  "login": {
+    "subtitle": "ゴキブリの巣 · Leg クライアント",
+    "username": "ユーザー名",
+    "password": "パスワード",
+    "error": "ユーザー名またはパスワードが違います",
+    "loggingIn": "ログイン中…",
+    "enter": "巣に入る"
+  },
+  "home": {
+    "welcome": "おかえりなさい、",
+    "entries": "入り口",
+    "kbTitle": "AI アシスタント",
+    "kbDesc": "AI ストリーミング対話 · タップして開始",
+    "ordersTitle": "注文",
+    "ordersDesc": "すべての注文状況を見る",
+    "recent": "最近の注文",
+    "empty": "まだ注文はありません —— 最初の注文はもうすぐ届きます",
+    "viewAll": "すべて見る →",
+    "quote": "鷲は風を、狼は群れを、鯨は海を求める —— ゴキブリは何も求めない。",
+    "quoteSub": "三億年、四度の大量絶滅を生き延びたのは、生存システム一式のおかげ。PeriNest はそのシステムをソフトウェアに翻訳しました。",
+    "version": "リリースノート"
+  },
+  "orders": {
+    "title": "注文",
+    "subtitle": "すべての注文 · 新しい順",
+    "empty": "注文はまだありません"
+  },
+  "status": {
+    "pending": "支払い待ち",
+    "paid": "支払い済み",
+    "shipped": "発送済み",
+    "completed": "完了",
+    "cancelled": "キャンセル"
+  },
+  "chat": {
+    "title": "AI アシスタント",
+    "subtitle": "対話 · 企業のナレッジをいつでも",
+    "welcome": "こんにちは、AI アシスタントです。ナレッジベース引用をオンにすると、企業のナレッジに基づいて出典付きで回答します。",
+    "history": "履歴",
+    "kbOn": "ナレッジベース引用 ON",
+    "kbOff": "ナレッジベース引用 OFF",
+    "kbHint": "オンにすると、企業ナレッジベースに基づき出典付きで回答します",
+    "toSearch": "ナレッジ検索に切替",
+    "toChat": "AI 対話に切替",
+    "searchHint": "キーワードでナレッジベースを直接検索",
+    "noResults": "関連する内容が見つかりません",
+    "citations": "citations · 引用元",
+    "assistantKb": "assistant · ナレッジ引用",
+    "kbPlaceholder": "ナレッジベースに質問…",
+    "freePlaceholder": "自由にお話し…",
+    "searchPlaceholder": "ナレッジベースを検索…",
+    "renamePrompt": "新しいタイトル",
+    "noConversations": "まだ会話はありません",
+    "channelFree": "雑談",
+    "channelKb": "ナレッジ",
+    "messageCount": "{{count}}件",
+    "retrieving": "検索：{{query}}",
+    "errorPrefix": "エラー：{{message}}",
+    "newConversation": "新しい会話"
+  },
+  "profile": {
+    "themeLight": "琥珀の昼 · ライト",
+    "themeDark": "樹脂の奥 · ダーク",
+    "version": "リリースノート →",
+    "logout": "ログアウト",
+    "language": "言語"
+  },
+  "versionSheet": {
+    "loading": "読み込み中…"
+  },
+  "wecom": {
+    "title": "顧客プロフィール",
+    "oauth": "WeCom 自動ログイン中…",
+    "missingParam": "external_userid パラメータがありません",
+    "sensing": "読み込み中…",
+    "unnamed": "名前未設定",
+    "noPhone": "電話番号なし",
+    "followupBy": "担当者：{{staff}}",
+    "recordPlaceholder": "今回のコミュニケーションをメモ…",
+    "record": "保存",
+    "next": "次回 {{date}}",
+    "noFollowups": "フォローアップはまだありません"
+  }
+}

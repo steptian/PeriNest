@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/stores/auth";
 import { authApi } from "@/api/auth";
 import { usersApi } from "@/api/users";
 
 export default function Login() {
+  const { t } = useTranslation();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [err, setErr] = useState("");
@@ -25,7 +27,7 @@ export default function Login() {
       useAuthStore.getState().setPermissions(permissions);
       navigate("/", { replace: true });
     } catch {
-      setErr("用户名或密码错误");
+      setErr(t("login.error"));
     } finally {
       setLoading(false);
     }
@@ -42,7 +44,7 @@ export default function Login() {
         </p>
 
         <label className="block">
-          <span className="specimen-latin mb-1.5 block">username · 用户名</span>
+          <span className="specimen-latin mb-1.5 block">{t("login.username")}</span>
           <input
             className="w-full rounded-xl border bg-card px-3.5 py-2.5 text-sm outline-none transition-colors focus:border-primary"
             placeholder="your-name"
@@ -51,7 +53,7 @@ export default function Login() {
           />
         </label>
         <label className="block">
-          <span className="specimen-latin mb-1.5 block">password · 密码</span>
+          <span className="specimen-latin mb-1.5 block">{t("login.password")}</span>
           <input
             type="password"
             className="w-full rounded-xl border bg-card px-3.5 py-2.5 text-sm outline-none transition-colors focus:border-primary"
@@ -63,7 +65,7 @@ export default function Login() {
 
         {err && <p className="text-sm text-red-500">{err}</p>}
         <button className="btn-amber w-full rounded-xl py-3 font-medium" disabled={loading}>
-          {loading ? "登录中…" : "登 录"}
+          {loading ? t("login.loggingIn") : t("login.enter")}
         </button>
       </form>
     </div>
