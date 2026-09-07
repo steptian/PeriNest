@@ -182,5 +182,120 @@
     "cancel": "Cancel",
     "saving": "Saving…",
     "save": "Save"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "All credentials & models in one place (AI / embeddings / WeCom) — DB wins over .env, takes effect immediately, no restart",
+    "tabUsers": "Members",
+    "tabRbac": "Permission Matrix",
+    "tabCredentials": "Models & Credentials",
+    "test": "Test connection",
+    "save": "Save",
+    "savedMsg": "Saved {{n}} items (live)",
+    "saveFail": "Save failed: {{msg}}",
+    "testOk": "Connection OK ({{model}}): {{preview}}",
+    "testFail": "Test failed: {{msg}}",
+    "cardChat": "Chat model",
+    "cardChatLatin": "chat · deepseek compatible",
+    "cardEmbed": "Embedding model",
+    "cardEmbedLatin": "embedding · rag",
+    "cardWecom": "WeCom CRM",
+    "cardWecomLatin": "wecom · crm",
+    "srcDb": "DB override",
+    "clearHint": "Save empty = clear DB override, fall back to .env",
+    "opt": {
+      "ai.api_base": {
+        "label": "API Base",
+        "hint": "OpenAI-compatible endpoint"
+      },
+      "ai.api_key": {
+        "label": "API Key",
+        "hint": "Sensitive — leave empty to keep, enter new value to overwrite"
+      },
+      "ai.model": {
+        "label": "Model",
+        "hint": "e.g. deepseek-chat"
+      },
+      "ai.timeout": {
+        "label": "Timeout (s)",
+        "hint": "default 60"
+      },
+      "embedding.api_base": {
+        "label": "Embedding Base",
+        "hint": "must expose /embeddings"
+      },
+      "embedding.api_key": {
+        "label": "Embedding Key",
+        "hint": "Sensitive; empty = mock vectors"
+      },
+      "embedding.model": {
+        "label": "Embedding model",
+        "hint": "e.g. text-embedding-v3"
+      },
+      "embedding.dim": {
+        "label": "Dimension",
+        "hint": "changing dim requires projection rebuild"
+      },
+      "wecom.corp_id": {
+        "label": "Corp ID",
+        "hint": "ww-prefixed enterprise ID"
+      },
+      "wecom.corp_secret": {
+        "label": "App Secret",
+        "hint": "Sensitive — leave empty to keep"
+      },
+      "wecom.agent_id": {
+        "label": "Agent ID",
+        "hint": "numeric ID of self-built app"
+      },
+      "wecom.token": {
+        "label": "Callback Token",
+        "hint": "used for callback verification"
+      },
+      "wecom.aes_key": {
+        "label": "Callback EncodingAESKey",
+        "hint": "Sensitive; 43 chars"
+      },
+      "wecom.sync_staff": {
+        "label": "Seed staff for sync",
+        "hint": "comma-separated userids"
+      },
+      "web_search.api_key": {
+        "label": "Web search Key",
+        "hint": "Volcengine web-search API key; sensitive — leave empty to keep"
+      },
+      "web_search.enabled": {
+        "label": "Web search toggle",
+        "hint": "1 = on (agent web_search tool); empty = off"
+      }
+    }
+  },
+  "cercus": {
+    "title": "WeCom CRM",
+    "subtitle": "Sense customer activity — external contact mirror + tags + follow-up timeline",
+    "enabled": "WeCom configured",
+    "disabled": "WeCom not configured (demo mode)",
+    "sync": "Sync customers",
+    "synced": "Synced {{n}} customers",
+    "placeholder": "Search name / phone / external_userid…",
+    "tagPlaceholder": "Filter by tag (e.g. hot lead)",
+    "colCustomer": "Customer",
+    "colPhone": "Phone",
+    "colTags": "Tags",
+    "colOwner": "Owner",
+    "colSynced": "Last synced",
+    "loading": "Loading…",
+    "empty": "No customer mirror yet — hit Sync customers to pull from WeCom (needs WECOM_*)",
+    "detailTitle": "Customer Profile",
+    "phoneLabel": "Phone (remark)",
+    "ownerLabel": "Owner",
+    "removeTag": "Click to remove",
+    "noTags": "No tags",
+    "newTag": "New tag…",
+    "addTag": "Tag",
+    "noFollowups": "No follow-ups yet",
+    "followupNext": "Next: {{date}}",
+    "followupPlaceholder": "Follow-up note (append-only, history never rewritten)…",
+    "recordFollowup": "Record follow-up"
   }
 }

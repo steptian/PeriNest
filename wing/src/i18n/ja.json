@@ -182,5 +182,120 @@
     "cancel": "キャンセル",
     "saving": "保存中…",
     "save": "保存"
+  },
+  "settings": {
+    "title": "システム設定",
+    "subtitle": "全クレデンシャルとモデルを一元管理（AI / ベクトル / WeCom）— DB が .env に優先、保存後即時反映・再起動不要",
+    "tabUsers": "メンバー管理",
+    "tabRbac": "権限マトリクス",
+    "tabCredentials": "モデルと資格情報",
+    "test": "接続テスト",
+    "save": "保存",
+    "savedMsg": "{{n}} 項目を保存（即時反映）",
+    "saveFail": "保存失敗：{{msg}}",
+    "testOk": "接続テスト成功（{{model}}）：{{preview}}",
+    "testFail": "テスト失敗：{{msg}}",
+    "cardChat": "対話モデル",
+    "cardChatLatin": "chat · deepseek compatible",
+    "cardEmbed": "ベクトルモデル",
+    "cardEmbedLatin": "embedding · rag",
+    "cardWecom": "WeCom 私域",
+    "cardWecomLatin": "wecom · crm",
+    "srcDb": "DB 上書き",
+    "clearHint": "空で保存 = DB 上書きを解除し .env にフォールバック",
+    "opt": {
+      "ai.api_base": {
+        "label": "API Base",
+        "hint": "OpenAI 互換エンドポイント"
+      },
+      "ai.api_key": {
+        "label": "API Key",
+        "hint": "機密——空のまま=変更なし、新値入力で上書き"
+      },
+      "ai.model": {
+        "label": "モデル",
+        "hint": "例：deepseek-chat"
+      },
+      "ai.timeout": {
+        "label": "タイムアウト(秒)",
+        "hint": "デフォルト 60"
+      },
+      "embedding.api_base": {
+        "label": "Embedding Base",
+        "hint": "/embeddings エンドポイントが必要"
+      },
+      "embedding.api_key": {
+        "label": "Embedding Key",
+        "hint": "機密；空=mock 疑似ベクトル"
+      },
+      "embedding.model": {
+        "label": "Embedding モデル",
+        "hint": "例：text-embedding-v3"
+      },
+      "embedding.dim": {
+        "label": "次元",
+        "hint": "変更時はベクトル投影の再構築が必要"
+      },
+      "wecom.corp_id": {
+        "label": "Corp ID",
+        "hint": "ww で始まる企業 ID"
+      },
+      "wecom.corp_secret": {
+        "label": "アプリ Secret",
+        "hint": "機密——空のまま=変更なし"
+      },
+      "wecom.agent_id": {
+        "label": "Agent ID",
+        "hint": "自建アプリの数字 ID"
+      },
+      "wecom.token": {
+        "label": "コールバック Token",
+        "hint": "コールバック検証用"
+      },
+      "wecom.aes_key": {
+        "label": "コールバック EncodingAESKey",
+        "hint": "機密；43 文字"
+      },
+      "wecom.sync_staff": {
+        "label": "同期シードスタッフ",
+        "hint": "カンマ区切り userid"
+      },
+      "web_search.api_key": {
+        "label": "Web 検索 Key",
+        "hint": "火山エンジン Web 検索 API Key；機密——空のまま=変更なし"
+      },
+      "web_search.enabled": {
+        "label": "Web 検索スイッチ",
+        "hint": "1=オン（agent web_search ツール）；空=オフ"
+      }
+    }
+  },
+  "cercus": {
+    "title": "WeCom 私域",
+    "subtitle": "顧客の動きを感知——外部連絡先ミラー + タグ + フォローアップ履歴",
+    "enabled": "WeCom 設定済み",
+    "disabled": "WeCom 未設定（demo モード）",
+    "sync": "顧客を同期",
+    "synced": "{{n}} 人の顧客を同期",
+    "placeholder": "名前 / 電話 / external_userid で検索…",
+    "tagPlaceholder": "タグで絞込（例：高意欲）",
+    "colCustomer": "顧客",
+    "colPhone": "電話",
+    "colTags": "タグ",
+    "colOwner": "担当者",
+    "colSynced": "最終同期",
+    "loading": "読み込み中…",
+    "empty": "顧客ミラーはまだありません——「顧客を同期」で WeCom から取得（WECOM_* 設定が必要）",
+    "detailTitle": "顧客プロフィール",
+    "phoneLabel": "電話（備考）",
+    "ownerLabel": "担当者",
+    "removeTag": "クリックで削除",
+    "noTags": "タグなし",
+    "newTag": "新しいタグ…",
+    "addTag": "タグ付",
+    "noFollowups": "フォローアップはまだありません",
+    "followupNext": "次回 {{date}}",
+    "followupPlaceholder": "フォローアップメモ（追記のみ、履歴は書き換えません）…",
+    "recordFollowup": "フォローアップを記録"
   }
 }

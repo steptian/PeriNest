@@ -182,5 +182,120 @@
     "cancel": "取消",
     "saving": "保存中…",
     "save": "保存"
+  },
+  "settings": {
+    "title": "系统设置",
+    "subtitle": "全部凭证与模型集中配置（AI / 向量 / 企微私域），DB 优先于 .env，改完即时生效免重启",
+    "tabUsers": "成员管理",
+    "tabRbac": "权限矩阵",
+    "tabCredentials": "模型与凭证",
+    "test": "测试连接",
+    "save": "保存",
+    "savedMsg": "已保存 {{n}} 项（即时生效）",
+    "saveFail": "保存失败：{{msg}}",
+    "testOk": "连接测试通过（{{model}}）：{{preview}}",
+    "testFail": "测试失败：{{msg}}",
+    "cardChat": "对话模型",
+    "cardChatLatin": "chat · deepseek compatible",
+    "cardEmbed": "向量模型",
+    "cardEmbedLatin": "embedding · rag",
+    "cardWecom": "企微私域",
+    "cardWecomLatin": "wecom · crm",
+    "srcDb": "DB 覆盖",
+    "clearHint": "留空保存 = 清除 DB 覆盖、回落 .env",
+    "opt": {
+      "ai.api_base": {
+        "label": "API Base",
+        "hint": "OpenAI 兼容端点"
+      },
+      "ai.api_key": {
+        "label": "API Key",
+        "hint": "敏感——留空不改，填新值覆盖"
+      },
+      "ai.model": {
+        "label": "模型",
+        "hint": "如 deepseek-chat"
+      },
+      "ai.timeout": {
+        "label": "超时(秒)",
+        "hint": "默认 60"
+      },
+      "embedding.api_base": {
+        "label": "Embedding Base",
+        "hint": "需有 /embeddings 端点"
+      },
+      "embedding.api_key": {
+        "label": "Embedding Key",
+        "hint": "敏感；留空=mock 伪向量"
+      },
+      "embedding.model": {
+        "label": "Embedding 模型",
+        "hint": "如 text-embedding-v3"
+      },
+      "embedding.dim": {
+        "label": "维度",
+        "hint": "改维度需重建向量投影"
+      },
+      "wecom.corp_id": {
+        "label": "Corp ID",
+        "hint": "企业 ID（ww 开头）"
+      },
+      "wecom.corp_secret": {
+        "label": "应用 Secret",
+        "hint": "敏感——留空不改"
+      },
+      "wecom.agent_id": {
+        "label": "Agent ID",
+        "hint": "自建应用数字 ID"
+      },
+      "wecom.token": {
+        "label": "回调 Token",
+        "hint": "回调验签用"
+      },
+      "wecom.aes_key": {
+        "label": "回调 EncodingAESKey",
+        "hint": "敏感；43 字符"
+      },
+      "wecom.sync_staff": {
+        "label": "同步种子员工",
+        "hint": "逗号分隔 userid"
+      },
+      "web_search.api_key": {
+        "label": "Web 搜索 Key",
+        "hint": "火山引擎联网搜索 API Key；敏感——留空不改"
+      },
+      "web_search.enabled": {
+        "label": "Web 搜索开关",
+        "hint": "1=开启（agent web_search 工具佐证）；空=关"
+      }
+    }
+  },
+  "cercus": {
+    "title": "企微私域",
+    "subtitle": "感知客户动态——外部联系人镜像 + 标签 + 跟进时间线",
+    "enabled": "企微已配置",
+    "disabled": "企微未配置（demo 模式）",
+    "sync": "同步客户",
+    "synced": "已同步 {{n}} 位客户",
+    "placeholder": "搜索姓名 / 手机号 / external_userid…",
+    "tagPlaceholder": "标签过滤（如 高意向）",
+    "colCustomer": "客户",
+    "colPhone": "手机号",
+    "colTags": "标签",
+    "colOwner": "跟进人",
+    "colSynced": "最近同步",
+    "loading": "加载中…",
+    "empty": "还没有客户镜像——点右上「同步客户」从企微拉取（需配置 WECOM_*）",
+    "detailTitle": "客户档案",
+    "phoneLabel": "手机号（备注）",
+    "ownerLabel": "跟进人",
+    "removeTag": "点击移除",
+    "noTags": "无标签",
+    "newTag": "新标签…",
+    "addTag": "打标",
+    "noFollowups": "暂无跟进记录",
+    "followupNext": "下次 {{date}}",
+    "followupPlaceholder": "跟进纪要（append-only，不改写历史）…",
+    "recordFollowup": "记录跟进"
   }
 }
