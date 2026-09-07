@@ -5,17 +5,17 @@
 </view>
 
 <view class="specimen-card">
-  <view class="specimen-latin">neural cord · ask</view>
-  <view class="section-title font-specimen">问神经索</view>
-  <view class="hint">断头仍传导——AI 助手以你的身份待命</view>
+  <view class="specimen-latin">assistant · ask</view>
+  <view class="section-title font-specimen">AI 助手</view>
+  <view class="hint">对话/搜知识库一体——可开引用，回答附来源</view>
   <navigator url="/pages/chat/chat" open-type="switchTab" class="btn-amber main-cta">开始提问</navigator>
 </view>
 
 <view class="specimen-card">
   <view class="specimen-latin">crop · knowledge</view>
-  <view class="section-title font-specimen">问嗉囊</view>
-  <view class="hint">先吞后消化——共生体替你翻找知识库，附引用来源</view>
-  <navigator url="/pages/knowledge/knowledge" class="btn-amber main-cta">进入知识库</navigator>
+  <view class="section-title font-specimen">知识库问答</view>
+  <view class="hint">回答基于企业知识，附引用来源与检索过程</view>
+  <navigator url="/pages/chat/chat" open-type="switchTab" class="btn-amber main-cta">去问 AI 助手</navigator>
 </view>
 
 <view class="specimen-card">

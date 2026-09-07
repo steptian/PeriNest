@@ -13,7 +13,7 @@ import { useAuthStore } from "@/stores/auth";
 const navItems = [
   { to: "/", label: "仪表盘", latin: "overview", icon: LayoutDashboard, perm: null },
   { to: "/orders", label: "订单档案", latin: "specimens", icon: Package, perm: "orders" },
-  { to: "/crop", label: "嗦囊知识库", latin: "crop", icon: BookOpenText, perm: "crop" },
+  { to: "/crop", label: "知识库", latin: "crop", icon: BookOpenText, perm: "crop" },
   { to: "/cercus", label: "尾须企微私域", latin: "cercus", icon: Radar, perm: "wecom" },
   { to: "/settings", label: "系统设置", latin: "config", icon: Settings2, perm: "users" },  // users 或 system 任一可见；页内 tab 按权限分层
 ];

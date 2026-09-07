@@ -6,7 +6,7 @@
 
 
 > [![CI](https://github.com/steptian/PeriNest/actions/workflows/ci.yml/badge.svg)](https://github.com/steptian/PeriNest/actions/workflows/ci.yml)
-> ![version](https://img.shields.io/badge/version-0.9.1-c2410c) ![license](https://img.shields.io/badge/license-MIT-green) ![monorepo](https://img.shields.io/badge/monorepo-Queen·Wing·Antenna·Leg-166534)
+> ![version](https://img.shields.io/badge/version-0.12.0-c2410c) ![license](https://img.shields.io/badge/license-MIT-green) ![monorepo](https://img.shields.io/badge/monorepo-Queen·Wing·Antenna·Leg-166534)
 >
 > *Built to Survive, Designed to Adapt.* — 为生存而生，为适应而设计。
 
@@ -31,11 +31,11 @@
 ## 🪳 巢穴意象
 
 <p align="center">
-  <img src="assets/periplaneta-imago.svg" alt="PeriNest 巢穴意象：玻璃透视的蜚蠊，十一器官对应系统模块" width="760" />
+  <img src="assets/periplaneta-imago-v3.svg" alt="PeriNest 巢穴意象：玻璃透视的蜚蠊，十二器官 + 插件四 seam" width="760" />
 </p>
 
 <p align="center"><i>Periplaneta · since 300 Ma</i><br/>
-<sub>封存在琥珀里的那只生物，就是这套系统的全部命名 · 下方「巢穴图鉴」逐器官展开</sub></p>
+<sub>封存在琥珀里的那只生物，就是这套系统的全部命名 · 腹部四道节间缝 = 内核插件四挂载点 · 下方「巢穴图鉴」逐器官展开</sub></p>
 
 ## 🗺 架构一图流
 
@@ -77,8 +77,8 @@
 | **Leg 足** · H5 | 六足行走，任何表面都能爬 | 任何浏览器直达，免安装免审核——六条腿，坏一条还能走 |
 | **Nerve 神经索** · AI 网关 | 贯穿全身的神经传导——断头后仍能指挥肢体 | AI 能力贯穿四端；SSE 流式=神经信号逐段传导 |
 | **Spiracle 气门** · MCP | 蜚蠊与外界交换气体的器官 | MCP 端点=与 AI 生态（Claude/Cursor）交换工具的呼吸口 |
-| **Crop 嗉囊** · RAG 知识库 | 先储存食物，再交给共生菌群消化 | 知识先吞入（ingest），再语义检索（消化产出）——AI 从嗉囊取食 |
-| **Cercus 尾须** · 企微私域 | 蜚蠊靠尾须感知气流预警逃生 | 企微客户镜像+标签+跟进时间线；侧边栏 H5 嵌企微聊天——感知客户动态 |
+| **Crop 嗉囊** · RAG 知识库 | 先储存食物，再交给共生菌群消化 | 知识先吞入（ingest），再语义检索（消化产出）——AI 从嗉囊取食；v0.12 起按角色分域，**检索前过滤** |
+| **Cercus 尾须** · 企微私域（示范插件） | 蜚蠊靠尾须感知气流预警逃生 | 企微客户镜像+标签+跟进时间线；侧边栏 H5 嵌企微聊天——感知客户动态 |
 | **Core 核心腺体** · MySQL | 腺体分泌并储存生命物质 | 永久业务数据，巢穴的记忆 |
 | **Nectar 花蜜** · Redis | 快取快用的能量，不会永久保存 | 缓存/Session/锁——快进快出，过期即逝；v0.9 起兼载嗦囊向量投影（可从 MySQL 权威随时重建） |
 | **Pheromone 信息素** · Celery | 留下化学痕迹，同伴循迹而动 | 异步任务队列：耗时工作留下信号，worker 循迹处理 |

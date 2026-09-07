@@ -4,7 +4,6 @@ import Home from "@/pages/Home";
 import Login from "@/pages/Login";
 import Orders from "@/pages/Orders";
 import Chat from "@/pages/Chat";
-import Knowledge from "@/pages/Knowledge";
 import Profile from "@/pages/Profile";
 import WecomSidebar from "@/pages/WecomSidebar";
 import { useAuthStore } from "@/stores/auth";
@@ -32,7 +31,6 @@ export default function App() {
           <Route index element={<Home />} />
           <Route path="orders" element={<Orders />} />
           <Route path="chat" element={<Chat />} />
-          <Route path="knowledge" element={<Knowledge />} />
           <Route path="profile" element={<Profile />} />
           <Route path="wecom/sidebar" element={<WecomSidebar />} />
         </Route>

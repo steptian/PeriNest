@@ -23,7 +23,9 @@ export const cropApi = {
 /** 流式知识库问答：AI 自主多轮检索后作答，事件经 onEvent 逐个下发 */
 export async function askStream(
   query: string,
-  onEvent: (ev: AskEvent) => void
+  onEvent: (ev: AskEvent) => void,
+  history: { role: "user" | "assistant"; content: string }[] = [],
+  conversationId?: string,
 ): Promise<void> {
   const token = useAuthStore.getState().token;
   const resp = await fetch(`${import.meta.env.VITE_QUEEN_API}/crop/ask/stream`, {
@@ -33,7 +35,7 @@ export async function askStream(
       Authorization: `Bearer ${token}`,
       "X-Client": "Leg",
     },
-    body: JSON.stringify({ query }),
+    body: JSON.stringify({ query, history, conversation_id: conversationId || undefined }),
   });
   if (!resp.ok || !resp.body) throw new Error(`HTTP ${resp.status}`);
 

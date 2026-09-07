@@ -5,7 +5,7 @@
 English | [中文](README.md)
 
 > [![CI](https://github.com/steptian/PeriNest/actions/workflows/ci.yml/badge.svg)](https://github.com/steptian/PeriNest/actions/workflows/ci.yml)
-> ![version](https://img.shields.io/badge/version-0.9.1-c2410c) ![license](https://img.shields.io/badge/license-MIT-green) ![monorepo](https://img.shields.io/badge/monorepo-Queen·Wing·Antenna·Leg-166534)
+> ![version](https://img.shields.io/badge/version-0.12.0-c2410c) ![license](https://img.shields.io/badge/license-MIT-green) ![monorepo](https://img.shields.io/badge/monorepo-Queen·Wing·Antenna·Leg-166534)
 >
 > *Built to Survive, Designed to Adapt.*
 
@@ -28,11 +28,11 @@ Zero-Docker deployment: native venv + Systemd + Nginx.
 ## 🪳 The Nest Imago
 
 <p align="center">
-  <img src="assets/periplaneta-imago.svg" alt="PeriNest nest imago: a glass-perspective cockroach, eleven organs map to system modules" width="760" />
+  <img src="assets/periplaneta-imago-v3.svg" alt="PeriNest nest imago: a glass-perspective cockroach, twelve organs plus the four plugin seams" width="760" />
 </p>
 
 <p align="center"><i>Periplaneta · since 300 Ma</i><br/>
-<sub>The creature sealed in amber is the entire vocabulary of this system — the Compendium below unfolds organ by organ.</sub></p>
+<sub>The creature sealed in amber is the entire vocabulary of this system — the four seams across the abdomen are the kernel's plugin mount points. The Compendium below unfolds organ by organ.</sub></p>
 
 ## 🗺 Architecture at a Glance
 
@@ -76,6 +76,7 @@ Etymology: **Peri**planeta (the Latin genus of cockroaches) + **Nest**.
 | **Leg** · H5 | Six legs, climbs any surface | Any browser, no install, no review — six legs, lose one, still walking |
 | **Nerve** · AI gateway | The nerve cord runs the whole body — even commands limbs after decapitation | AI runs through all four terminals; SSE streaming = nerve signals relaying segment by segment |
 | **Spiracle** · MCP | The organ that exchanges gas with the outside world | The MCP endpoint = the breathing pore for exchanging tools with the AI ecosystem (Claude/Cursor) |
+| **Crop** · RAG knowledge base | Stores food first, then lets symbiotic bacteria digest it | Knowledge is swallowed (ingest) before semantic retrieval (the digestion) — AI feeds from the crop; since v0.12 it enforces per-role visibility domains, filtered *before* retrieval |
 | **Cercus** · WeCom CRM | The cerci sense air currents — that's how a cockroach escapes | WeCom contact mirror + tags + follow-up timeline; sidebar H5 embedded in WeCom chat — sensing customer motion |
 | **Core gland** · MySQL | Glands secrete and store life substances | Permanent business data — the nest's memory |
 | **Nectar** · Redis | Quick energy, never stored forever | Cache / sessions / locks — fast in, fast out, expiring by design |

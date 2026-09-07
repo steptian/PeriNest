@@ -126,10 +126,10 @@ export default function Crop() {
       {/* 标题区 */}
       <div className="flex items-end justify-between">
         <div>
-          <p className="specimen-latin mb-1">crop · knowledge</p>
-          <h1 className="font-specimen text-2xl font-bold">嗦囊 · 知识库</h1>
+          <p className="specimen-latin mb-1">crop · knowledge base</p>
+          <h1 className="font-specimen text-2xl font-bold">知识库</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            先吞后消化——文本知识向量化入嗦囊，语义检索四端共享
+            文本知识向量化入库，语义检索四端共享
             {health && (
               <span className="ml-2 specimen-latin !text-[9px] opacity-60">
                 vectors: {health.count}
@@ -177,7 +177,7 @@ export default function Crop() {
                 mock embedding 模式（未配 EMBEDDING_API_KEY）——同词可召回，无语义泛化
               </p>
             )}
-            {hits.length === 0 && <p className="text-sm text-muted-foreground">嗦囊空空如也</p>}
+            {hits.length === 0 && <p className="text-sm text-muted-foreground">没有找到相关内容</p>}
             {hits.map((h) => (
               <div key={h.chunk_id} className="rounded-xl border border-border/60 bg-background/60 p-3">
                 <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">

@@ -1,11 +1,10 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { BookOpen, Bot, Home, Package, User } from "lucide-react";
+import { Bot, Home, Package, User } from "lucide-react";
 
 const tabs = [
   { to: "/", label: "巢穴", icon: Home },
   { to: "/orders", label: "订单", icon: Package },
-  { to: "/knowledge", label: "嗉囊", icon: BookOpen },
-  { to: "/chat", label: "神经索", icon: Bot },
+  { to: "/chat", label: "AI 助手", icon: Bot },
   { to: "/profile", label: "我的", icon: User },
 ];
 

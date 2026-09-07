@@ -1,15 +1,50 @@
 <scroll-view scroll-y scroll-into-view="{{bottomId}}" class="chat-scroll">
-  <view wx:for="{{messages}}" wx:key="index" class="msg-row {{item.role === 'user' ? 'msg-right' : ''}}">
-    <view class="msg {{item.role === 'user' ? 'msg-user' : 'msg-ai'}}">
-      <text class="specimen-latin" wx:if="{{item.role === 'assistant'}}">exhibit {{index + 1}}</text>
-      <text class="msg-text">{{item.content}}</text>
+  <!-- 头部控制：知识库开关 + 模式切换 -->
+  <view class="ctl-bar">
+    <view class="kb-toggle {{useKb ? 'kb-on' : ''}}" bindtap="toggleKb">
+      <text>{{useKb ? "☑ 引用知识库" : "☐ 知识库已关"}}</text>
+    </view>
+    <view class="mode-toggle {{mode === 'search' ? 'mode-on' : ''}}" bindtap="toggleMode">
+      <text>{{mode === 'chat' ? "🔍 搜索" : "💬 对话"}}</text>
     </view>
   </view>
+
+  <!-- 搜索模式 -->
+  <block wx:if="{{mode === 'search'}}">
+    <view wx:if="{{!searched}}" class="empty-guide"><text class="empty-main">输入关键词，直查知识库原文</text></view>
+    <view wx:if="{{searched && !hits.length}}" class="empty-guide"><text class="empty-main">没有找到相关内容</text></view>
+    <view wx:for="{{hits}}" wx:key="chunk_id" class="specimen-card hit-card">
+      <view class="hit-head">
+        <text class="hit-src">《{{item.document_title}}》 #{{item.seq}}</text>
+        <text class="specimen-latin">sim {{item.score}}</text>
+      </view>
+      <text class="hit-content">{{item.content}}</text>
+    </view>
+  </block>
+
+  <!-- 对话模式 -->
+  <block wx:if="{{mode === 'chat'}}">
+    <view wx:for="{{messages}}" wx:key="index" class="msg-row {{item.role === 'user' ? 'msg-right' : ''}}">
+      <view class="msg {{item.role === 'user' ? 'msg-user' : 'msg-ai'}}">
+        <text class="specimen-latin" wx:if="{{item.role === 'assistant'}}">{{useKb ? 'assistant · 知识库引用' : 'assistant'}}</text>
+        <block wx:if="{{item.steps && item.steps.length}}">
+          <text wx:for="{{item.steps}}" wx:for-item="st" wx:key="*this" class="step-text">◌ {{st}}</text>
+        </block>
+        <text class="msg-text">{{item.content}}{{streaming && index === messages.length - 1 ? "▍" : ""}}</text>
+        <view wx:if="{{item.citations && item.citations.length}}" class="citations">
+          <text class="specimen-latin cite-title">citations · 引用来源</text>
+          <text wx:for="{{item.citations}}" wx:key="chunk_id" class="cite-item">📎 《{{item.document_title}}》#{{item.seq}}</text>
+        </view>
+      </view>
+    </view>
+  </block>
+
   <view id="bottom"></view>
 </scroll-view>
+
 <view class="chat-input-bar">
-  <textarea class="chat-input" placeholder="向神经索提问…" value="{{input}}" bindinput="onInput"
-    bindconfirm="send" confirm-type="send" confirm-hold="{{true}}" auto-height
-    show-confirm-bar="{{false}}" maxlength="2000" />
+  <input class="chat-input" placeholder="{{mode === 'search' ? '关键词搜索知识库…' : (useKb ? '基于知识库提问…' : '随便聊聊…')}}"
+    value="{{input}}" bindinput="onInput" bindconfirm="send" confirm-type="send" confirm-hold="{{true}}"
+    maxlength="2000" />
   <button class="empty-btn chat-send" bindtap="send" loading="{{streaming}}">发送</button>
 </view>
