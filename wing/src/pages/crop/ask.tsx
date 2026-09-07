@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FlaskConical, Pencil, Plus, Send } from "lucide-react";
 import Modal from "@/components/Modal";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ type Msg = { role: "user" | "assistant"; content: string };
 
 /** Tab 2 · 智能问答：多轮对话 + 列表式历史会话 */
 export function AskPane() {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const canAudit = useAuthStore((s) => s.permissions).some(
     (p) => p === "system" || p.startsWith("system:")
@@ -53,7 +55,7 @@ export function AskPane() {
     try {
       await askStream(q, (ev) => {
         if (ev.tool_call) {
-          setSteps((s) => [...s, `检索知识库：${ev.tool_call?.query}（第 ${ev.tool_call?.round} 轮）`]);
+          setSteps((s) => [...s, t("crop.ask.retrieving", { query: ev.tool_call?.query, round: ev.tool_call?.round })]);
         } else if (ev.delta) {
           setMessages((m) => {
             const n = [...m];
@@ -68,7 +70,7 @@ export function AskPane() {
         }
       }, [], sid);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "问答服务异常");
+      setError(e instanceof Error ? e.message : t("crop.ask.servingErr"));
     } finally {
       setAsking(false);
       qc.invalidateQueries({ queryKey: ["crop", "usage"] });
@@ -90,19 +92,19 @@ export function AskPane() {
       const d = await agentApi.conversation(sid);
       setMessages(d.messages.map((m) => ({ role: m.role as "user" | "assistant", content: m.content })));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "会话加载失败");
+      setError(e instanceof Error ? e.message : t("crop.ask.loadFail"));
     }
   }
 
   async function renameConversation(sid: string) {
     const cur = conversations.find((c) => c.session_id === sid);
-    const title = window.prompt("新标题", cur?.title ?? "");
+    const title = window.prompt(t("crop.ask.renamePrompt"), cur?.title ?? "");
     if (!title || !title.trim() || title === cur?.title) return;
     try {
       await agentApi.rename(sid, title.trim());
       qc.invalidateQueries({ queryKey: ["crop", "conversations"] });
     } catch (e) {
-      setError(e instanceof Error ? e.message : "改名失败");
+      setError(e instanceof Error ? e.message : t("crop.ask.renameFail"));
     }
   }
 
@@ -115,15 +117,15 @@ export function AskPane() {
             <div className="border-b border-border/60 p-2">
               <Button
                 size="sm" className="w-full" onClick={newConversation} disabled={asking}
-                title={asking ? "回答中，请稍候" : "开始一段新对话"}
+                title={asking ? t("crop.ask.busy") : t("crop.ask.newConvTitle")}
               >
-                <Plus className="mr-1 h-4 w-4" /> 新对话
+                <Plus className="mr-1 h-4 w-4" /> {t("crop.ask.newConv")}
               </Button>
             </div>
             <div className="flex-1 space-y-1 overflow-y-auto p-2">
-              {convLoading && <p className="px-2 py-6 text-center text-xs text-muted-foreground">加载中…</p>}
+              {convLoading && <p className="px-2 py-6 text-center text-xs text-muted-foreground">{t("common.loading")}</p>}
               {!convLoading && conversations.length === 0 && (
-                <p className="px-2 py-6 text-center text-xs text-muted-foreground">暂无历史会话</p>
+                <p className="px-2 py-6 text-center text-xs text-muted-foreground">{t("crop.ask.noHistory")}</p>
               )}
               {conversations.map((c) => {
                 const active = c.session_id === conversationId;
@@ -133,24 +135,24 @@ export function AskPane() {
                     role="button" tabIndex={0}
                     onClick={() => !asking && void loadConversation(c.session_id)}
                     onKeyDown={(e) => e.key === "Enter" && !asking && void loadConversation(c.session_id)}
-                    title={c.title || "新对话"}
+                    title={c.title || t("crop.ask.newConv")}
                     className={`group relative cursor-pointer rounded-xl border px-3 py-2 text-left transition-colors ${
                       active ? "border-primary/50 bg-primary/5" : "border-transparent hover:bg-muted"
                     } ${asking && !active ? "pointer-events-none opacity-60" : ""}`}
                   >
                     <div className="flex items-center gap-1 pr-4">
-                      <span className="min-w-0 flex-1 truncate text-sm font-medium">{c.title || "新对话"}</span>
-                      {c.channel === "free" && <span className="shrink-0 rounded bg-muted px-1 text-[9px] text-muted-foreground">闲聊</span>}
+                      <span className="min-w-0 flex-1 truncate text-sm font-medium">{c.title || t("crop.ask.newConv")}</span>
+                      {c.channel === "free" && <span className="shrink-0 rounded bg-muted px-1 text-[9px] text-muted-foreground">{t("crop.ask.chatting")}</span>}
                     </div>
                     <div className="mt-1 flex items-center justify-between text-[10px] text-muted-foreground">
-                      <span>{c.message_count} 条</span>
+                      <span>{t("crop.ask.msgCount", { n: c.message_count })}</span>
                       <span>{c.last_time ? fmtTime(c.last_time) : ""}</span>
                     </div>
                     {active && !asking && (
                       <button
                         onClick={(e) => { e.stopPropagation(); void renameConversation(c.session_id); }}
                         className="absolute right-1.5 top-1.5 rounded p-1 text-muted-foreground opacity-0 transition-opacity hover:bg-muted hover:text-foreground group-hover:opacity-100"
-                        title="重命名会话"
+                        title={t("crop.ask.rename")}
                       >
                         <Pencil className="h-3 w-3" />
                       </button>
@@ -161,8 +163,8 @@ export function AskPane() {
             </div>
             {canAudit && (
               <div className="border-t border-border/60 p-2">
-                <Button variant="outline" size="sm" className="w-full" onClick={() => setAuditOpen(true)} title="agent 工具调用审计">
-                  工具调用审计
+                <Button variant="outline" size="sm" className="w-full" onClick={() => setAuditOpen(true)} title={t("crop.ask.audit")}>
+                  {t("crop.ask.audit")}
                 </Button>
               </div>
             )}
@@ -174,12 +176,12 @@ export function AskPane() {
             <div className="flex items-center gap-2 border-b border-border/60 px-4 py-2.5">
               <span className="min-w-0 flex-1 truncate text-sm font-medium">
                 {conversationId
-                  ? (conversations.find((c) => c.session_id === conversationId)?.title || "对话中…")
-                  : "新对话"}
+                  ? (conversations.find((c) => c.session_id === conversationId)?.title || t("crop.ask.talking"))
+                  : t("crop.ask.newConv")}
               </span>
               {usage && (
-                <span className="shrink-0 text-[10px] text-muted-foreground" title="近 7 天问答用量">
-                  7d：{usage.calls} 次 · {usage.total_tokens.toLocaleString()} tok · 工具×{usage.tool_calls}
+                <span className="shrink-0 text-[10px] text-muted-foreground" title={t("crop.ask.usageTitle")}>
+                  {t("crop.ask.usageLine", { calls: usage.calls, tokens: usage.total_tokens.toLocaleString(), tools: usage.tool_calls })}
                 </span>
               )}
             </div>
@@ -188,8 +190,8 @@ export function AskPane() {
             <div ref={scrollRef} className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-3">
               {messages.length === 0 && !asking && (
                 <div className="flex h-full flex-col items-center justify-center gap-1 py-16 text-center">
-                  <p className="text-sm font-medium text-foreground/80">向知识库提问</p>
-                  <p className="text-xs text-muted-foreground">AI 会先检索相关文档再作答，并附引用来源；历史会话在左侧列表可随时回溯续聊。</p>
+                  <p className="text-sm font-medium text-foreground/80">{t("crop.ask.askHintTitle")}</p>
+                  <p className="text-xs text-muted-foreground">{t("crop.ask.emptyHint")}</p>
                 </div>
               )}
               {messages.map((m, i) =>
@@ -229,7 +231,7 @@ export function AskPane() {
               {/* 本轮引用来源 */}
               {citations.length > 0 && (
                 <div className="rounded-xl border border-border/40 bg-background/40 px-3 py-2">
-                  <p className="specimen-latin mb-1 !text-[9px] text-muted-foreground">citations · 引用来源</p>
+                  <p className="specimen-latin mb-1 !text-[9px] text-muted-foreground">{t("crop.ask.citations")}</p>
                   {citations.map((h) => (
                     <p key={h.chunk_id} className="truncate text-xs text-muted-foreground">
                       《{h.document_title}》#{h.seq} · {h.content.slice(0, 60)}…
@@ -251,12 +253,12 @@ export function AskPane() {
                       void runAsk(input);
                     }
                   }}
-                  placeholder={asking ? "回答中…" : "输入问题，Enter 提问（AI 自动检索知识库）"}
+                  placeholder={asking ? t("crop.ask.answering") : t("crop.ask.placeholderAsk")}
                   disabled={asking}
                   className="flex-1 rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60 disabled:opacity-60"
                 />
                 <Button size="sm" onClick={() => void runAsk(input)} disabled={!input.trim() || asking}>
-                  {asking ? "思考中…" : <Send className="h-4 w-4" />}
+                  {asking ? t("crop.ask.thinking") : <Send className="h-4 w-4" />}
                 </Button>
               </div>
             </div>
@@ -265,7 +267,7 @@ export function AskPane() {
       </div>
 
       {/* agent 审计（admin/system）：谁让 AI 干了什么 */}
-      <Modal open={auditOpen} onClose={() => setAuditOpen(false)} title="工具调用审计" width="w-[720px]">
+      <Modal open={auditOpen} onClose={() => setAuditOpen(false)} title={t("crop.ask.audit")} width="w-[720px]">
         <AuditList />
       </Modal>
     </div>
@@ -324,12 +326,13 @@ function MdAnswer({ src }: { src: string }) {
 /* ================= 审计列表 ================= */
 
 function AuditList() {
+  const { t } = useTranslation();
   const { data, isLoading } = useQuery({
     queryKey: ["crop", "audit"],
     queryFn: () => auditApi.list(50),
   });
-  if (isLoading) return <p className="text-sm text-muted-foreground">加载中…</p>;
-  if (!data?.items.length) return <p className="text-sm text-muted-foreground">暂无 agent 工具调用记录</p>;
+  if (isLoading) return <p className="text-sm text-muted-foreground">{t("common.loading")}</p>;
+  if (!data?.items.length) return <p className="text-sm text-muted-foreground">{t("crop.ask.noAudit")}</p>;
   return (
     <div className="max-h-[60vh] space-y-1.5 overflow-y-auto">
       {data.items.map((a: AuditItem) => {
@@ -342,7 +345,7 @@ function AuditList() {
             </span>
             <span className="font-medium">{d.tool ?? "agent"}</span>
             <span className="text-muted-foreground">
-              {d.denied ? "⚠️ 越权拒绝" : d.ok === false ? "❌ 失败" : "✓"}
+              {d.denied ? t("crop.ask.denied") : d.ok === false ? t("crop.ask.failedTag") : "✓"}
             </span>
             <span className="truncate text-muted-foreground">
               {JSON.stringify(d.args ?? {})}

@@ -1,6 +1,6 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { BookOpenText, ChevronLeft, ChevronRight, Languages, LayoutDashboard, LogOut, Moon, Package, Radar, Settings2, Sun } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import AiAssistant from "@/components/AiAssistant";
@@ -62,6 +62,17 @@ export default function Layout() {
   const { collapsed, toggle: toggleSidebar } = useSidebarCollapsed();
   const [versionOpen, setVersionOpen] = useState(false);
   const [logoutConfirm, setLogoutConfirm] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
+  const langRef = useRef<HTMLDivElement | null>(null);
+  // 语言弹层：点击外部关闭
+  useEffect(() => {
+    if (!langOpen) return;
+    const onDown = (e: MouseEvent) => {
+      if (langRef.current && !langRef.current.contains(e.target as Node)) setLangOpen(false);
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [langOpen]);
   const { data: versionInfo } = useQuery({
     queryKey: ["system-version"],
     queryFn: systemApi.version,
@@ -74,7 +85,7 @@ export default function Layout() {
     <div className="flex h-screen">
       {/* 侧边栏：档案柜（可收放） */}
       <aside
-        className={`glass relative flex shrink-0 flex-col px-4 py-5 transition-[width] duration-300 ease-out ${
+        className={`glass relative z-40 flex shrink-0 flex-col px-4 py-5 transition-[width] duration-300 ease-out ${
           collapsed ? "w-[72px]" : "w-60"
         }`}
         style={{ borderRight: "1px solid hsl(var(--glass-border))" }}
@@ -147,13 +158,31 @@ export default function Layout() {
             >
               {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
-            <button
-              onClick={() => setLang(LANGS[(LANGS.findIndex((l) => l.code === lang) + 1) % LANGS.length].code)}
-              className="shrink-0 rounded-lg p-1.5 text-muted-foreground hover:bg-muted"
-              title={`${t("shell.language")} · ${LANGS.find((l) => l.code === lang)?.label ?? "中文"}`}
-            >
-              <Languages className="h-4 w-4" />
-            </button>
+            <div ref={langRef} className="relative">
+              <button
+                onClick={() => setLangOpen((v) => !v)}
+                className={`shrink-0 rounded-lg p-1.5 hover:bg-muted ${langOpen ? "bg-muted text-primary" : "text-muted-foreground"}`}
+                title={`${t("shell.language")} · ${LANGS.find((l) => l.code === lang)?.label ?? "中文"}`}
+              >
+                <Languages className="h-4 w-4" />
+              </button>
+              {langOpen && (
+                <div className="absolute bottom-full left-0 z-50 mb-1.5 w-32 overflow-hidden rounded-xl border border-border bg-card py-1 shadow-lg">
+                  {LANGS.map(({ code, label }) => (
+                    <button
+                      key={code}
+                      onClick={() => { setLang(code); setLangOpen(false); }}
+                      className={`flex w-full items-center justify-between px-3 py-2 text-left text-xs transition-colors ${
+                        lang === code ? "font-medium text-primary" : "text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      {label}
+                      {lang === code && <span className="text-primary">✓</span>}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <button
               onClick={() => setLogoutConfirm(true)}
               className="shrink-0 rounded-lg p-1.5 text-muted-foreground hover:bg-red-500/10 hover:text-red-500"

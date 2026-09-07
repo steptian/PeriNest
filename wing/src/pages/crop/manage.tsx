@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   BookOpenText, FileDown, FileText, FileUp, Layers, ListPlus, RefreshCw, RotateCcw, Trash2, Upload, X,
 } from "lucide-react";
@@ -13,17 +14,18 @@ const PAGE_SIZE = 15;
 /** 处理中状态的轮询间隔（ms）：有 queued/embedding 文档时自动刷新直到消化完 */
 const BUSY_POLL_MS = 2000;
 
-/** 文档状态中文显示 */
-const STATUS_LABEL: Record<string, string> = {
-  ready: "已入库",
-  processing: "处理中",
-  queued: "排队中",
-  embedding: "向量化中",
-  failed: "失败",
+/** 文档状态 → i18n key */
+const STATUS_KEY: Record<string, string> = {
+  ready: "crop.status.ready",
+  processing: "crop.status.processing",
+  queued: "crop.status.queued",
+  embedding: "crop.status.embedding",
+  failed: "crop.status.failed",
 };
 
 /** Tab 1 · 知识库管理：单/批量入库、分块预览、删除、向量投影重建 */
 export function ManagePane() {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const [uploadOpen, setUploadOpen] = useState(false);
   const [batchOpen, setBatchOpen] = useState(false);
@@ -78,36 +80,36 @@ export function ManagePane() {
         {/* 卡片头：统计 + 入库/运维动作 */}
         <div className="flex flex-wrap items-center gap-3 border-b border-border/60 px-4 py-3">
           <div className="min-w-0">
-            <p className="text-sm font-medium">文档列表</p>
+            <p className="text-sm font-medium">{t("crop.manage.listTitle")}</p>
             <p className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
-              {isLoading ? "加载中…" : `${docs.length} 份文档`}
-              {counts.ready ? ` · ${counts.ready} 份已入库` : ""}
+              {isLoading ? t("crop.manage.loading") : t("crop.manage.docCount", { n: docs.length })}
+              {counts.ready ? t("crop.manage.readyCount", { n: counts.ready }) : ""}
               {(stats?.pending ?? 0) > 0 && (
                 <span className="flex items-center gap-1 text-primary">
                   <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
-                  {stats?.pending} 份处理中（排队/向量化）
+                  {t("crop.manage.pendingLine", { n: stats?.pending })}
                 </span>
               )}
-              {(stats?.failed ?? 0) > 0 && <span className="text-destructive">{stats?.failed} 份失败</span>}
+              {(stats?.failed ?? 0) > 0 && <span className="text-destructive">{t("crop.manage.failedCount", { n: stats?.failed })}</span>}
             </p>
           </div>
           <div className="ml-auto flex flex-wrap gap-2">
             <Button
               variant="outline" size="sm" onClick={() => setBatchOpen(true)}
-              title="多文件批量入库——上传即排队，向量化后台消化，列表实时看进度"
+              title={t("crop.manage.batchImportHint")}
             >
-              <ListPlus className="mr-1 h-4 w-4" /> 批量导入
+              <ListPlus className="mr-1 h-4 w-4" /> {t("crop.manage.batchImport")}
             </Button>
             <Button
               variant="outline" size="sm"
               onClick={() => rebuild.mutate()} disabled={rebuild.isPending || hasPending}
-              title="从 MySQL 权威库全量重建 Redis 向量投影（处理中勿重建）"
+              title={t("crop.manage.rebuildHint")}
             >
               <RefreshCw className={`mr-1 h-4 w-4 ${rebuild.isPending ? "animate-spin" : ""}`} />
-              重建向量
+              {t("crop.manage.rebuildVec")}
             </Button>
             <Button size="sm" onClick={() => setUploadOpen(true)}>
-              <Upload className="mr-1 h-4 w-4" /> 上传文档
+              <Upload className="mr-1 h-4 w-4" /> {t("crop.manage.uploadDoc")}
             </Button>
           </div>
         </div>
@@ -116,21 +118,21 @@ export function ManagePane() {
           <table className="w-full text-sm">
           <thead className="border-b border-border/60 text-left text-xs uppercase tracking-wide text-muted-foreground">
             <tr>
-              <th className="px-4 py-3">标题</th>
-              <th className="px-4 py-3">块数</th>
-              <th className="px-4 py-3">可见范围</th>
-              <th className="px-4 py-3">状态</th>
-              <th className="px-4 py-3">入库时间</th>
-              <th className="px-4 py-3 text-right">操作</th>
+              <th className="px-4 py-3">{t("crop.manage.colTitle")}</th>
+              <th className="px-4 py-3">{t("crop.manage.colChunks")}</th>
+              <th className="px-4 py-3">{t("crop.manage.colScope")}</th>
+              <th className="px-4 py-3">{t("crop.manage.colStatus")}</th>
+              <th className="px-4 py-3">{t("crop.manage.colTime")}</th>
+              <th className="px-4 py-3 text-right">{t("crop.manage.colOp")}</th>
             </tr>
           </thead>
           <tbody>
-            {isLoading && <tr><td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">加载中…</td></tr>}
+            {isLoading && <tr><td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">{t("crop.manage.loading")}</td></tr>}
             {!isLoading && docs.length === 0 && (
               <tr>
                 <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
                   <BookOpenText className="mx-auto mb-2 h-6 w-6 opacity-40" />
-                  知识库还是空的——上传文档或批量导入吧
+                  {t("crop.manage.empty")}
                 </td>
               </tr>
             )}
@@ -138,7 +140,7 @@ export function ManagePane() {
               <tr key={d.id} className="cursor-pointer border-b border-border/40 last:border-0 hover:bg-muted/40" onClick={() => setPreviewId(d.id)}>
                 <td className="max-w-[300px] truncate px-4 py-3 font-medium" title={d.error ?? undefined}>{d.title}</td>
                 <td className="px-4 py-3 text-muted-foreground">{d.status === "ready" ? d.chunk_count : "—"}</td>
-                <td className="px-4 py-3 text-xs text-muted-foreground">{d.visible_roles || "全库共享"}</td>
+                <td className="px-4 py-3 text-xs text-muted-foreground">{d.visible_roles || t("crop.manage.shared")}</td>
                 <td className="px-4 py-3">
                   <span
                     className={`whitespace-nowrap rounded-full px-2 py-0.5 text-xs ${
@@ -151,7 +153,7 @@ export function ManagePane() {
                             : "bg-primary/10 text-primary"
                     }`}
                   >
-                    {STATUS_LABEL[d.status] ?? d.status}
+                    {t(STATUS_KEY[d.status] ?? d.status)}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-muted-foreground">{fmtTime(d.created_at)}</td>
@@ -161,7 +163,7 @@ export function ManagePane() {
                       variant="ghost" size="sm"
                       onClick={(e) => { e.stopPropagation(); retryDoc.mutate(d.id); }}
                       disabled={retryDoc.isPending}
-                      title="重新入队消化"
+                      title={t("crop.manage.retryHint")}
                     >
                       <RotateCcw className="h-4 w-4 text-primary/80" />
                     </Button>
@@ -178,18 +180,18 @@ export function ManagePane() {
       </div>
 
       {/* 单文档上传 Modal */}
-      <Modal open={uploadOpen} onClose={() => setUploadOpen(false)} title="上传文档">
+      <Modal open={uploadOpen} onClose={() => setUploadOpen(false)} title={t("crop.manage.modalTitle")}>
         <div className="space-y-3">
           <label className="flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed border-border bg-background/60 px-4 py-5 text-center transition-colors hover:border-primary/50">
             <FileUp className="h-5 w-5 text-primary/70" />
-            <span className="text-sm">点击选择文件</span>
-            <span className="text-[11px] text-muted-foreground">txt / md / pdf / docx · ≤10MB（扫描件 PDF 请先粘贴文本）</span>
+            <span className="text-sm">{t("crop.manage.pickFile")}</span>
+            <span className="text-[11px] text-muted-foreground">{t("crop.manage.fileHint")}</span>
             <input
               type="file" accept=".txt,.md,.markdown,.pdf,.docx" className="hidden"
               onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadFile.mutate(f); }}
             />
           </label>
-          {uploadFile.isPending && <p className="text-xs text-muted-foreground">入库中（提取+向量化）…</p>}
+          {uploadFile.isPending && <p className="text-xs text-muted-foreground">{t("crop.manage.ingesting")}</p>}
           {uploadFile.isError && <p className="text-xs text-red-500">{String(uploadFile.error).slice(0, 160)}</p>}
           <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
             <span className="specimen-latin !text-[8px]">or paste</span>
@@ -197,28 +199,28 @@ export function ManagePane() {
           </div>
           <input
             value={title} onChange={(e) => setTitle(e.target.value)}
-            placeholder="标题（如：产品手册 v2）"
+            placeholder={t("crop.manage.titlePh")}
             className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
           />
           <input
             value={visibleRoles} onChange={(e) => setVisibleRoles(e.target.value)}
-            placeholder="可见角色（如 operator,wing；留空=全库共享；admin 恒全量）"
-            title="权限分域：检索前过滤——不在可见角色内的用户检索不到该文档"
+            placeholder={t("crop.manage.rolesPh")}
+            title={t("crop.manage.rolesHint")}
             className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs outline-none focus:border-primary/60"
           />
           <textarea
             value={content} onChange={(e) => setContent(e.target.value)}
-            placeholder="正文（≥10 字符，空行分段；段落聚合 ~600 字一块）"
+            placeholder={t("crop.manage.contentPh")}
             rows={10}
             className="w-full resize-y rounded-xl border border-border bg-background px-3 py-2 text-sm leading-relaxed outline-none focus:border-primary/60"
           />
           <div className="flex justify-end gap-2">
-            <Button variant="ghost" size="sm" onClick={() => setUploadOpen(false)}>取消</Button>
+            <Button variant="ghost" size="sm" onClick={() => setUploadOpen(false)}>{t("crop.manage.cancel")}</Button>
             <Button
               size="sm" disabled={title.trim().length < 1 || content.trim().length < 10 || upload.isPending}
               onClick={() => upload.mutate()}
             >
-              {upload.isPending ? "入库中…" : "上传"}
+              {upload.isPending ? t("crop.manage.uploading") : t("crop.manage.upload")}
             </Button>
           </div>
           {upload.isError && (
@@ -235,8 +237,8 @@ export function ManagePane() {
       {/* 删除确认 */}
       <ConfirmDialog
         open={!!delTarget}
-        title="删除这份文档？"
-        message={`「${delTarget?.title}」及其 ${delTarget?.chunk_count} 个分块将从权威库与向量投影中一并删除。`}
+        title={t("crop.manage.delTitle")}
+        message={t("crop.manage.delMsg", { title: delTarget?.title, n: delTarget?.chunk_count })}
         onCancel={() => setDelTarget(null)}
         onConfirm={() => delTarget && remove.mutate(delTarget.id)}
       />
@@ -247,6 +249,7 @@ export function ManagePane() {
 /* ============ 批量导入：多文件选择 + 入队即回 + rejected 明细 ============ */
 
 function BatchModal({ open, onClose, onSubmitted }: { open: boolean; onClose: () => void; onSubmitted: () => void }) {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [files, setFiles] = useState<File[]>([]);
@@ -258,9 +261,9 @@ function BatchModal({ open, onClose, onSubmitted }: { open: boolean; onClose: ()
     mutationFn: () => cropApi.batchUpload(files, visibleRoles || undefined),
     onSuccess: (r) => {
       const rejectedText = r.rejected.length
-        ? `，${r.rejected.length} 份被拒（${r.rejected.map((x) => x.filename).join("、")}）`
+        ? t("crop.manage.noteRejected", { n: r.rejected.length, names: r.rejected.map((x) => x.filename).join("、") })
         : "";
-      setNote(`已入队 ${r.accepted} 份${rejectedText}——向量化后台消化，列表会实时更新状态`);
+      setNote(t("crop.manage.notePrefix", { n: r.accepted, rej: rejectedText }));
       setFiles([]);
       if (inputRef.current) inputRef.current.value = "";
       setWarn("");
@@ -275,7 +278,7 @@ function BatchModal({ open, onClose, onSubmitted }: { open: boolean; onClose: ()
     if (!list?.length) return;
     const oversized = [...list].filter((f) => f.size > 10 * 1024 * 1024).map((f) => f.name);
     const ok = [...list].filter((f) => f.size <= 10 * 1024 * 1024);
-    setWarn(oversized.length ? `已跳过超 10MB 的文件：${oversized.join("、")}` : "");
+    setWarn(oversized.length ? t("crop.manage.oversized", { names: oversized.join("、") }) : "");
     setFiles((prev) => [...prev, ...ok]);
   }
 
@@ -287,18 +290,18 @@ function BatchModal({ open, onClose, onSubmitted }: { open: boolean; onClose: ()
   }
 
   return (
-    <Modal open={open} onClose={close} title="批量导入" width="w-[560px]">
+    <Modal open={open} onClose={close} title={t("crop.manage.batchTitle")} width="w-[560px]">
       <div className="space-y-3">
         <p className="text-xs text-muted-foreground">
           <Layers className="mr-1 inline h-3.5 w-3.5 text-primary/70" />
-          多文件一次入队：上传只做文本提取与登记（<span className="font-medium text-foreground/80">排队中</span>
-          ），向量化由后台任务逐个消化（<span className="font-medium text-foreground/80">向量化中</span>
-          → <span className="font-medium text-primary">已入库</span>），关闭本窗后在列表看实时进度。
+          {t("crop.manage.batchHow", {
+            q: t("crop.status.queued"), e: t("crop.status.embedding"), r: t("crop.status.ready"),
+          })}
         </p>
         <label className="flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed border-border bg-background/60 px-4 py-6 text-center transition-colors hover:border-primary/50">
           <ListPlus className="h-5 w-5 text-primary/70" />
-          <span className="text-sm">点击选择文件（可多选）</span>
-          <span className="text-[11px] text-muted-foreground">txt / md / pdf / docx · 单个 ≤10MB · 支持扫描件以外的常规文件</span>
+          <span className="text-sm">{t("crop.manage.pickMultiple")}</span>
+          <span className="text-[11px] text-muted-foreground">{t("crop.manage.pickMultipleHint")}</span>
           <input ref={inputRef} type="file" multiple accept=".txt,.md,.markdown,.pdf,.docx" className="hidden"
             onChange={(e) => pick(e.target.files)} />
         </label>
@@ -313,7 +316,7 @@ function BatchModal({ open, onClose, onSubmitted }: { open: boolean; onClose: ()
                 <button
                   className="shrink-0 rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-destructive"
                   onClick={() => setFiles((prev) => prev.filter((_, j) => j !== i))}
-                  title="移除"
+                  title={t("crop.manage.remove")}
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>
@@ -324,7 +327,7 @@ function BatchModal({ open, onClose, onSubmitted }: { open: boolean; onClose: ()
 
         <input
           value={visibleRoles} onChange={(e) => setVisibleRoles(e.target.value)}
-          placeholder="可见角色（如 operator,wing；留空=全库共享；admin 恒全量）——整批统一"
+          placeholder={t("crop.manage.rolesPhBatch")}
           className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs outline-none focus:border-primary/60"
         />
 
@@ -332,18 +335,18 @@ function BatchModal({ open, onClose, onSubmitted }: { open: boolean; onClose: ()
         {note && (
           <div className="rounded-xl border border-primary/25 bg-primary/5 px-3 py-2 text-sm text-primary">
             {note}
-            <p className="mt-0.5 text-[11px] text-muted-foreground">需要的话可点「批量导入」继续追加文件。</p>
+            <p className="mt-0.5 text-[11px] text-muted-foreground">{t("crop.manage.noteAppend")}</p>
           </div>
         )}
         {submit.isError && !warn && <p className="text-xs text-destructive">{String(submit.error)}</p>}
 
         <div className="flex items-center justify-end gap-2">
-          <Button variant="ghost" size="sm" onClick={close}>关闭</Button>
+          <Button variant="ghost" size="sm" onClick={close}>{t("crop.manage.close")}</Button>
           <Button
             size="sm" onClick={() => submit.mutate()}
             disabled={files.length === 0 || submit.isPending}
           >
-            {submit.isPending ? "入队中…" : `入队 ${files.length} 份`}
+            {submit.isPending ? t("crop.manage.enqueueing") : t("crop.manage.enqueue", { n: files.length })}
           </Button>
         </div>
       </div>
@@ -353,6 +356,7 @@ function BatchModal({ open, onClose, onSubmitted }: { open: boolean; onClose: ()
 
 /** 文档预览：chunks 分块浏览 + 源文件查看 */
 function DocPreview({ docId, onClose }: { docId: number; onClose: () => void }) {
+  const { t } = useTranslation();
   const { data } = useQuery({
     queryKey: ["crop", "detail", docId],
     queryFn: () => cropApi.detail(docId),
@@ -362,23 +366,23 @@ function DocPreview({ docId, onClose }: { docId: number; onClose: () => void }) 
     && (doc as CropDocument & { original_filename?: string }).original_filename !== null;
 
   return (
-    <Modal open onClose={onClose} title={doc?.title ?? "文档预览"} width="w-[720px]">
-      {!doc && <p className="text-sm text-muted-foreground">加载中…</p>}
+    <Modal open onClose={onClose} title={doc?.title ?? t("crop.manage.previewTitle")} width="w-[720px]">
+      {!doc && <p className="text-sm text-muted-foreground">{t("crop.manage.loading")}</p>}
       {doc && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span className="rounded-full border border-primary/35 px-2 py-0.5 text-primary">{doc.source_type}</span>
-              <span>{doc.chunk_count} 块</span>
+              <span>{t("crop.manage.chunks", { n: doc.chunk_count })}</span>
               <span>· {fmtTime(doc.created_at)}</span>
             </div>
             {hasFile && (
               <button
                 className="flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs hover:bg-muted"
                 onClick={() => cropApi.openFile(docId)}
-                title="新窗预览/下载上传原件"
+                title={t("crop.manage.openSourceHint")}
               >
-                <FileDown className="h-3.5 w-3.5" /> 查看源文件
+                <FileDown className="h-3.5 w-3.5" /> {t("crop.manage.openSource")}
               </button>
             )}
           </div>
@@ -390,10 +394,10 @@ function DocPreview({ docId, onClose }: { docId: number; onClose: () => void }) 
               </div>
             ))}
             {(data?.chunks ?? []).length === 0 && (
-              <p className="py-6 text-center text-xs text-muted-foreground">无分块（入库失败？查看状态与错误信息）</p>
+              <p className="py-6 text-center text-xs text-muted-foreground">{t("crop.manage.noChunks")}</p>
             )}
           </div>
-          {doc.error && <p className="text-xs text-red-500">入库错误：{doc.error}</p>}
+          {doc.error && <p className="text-xs text-red-500">{t("crop.manage.ingestErr", { err: doc.error })}</p>}
         </div>
       )}
     </Modal>

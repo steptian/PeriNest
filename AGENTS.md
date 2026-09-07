@@ -11,6 +11,6 @@ wiki: docs/agent/
 wiki: 
 
 ## 状态区
-status: v0.13.0 已发布；i18n：Leg 全量 + Wing 机制与外壳（侧栏 Languages 循环切换）落地；64 测试+冒烟 40+eval 全绿
-next: i18n Wing 业务页 key 批量补（Dashboard/Orders/Users/Roles/Cercus/crop/Settings）→ Antenna 轻量 dict；在线 demo 上线（等服务器）；OA/进销存按契约孵化
+status: v0.13.0 已发布；i18n：Leg ✅ + Wing 100%（外壳+全部业务页，切换弹层）；64 测试+冒烟 40+eval 全绿
+next: Antenna 轻量 dict i18n（wx.Storage 语言偏好 + 三语字典，逐页替换）；在线 demo 上线（等服务器）；OA/进销存按契约孵化
 updated: 2026-09-07

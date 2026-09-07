@@ -32,6 +32,17 @@
 - **多语言 i18n Wing 业务页（第三批）**：Settings 壳 + Cercus 全量 t() 化——系统设置三 tab/
   16 组配置键 label+hint（settings.opt.* 嵌套命名空间）/连接测试与保存反馈消息/企微客户表/
   详情弹窗（标签·跟进时间线·打标·记录跟进）
+- **多语言 i18n Wing 收尾**：crop 页三 tab 全量 t() 化（管理/问答/试验 ~70 key，含批量导入
+  弹窗/文档状态四态/审计列表）；**管理端语言切换改弹层选择**（Languages 图标 → 向上弹
+  中文/EN/日本語 面板+当前✓，点击外部关闭；修复 glass backdrop-filter stacking context 致
+  弹层被主内容遮挡——aside z-40 提升）
+- **i18n 全端状态**：Leg ✅ + Wing 100% ✅（外壳+全部业务页）；Antenna 轻量 dict 待做
+  详情弹窗（标签·跟进时间线·打标·记录跟进）
+- **多语言 i18n Wing 收尾**：crop 页三 tab 全量 t() 化（管理/问答/试验 ~70 key，含批量导入
+  弹窗/文档状态四态/审计列表）；**管理端语言切换改弹层选择**（Languages 图标 → 向上弹
+  中文/EN/日本語 面板+当前✓，点击外部关闭；修复 glass backdrop-filter stacking context 致
+  弹层被主内容遮挡——aside z-40 提升）
+- **i18n 全端状态**：Leg ✅ + Wing 100% ✅（外壳+全部业务页）；Antenna 轻量 dict 待做
 
 ## [0.13.0] - 2026-09-07
 
