@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, ShieldAlert, UserPlus } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import Modal from "@/components/Modal";
 import Pagination from "@/components/Pagination";
@@ -11,6 +12,7 @@ import { fmtTime } from "@/utils/format";
 const PAGE_SIZE = 20;
 
 export default function Users() {
+  const { t } = useTranslation();
   // 角色下拉动态化：运行时从 /roles 拉（角色定义不再写死）
   const { data: roleData } = useQuery({ queryKey: ["roles"], queryFn: rbacApi.roles });
   const ROLES = (roleData?.roles ?? []).map((r) => ({ value: r.role, label: r.name, locked: r.locked }));
@@ -40,23 +42,23 @@ export default function Users() {
   const invalidate = () => qc.invalidateQueries({ queryKey: ["users"] });
   const onErr = (prefix: string) => (e: unknown) => {
     const detail = (e as { response?: { data?: { detail?: string } } }).response?.data?.detail;
-    setError(`${prefix}：${typeof detail === "string" ? detail : "操作失败"}`);
+    setError(`${prefix}：${typeof detail === "string" ? detail : t("users.fail")}`);
   };
 
   const roleMut = useMutation({
     mutationFn: ({ id, role }: { id: number; role: string }) => usersApi.setRole(id, role),
-    onSuccess: invalidate, onError: onErr("角色变更失败"),
+    onSuccess: invalidate, onError: onErr(t("users.roleChangeFail")),
   });
   const statusMut = useMutation({
     mutationFn: ({ id, active }: { id: number; active: boolean }) => usersApi.setStatus(id, active),
     onSuccess: () => { setDisabling(null); invalidate(); },
-    onError: onErr("状态变更失败"),
+    onError: onErr(t("users.statusChangeFail")),
   });
   const createMut = useMutation({
     mutationFn: (p: { username: string; password: string; email?: string; role: string }) =>
       api.post("/users", p),
     onSuccess: () => { setCreateOpen(false); invalidate(); },
-    onError: onErr("新增失败"),
+    onError: onErr(t("users.createFail")),
   });
 
   if (error) {
@@ -72,16 +74,16 @@ export default function Users() {
       <header className="flex items-end justify-between">
         <div>
           <p className="specimen-latin mb-1">colony members</p>
-          <h2 className="font-specimen text-3xl font-bold tracking-tight">成员管理</h2>
+          <h2 className="font-specimen text-3xl font-bold tracking-tight">{t("users.title")}</h2>
         </div>
         <button className="btn-amber flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-medium" onClick={() => setCreateOpen(true)}>
-          <Plus className="h-4 w-4" /> 新增成员
+          <Plus className="h-4 w-4" /> {t("users.add")}
         </button>
       </header>
 
       <input
         className="w-72 rounded-xl border bg-card px-4 py-2.5 text-sm outline-none focus:border-primary"
-        placeholder="搜索用户名 / 邮箱，回车确认…"
+        placeholder={t("users.placeholder")}
         value={keyword}
         onChange={(e) => { setKeyword(e.target.value); setPage(1); }}
       />
@@ -90,8 +92,8 @@ export default function Users() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border/70 text-left">
-              {["成员", "角色", "状态", "最后登录", "操作"].map((h) => (
-                <th key={h} className="px-5 py-3.5 font-normal"><span className="specimen-latin">{h}</span></th>
+              {["users.colMember", "users.colRole", "users.colStatus", "users.colLastLogin", "users.colOp"].map((hk) => (
+                <th key={hk} className="px-5 py-3.5 font-normal"><span className="specimen-latin">{t(hk)}</span></th>
               ))}
             </tr>
           </thead>
@@ -104,7 +106,7 @@ export default function Users() {
                 </td>
                 <td className="px-5 py-3.5">
                   {u.role === "admin" ? (
-                    <span className="specimen-latin !text-primary">admin · 锁定</span>
+                    <span className="specimen-latin !text-primary">{t("users.adminLocked")}</span>
                   ) : (
                     <select
                       className="rounded-lg border bg-card px-2 py-1 text-xs outline-none focus:border-primary"
@@ -119,21 +121,21 @@ export default function Users() {
                 </td>
                 <td className="px-5 py-3.5">
                   <span className={u.is_active ? "text-emerald-600" : "text-red-500"}>
-                    {u.is_active ? "● 活跃" : "○ 禁用"}
+                    {u.is_active ? t("users.active") : t("users.disabled")}
                   </span>
                 </td>
                 <td className="px-5 py-3.5 text-xs text-muted-foreground">
-                  {u.last_login_at ? fmtTime(u.last_login_at) : "从未"}
+                  {u.last_login_at ? fmtTime(u.last_login_at) : t("users.never")}
                 </td>
                 <td className="px-5 py-3.5">
                   {u.role !== "admin" && (
                     <div className="flex gap-1.5">
-                      <button className="rounded-lg border px-2.5 py-1 text-xs hover:bg-muted" onClick={() => setEditing(u)}>编辑</button>
+                      <button className="rounded-lg border px-2.5 py-1 text-xs hover:bg-muted" onClick={() => setEditing(u)}>{t("users.edit")}</button>
                       {u.is_active && (
                         <button
                           className="rounded-lg border border-red-500/30 px-2.5 py-1 text-xs text-red-500 hover:bg-red-500/5"
                           onClick={() => setDisabling(u)}
-                        >禁用</button>
+                        >{t("users.disable")}</button>
                       )}
                     </div>
                   )}
@@ -142,7 +144,7 @@ export default function Users() {
             ))}
           </tbody>
         </table>
-        {isLoading && <p className="p-5 text-sm text-muted-foreground">加载中…</p>}
+        {isLoading && <p className="p-5 text-sm text-muted-foreground">{t("common.loading")}</p>}
       </div>
       <Pagination total={total} page={page} pageSize={PAGE_SIZE} onChange={setPage} />
 
@@ -158,9 +160,9 @@ export default function Users() {
       {/* 禁用确认 */}
       <ConfirmDialog
         open={!!disabling}
-        title="禁用成员"
-        message={`确认禁用「${disabling?.username ?? ""}」？禁用后该账号立即无法登录，其数据保留。可随时重新启用。`}
-        confirmText="确认禁用"
+        title={t("users.disableTitle")}
+        message={t("users.disableMsg", { name: disabling?.username ?? "" })}
+        confirmText={t("users.disableConfirm")}
         onCancel={() => setDisabling(null)}
         onConfirm={() => disabling && statusMut.mutate({ id: disabling.id, active: false })}
       />
@@ -177,9 +179,10 @@ function CreateModal({
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("wing");
+  const { t } = useTranslation();
   if (!open) return null;
   return (
-    <Modal open={open} title="新增成员" onClose={onClose}>
+    <Modal open={open} title={t("users.createTitle")} onClose={onClose}>
       <form
         className="space-y-4"
         onSubmit={(e) => {
@@ -187,20 +190,20 @@ function CreateModal({
           if (username && password.length >= 8) onSubmit({ username, password, email: email || undefined, role });
         }}
       >
-        <LabeledInput label="用户名 · username" value={username} onChange={setUsername} placeholder="member-001" />
-        <LabeledInput label="密码 · password" type="password" value={password} onChange={setPassword} placeholder="至少 8 位，非纯数字" />
-        <LabeledInput label="邮箱 · email（可选）" value={email} onChange={setEmail} placeholder="a@example.com" />
+        <LabeledInput label={t("users.labelUsername")} value={username} onChange={setUsername} placeholder="member-001" />
+        <LabeledInput label={t("users.labelPassword")} type="password" value={password} onChange={setPassword} placeholder={t("users.pwPlaceholder")} />
+        <LabeledInput label={t("users.labelEmail")} value={email} onChange={setEmail} placeholder="a@example.com" />
         <div>
-          <span className="specimen-latin mb-1.5 block">role · 角色</span>
+          <span className="specimen-latin mb-1.5 block">{t("users.roleLabel")}</span>
           <select className="w-full rounded-xl border bg-card px-3.5 py-2.5 text-sm outline-none focus:border-primary" value={role} onChange={(e) => setRole(e.target.value)}>
             {ROLES.filter((r) => !r.locked).map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
           </select>
-          <p className="mt-1.5 text-xs text-muted-foreground">admin 由引导流程创建（make admin），此处不可选。</p>
+          <p className="mt-1.5 text-xs text-muted-foreground">{t("users.adminNote")}</p>
         </div>
         <div className="flex justify-end gap-2.5 pt-2">
-          <button type="button" className="rounded-xl border px-4 py-2 text-sm hover:bg-muted" onClick={onClose}>取消</button>
+          <button type="button" className="rounded-xl border px-4 py-2 text-sm hover:bg-muted" onClick={onClose}>{t("users.cancel")}</button>
           <button type="submit" className="btn-amber flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-medium" disabled={loading || !username || password.length < 8}>
-            <UserPlus className="h-4 w-4" /> {loading ? "创建中…" : "创建成员"}
+            <UserPlus className="h-4 w-4" /> {loading ? t("users.creating") : t("users.createBtn")}
           </button>
         </div>
       </form>
@@ -209,6 +212,7 @@ function CreateModal({
 }
 
 function EditModal({ user, onClose, onChanged }: { user: UserWithLogin | null; onClose: () => void; onChanged: () => void }) {
+  const { t } = useTranslation();
   const { data: roleData } = useQuery({ queryKey: ["roles"], queryFn: rbacApi.roles });
   const ROLES = (roleData?.roles ?? []).map((r) => ({ value: r.role, label: r.name, locked: r.locked }));
   const [email, setEmail] = useState(user?.email ?? "");
@@ -234,7 +238,7 @@ function EditModal({ user, onClose, onChanged }: { user: UserWithLogin | null; o
       onChanged(); onClose();
     } catch (e) {
       const detail = (e as { response?: { data?: { detail?: string } } }).response?.data?.detail;
-      setErr(typeof detail === "string" ? detail : "保存失败");
+      setErr(typeof detail === "string" ? detail : t("users.saveFail"));
     } finally { setSaving(false); }
   };
 
@@ -244,7 +248,7 @@ function EditModal({ user, onClose, onChanged }: { user: UserWithLogin | null; o
       await usersApi.setPermOverride(user!.id, newPerm, newEffect);
       qc.invalidateQueries({ queryKey: ["perm-overview", user?.id] });
       setNewPerm("");
-    } catch (e) { setErr("覆盖失败：权限点格式应为 域 或 域:read/write"); }
+    } catch (e) { setErr(t("users.overrideFail")); }
   };
   const removeOverride = async (perm: string) => {
     await rbacApi.deleteOverride(user!.id, perm);
@@ -253,34 +257,34 @@ function EditModal({ user, onClose, onChanged }: { user: UserWithLogin | null; o
 
   if (!user) return null;
   return (
-    <Modal open title={`编辑成员 · ${user.username}`} onClose={onClose} width="w-[560px]">
+    <Modal open title={t("users.editTitle", { name: user.username })} onClose={onClose} width="w-[560px]">
       <div className="space-y-5">
         <div className="rounded-xl bg-muted/50 p-3.5 text-xs text-muted-foreground">
-          <div>ID：{user.id} · 注册于 {fmtTime(user.created_at)}</div>
-          <div>最后登录：{user.last_login_at ? fmtTime(user.last_login_at) : "从未"} {user.last_login_ip ?? ""}</div>
+          <div>{t("users.metaId", { id: user.id, time: fmtTime(user.created_at) })}</div>
+          <div>{t("users.metaLogin", { time: user.last_login_at ? fmtTime(user.last_login_at) : t("users.never"), ip: user.last_login_ip ?? "" })}</div>
         </div>
 
-        <LabeledInput label="email · 邮箱" value={email} onChange={setEmail} placeholder="a@example.com" />
+        <LabeledInput label={t("users.emailLabel")} value={email} onChange={setEmail} placeholder="a@example.com" />
 
         <div>
-          <span className="specimen-latin mb-1.5 block">role · 角色</span>
+          <span className="specimen-latin mb-1.5 block">{t("users.roleLabel")}</span>
           <select className="w-full rounded-xl border bg-card px-3.5 py-2.5 text-sm outline-none focus:border-primary" value={role} onChange={(e) => setRole(e.target.value)}>
             {ROLES.filter((r) => !r.locked || r.value === user.role).map((r) => (
-              <option key={r.value} value={r.value} disabled={r.locked}>{r.label}{r.locked ? "（锁定）" : ""}</option>
+              <option key={r.value} value={r.value} disabled={r.locked}>{r.label}{r.locked ? t("users.lockedSuffix") : ""}</option>
             ))}
           </select>
         </div>
 
         {user.role !== "admin" && perm && (
           <div className="rounded-xl border p-4">
-            <span className="specimen-latin mb-2 block">permissions · 权限覆盖</span>
+            <span className="specimen-latin mb-2 block">{t("users.permTitle")}</span>
             <div className="mb-3 flex flex-wrap gap-1.5">
               {perm.permissions.map((p) => (
                 <span key={p} className="rounded-full border border-primary/40 px-2.5 py-0.5 text-[11px] text-primary">{p}</span>
               ))}
             </div>
             <p className="mb-2 text-xs text-muted-foreground">
-              角色模板 {perm.base_permissions.length} 项 ⊕ 覆盖 {perm.overrides.length} 项 = 最终 {perm.permissions.length} 项（deny 优先）
+              {t("users.permSummary", { base: perm.base_permissions.length, ov: perm.overrides.length, final: perm.permissions.length })}
             </p>
             {perm.overrides.length > 0 && (
               <div className="mb-3 space-y-1.5">
@@ -290,7 +294,7 @@ function EditModal({ user, onClose, onChanged }: { user: UserWithLogin | null; o
                       <span className={o.effect === "deny" ? "text-red-500" : "text-emerald-600"}>{o.effect}</span>{" "}
                       <span className="font-mono">{o.perm}</span>
                     </span>
-                    <button className="text-muted-foreground hover:text-red-500" onClick={() => removeOverride(o.perm)}>移除</button>
+                    <button className="text-muted-foreground hover:text-red-500" onClick={() => removeOverride(o.perm)}>{t("users.remove")}</button>
                   </div>
                 ))}
               </div>
@@ -298,23 +302,23 @@ function EditModal({ user, onClose, onChanged }: { user: UserWithLogin | null; o
             <div className="flex gap-2">
               <input
                 className="flex-1 rounded-lg border bg-card px-3 py-1.5 text-xs outline-none focus:border-primary"
-                placeholder="权限点，如 orders / orders:read / system"
+                placeholder={t("users.permPlaceholder")}
                 value={newPerm}
                 onChange={(e) => setNewPerm(e.target.value)}
               />
               <select className="rounded-lg border bg-card px-2 py-1.5 text-xs" value={newEffect} onChange={(e) => setNewEffect(e.target.value as "grant" | "deny")}>
-                <option value="grant">grant 授予</option>
-                <option value="deny">deny 撤销</option>
+                <option value="grant">{t("users.grant")}</option>
+                <option value="deny">{t("users.deny")}</option>
               </select>
-              <button className="btn-amber rounded-lg px-3 text-xs" onClick={addOverride}>添加</button>
+              <button className="btn-amber rounded-lg px-3 text-xs" onClick={addOverride}>{t("users.add")}</button>
             </div>
           </div>
         )}
 
         {err && <p className="text-sm text-red-500">{err}</p>}
         <div className="flex justify-end gap-2.5">
-          <button className="rounded-xl border px-4 py-2 text-sm hover:bg-muted" onClick={onClose}>取消</button>
-          <button className="btn-amber rounded-xl px-5 py-2 text-sm font-medium" onClick={save} disabled={saving}>{saving ? "保存中…" : "保存"}</button>
+          <button className="rounded-xl border px-4 py-2 text-sm hover:bg-muted" onClick={onClose}>{t("users.cancel")}</button>
+          <button className="btn-amber rounded-xl px-5 py-2 text-sm font-medium" onClick={save} disabled={saving}>{saving ? t("users.saving") : t("users.save")}</button>
         </div>
       </div>
     </Modal>

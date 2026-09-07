@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, Eye, Lock, PenLine, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import Modal from "@/components/Modal";
 import { api } from "@/api/client";
@@ -8,6 +9,7 @@ import { rbacApi, type RoleInfo } from "@/api/users";
 
 /** 权限矩阵：可视化 + 可编辑（角色存 pn_role，运行时配置；admin 锁定） */
 export default function Roles() {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const { data } = useQuery({ queryKey: ["roles"], queryFn: rbacApi.roles });
   const [editing, setEditing] = useState<RoleInfo | null>(null);
@@ -18,7 +20,7 @@ export default function Roles() {
   const invalidate = () => qc.invalidateQueries({ queryKey: ["roles"] });
   const onErr = (e: unknown) => {
     const d = (e as { response?: { data?: { detail?: string } } }).response?.data?.detail;
-    setErr(typeof d === "string" ? d : "操作失败");
+    setErr(typeof d === "string" ? d : t("roles.fail"));
   };
 
   const delMut = useMutation({
@@ -27,7 +29,7 @@ export default function Roles() {
     onError: onErr,
   });
 
-  if (!data) return <p className="text-sm text-muted-foreground">加载中…</p>;
+  if (!data) return <p className="text-sm text-muted-foreground">{t("common.loading")}</p>;
   const { domains, roles } = data;
   const cellState = (perms: string[], domain: string) => {
     if (perms.includes(domain)) return "rw" as const;
@@ -41,10 +43,10 @@ export default function Roles() {
       <header className="flex items-end justify-between">
         <div>
           <p className="specimen-latin mb-1">exoskeleton · rbac matrix</p>
-          <h2 className="font-specimen text-3xl font-bold tracking-tight">权限矩阵</h2>
+          <h2 className="font-specimen text-3xl font-bold tracking-tight">{t("roles.title")}</h2>
         </div>
         <button className="btn-amber flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-medium" onClick={() => setCreating(true)}>
-          <Plus className="h-4 w-4" /> 新增角色
+          <Plus className="h-4 w-4" /> {t("roles.add")}
         </button>
       </header>
 
@@ -54,12 +56,12 @@ export default function Roles() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border/70 text-left">
-              <th className="px-5 py-3.5"><span className="specimen-latin">角色 / 域</span></th>
+              <th className="px-5 py-3.5"><span className="specimen-latin">{t("roles.colDomain")}</span></th>
               {domains.map((d) => (
                 <th key={d} className="px-5 py-3.5 text-center"><span className="specimen-latin">{d}</span></th>
               ))}
-              <th className="px-5 py-3.5"><span className="specimen-latin">用户</span></th>
-              <th className="px-5 py-3.5"><span className="specimen-latin">操作</span></th>
+              <th className="px-5 py-3.5"><span className="specimen-latin">{t("roles.colUser")}</span></th>
+              <th className="px-5 py-3.5"><span className="specimen-latin">{t("roles.colOp")}</span></th>
             </tr>
           </thead>
           <tbody>
@@ -76,9 +78,9 @@ export default function Roles() {
                   const st = cellState(r.permissions, d);
                   return (
                     <td key={d} className="px-5 py-3.5 text-center">
-                      {st === "rw" ? <span className="flex items-center justify-center gap-1 text-primary"><Check className="h-3.5 w-3.5" />读写</span>
-                        : st === "r" ? <span className="flex items-center justify-center gap-1 text-amber-600"><Eye className="h-3.5 w-3.5" />只读</span>
-                        : st === "w" ? <span className="flex items-center justify-center gap-1 text-amber-600"><PenLine className="h-3.5 w-3.5" />可写</span>
+                      {st === "rw" ? <span className="flex items-center justify-center gap-1 text-primary"><Check className="h-3.5 w-3.5" />{t("roles.rw")}</span>
+                        : st === "r" ? <span className="flex items-center justify-center gap-1 text-amber-600"><Eye className="h-3.5 w-3.5" />{t("roles.r")}</span>
+                        : st === "w" ? <span className="flex items-center justify-center gap-1 text-amber-600"><PenLine className="h-3.5 w-3.5" />{t("roles.w")}</span>
                         : <span className="text-muted-foreground/40">—</span>}
                     </td>
                   );
@@ -86,10 +88,10 @@ export default function Roles() {
                 <td className="px-5 py-3.5 text-xs text-muted-foreground">{r.user_count}</td>
                 <td className="px-5 py-3.5">
                   <div className="flex gap-1.5">
-                    <button className="rounded-lg border px-2.5 py-1 text-xs hover:bg-muted" onClick={() => setEditing(r)}>编辑</button>
+                    <button className="rounded-lg border px-2.5 py-1 text-xs hover:bg-muted" onClick={() => setEditing(r)}>{t("roles.edit")}</button>
                     {!r.locked && r.user_count === 0 && (
                       <button className="rounded-lg border border-red-500/30 px-2.5 py-1 text-xs text-red-500 hover:bg-red-500/5 flex items-center gap-1" onClick={() => setDeleting(r)}>
-                        <Trash2 className="h-3 w-3" />删除
+                        <Trash2 className="h-3 w-3" />{t("roles.del")}
                       </button>
                     )}
                   </div>
@@ -101,14 +103,14 @@ export default function Roles() {
       </div>
 
       <div className="specimen-card p-5 text-sm leading-relaxed text-muted-foreground">
-        <p className="mb-2 font-medium text-foreground">守卫规则</p>
-        <p>· 角色定义存储于 <code className="rounded bg-muted px-1.5 py-0.5 text-xs">pn_role / pn_role_perm</code>，运行时可配置（内置种子见 <code className="rounded bg-muted px-1.5 py-0.5 text-xs">permissions.py</code>）</p>
-        <p className="mt-1">· <b>admin 角色锁定</b>全域不可删改（防自锁）· 有用户引用的角色不可删除（先迁移成员）</p>
-        <p className="mt-1">· 账号级 grant/deny 覆盖在「成员管理 → 编辑」· 权限域管"能不能用"，数据归属管"能看谁的"</p>
+        <p className="mb-2 font-medium text-foreground">{t("roles.guardTitle")}</p>
+        <p>{t("roles.guard1", { a: "pn_role / pn_role_perm", b: "permissions.py" })}</p>
+        <p className="mt-1">{t("roles.guard2", { bold: t("roles.guard2Bold") })}</p>
+        <p className="mt-1">{t("roles.guard3")}</p>
       </div>
 
       <RoleFormModal
-        open={creating} title="新增角色"
+        open={creating} title={t("roles.createTitle")}
         domains={domains}
         onClose={() => setCreating(false)}
         onSubmit={async (v) => {
@@ -118,7 +120,7 @@ export default function Roles() {
       />
       {editing && (
         <RoleFormModal
-          open title={`编辑角色 · ${editing.name}`} role={editing}
+          open title={t("roles.editTitle", { name: editing.name })} role={editing}
           domains={domains}
           onClose={() => setEditing(null)}
           onSubmit={async (v) => {
@@ -130,9 +132,9 @@ export default function Roles() {
       )}
       <ConfirmDialog
         open={!!deleting}
-        title="删除角色"
-        message={`确认删除角色「${deleting?.name ?? ""}」？该操作不可撤销。`}
-        confirmText="确认删除"
+        title={t("roles.delTitle")}
+        message={t("roles.delMsg", { name: deleting?.name ?? "" })}
+        confirmText={t("roles.delConfirm")}
         onCancel={() => setDeleting(null)}
         onConfirm={() => deleting && delMut.mutate(deleting.role)}
       />
@@ -159,6 +161,7 @@ function RoleFormModal({
     }
     return init;
   });
+  const { t } = useTranslation();
   const [saving, setSaving] = useState(false);
   const cycle = (d: string) =>
     setState((s) => ({ ...s, [d]: s[d] === "none" ? "r" : s[d] === "r" ? "rw" : "none" }));
@@ -178,26 +181,26 @@ function RoleFormModal({
         {!role && (
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <span className="specimen-latin mb-1.5 block">key · 标识</span>
+              <span className="specimen-latin mb-1.5 block">{t("roles.keyLabel")}</span>
               <input className="w-full rounded-xl border bg-card px-3.5 py-2.5 text-sm outline-none focus:border-primary"
-                placeholder="如 auditor" value={key} onChange={(e) => setKey(e.target.value)} />
+                placeholder={t("roles.keyPlaceholder")} value={key} onChange={(e) => setKey(e.target.value)} />
             </div>
             <div>
-              <span className="specimen-latin mb-1.5 block">name · 名称</span>
+              <span className="specimen-latin mb-1.5 block">{t("roles.nameLabel")}</span>
               <input className="w-full rounded-xl border bg-card px-3.5 py-2.5 text-sm outline-none focus:border-primary"
-                placeholder="如 审计员" value={name} onChange={(e) => setName(e.target.value)} />
+                placeholder={t("roles.namePlaceholder")} value={name} onChange={(e) => setName(e.target.value)} />
             </div>
           </div>
         )}
         {role && (
           <div>
-            <span className="specimen-latin mb-1.5 block">name · 名称</span>
+            <span className="specimen-latin mb-1.5 block">{t("roles.nameLabel")}</span>
             <input className="w-full rounded-xl border bg-card px-3.5 py-2.5 text-sm outline-none focus:border-primary"
               value={name} onChange={(e) => setName(e.target.value)} />
           </div>
         )}
         <div>
-          <span className="specimen-latin mb-2 block">permissions · 点击切换（无 → 只读 → 读写）</span>
+          <span className="specimen-latin mb-2 block">{t("roles.permHint")}</span>
           <div className="grid grid-cols-5 gap-2">
             {domains.map((d) => (
               <button key={d} type="button"
@@ -210,16 +213,16 @@ function RoleFormModal({
                 disabled={role?.locked}
               >
                 <span className="block font-medium">{d}</span>
-                <span className="block opacity-70">{state[d] === "rw" ? "读写" : state[d] === "r" ? "只读" : "无"}</span>
+                <span className="block opacity-70">{state[d] === "rw" ? t("roles.rw") : state[d] === "r" ? t("roles.r") : t("roles.none")}</span>
               </button>
             ))}
           </div>
-          {role?.locked && <p className="mt-2 text-xs text-muted-foreground">admin 角色锁定，权限不可修改。</p>}
+          {role?.locked && <p className="mt-2 text-xs text-muted-foreground">{t("roles.lockedMsg")}</p>}
         </div>
         <div className="flex justify-end gap-2.5">
-          <button className="rounded-xl border px-4 py-2 text-sm hover:bg-muted" onClick={onClose}>取消</button>
+          <button className="rounded-xl border px-4 py-2 text-sm hover:bg-muted" onClick={onClose}>{t("roles.cancel")}</button>
           <button className="btn-amber rounded-xl px-5 py-2 text-sm font-medium" onClick={submit} disabled={saving || (!role && (!key || !name))}>
-            {saving ? "保存中…" : "保存"}
+            {saving ? t("roles.saving") : t("roles.save")}
           </button>
         </div>
       </div>
