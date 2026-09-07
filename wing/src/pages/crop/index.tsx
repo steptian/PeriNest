@@ -46,13 +46,14 @@ export default function Crop() {
             <button
               key={k}
               onClick={() => setTab(k)}
-              className={`group flex items-center gap-2 rounded-full px-4 py-1.5 text-sm transition-colors ${
+              className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-sm transition-colors ${
                 active ? "btn-amber" : "text-muted-foreground hover:bg-muted"
               }`}
             >
               <Icon className="h-3.5 w-3.5" />
               {label}
-              <span className={`specimen-latin !text-[8px] opacity-60 ${active ? "" : "hidden group-hover:inline"}`}>
+              {/* latin 恒显：tab 宽度不随激活态变化，切换不横向跳动 */}
+              <span className={`specimen-latin !text-[8px] ${active ? "opacity-70" : "opacity-40"}`}>
                 {latin}
               </span>
             </button>
