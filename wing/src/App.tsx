@@ -2,7 +2,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { BrowserRouter } from "react-router-dom";
 import Layout from "./components/Layout";
 import Cercus from "./pages/Cercus";
-import Crop from "./pages/Crop";
+import Crop from "./pages/crop";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Orders from "./pages/Orders";
