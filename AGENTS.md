@@ -11,6 +11,6 @@ wiki: docs/agent/
 wiki: 
 
 ## 状态区
-status: Unreleased 五件套：企业四板+内核插件化（四 seam+Cercus 示范插件+experimental 区）；59 测试+冒烟 40+eval 全绿
-next: 多语言（中英日三端系统性 i18n，方案见 wiki 待深入）；发下一版收口；在线 demo 上线（等服务器）；OA/进销存按契约孵化
-updated: 2026-09-06
+status: Wing 知识库三 tab 分离（管理/问答/试验）+ 批量异步入库（batch 202 入队/Celery crop.ingest_batch 串行消化/queued→embedding→ready/failed/stats 轮询）；62 测试+冒烟 40+eval 全绿；i18n 排队中
+next: 多语言（中英日三端系统性 i18n，方案见 wiki 待深入）；发下一版收口；在线 demo 上线（等服务器）；OA/进销存按契约孵化；批量消化 worker 崩溃残留 queued 的重跑/清扫机制
+updated: 2026-09-07
