@@ -43,6 +43,12 @@
   （已入库/处理中/失败），残留世界观词清理（吞入→入库、吐出→删除）
 - **C 端命名朴素化**：嗦囊→知识库 · 神经索→AI 助手 · 问共生体→智能问答；
   世界观命名保留在 latin 小字彩蛋与代码/README（开发侧不动）
+- **Wing 知识库批量导入**（异步入库，模式参考 ack-agent 串行队列）：Queen 新增
+  `POST /crop/documents/batch`（多文件入队 202 即回）+ `GET /crop/documents/stats`
+  （状态聚合）；文档状态机 queued→embedding→ready/failed，向量化由 Celery
+  `crop.ingest_batch` 串行消化（`tasks/crop_tasks.py`，单文档失败不炸整批）；
+  Wing 批量导入弹窗（多选/大小/逐条移除）+ 顶部处理中计数与列表徽标 2s 轮询
+  自动刷新；单文档同步路径拆分 register_document + ingest_document 复用同源
 
 ## [0.12.0] - 2026-09-07
 

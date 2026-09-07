@@ -436,3 +436,67 @@ async def test_crop_visibility_scoping(client, auth_headers):
     # 清理
     await client.delete(f"/api/v1/crop/documents/{secret_id}", headers=headers)
     await client.delete(f"/api/v1/crop/documents/{public_id}", headers=headers)
+
+
+async def test_crop_batch_upload_async_digest(client):
+    """批量入库：202 即回（仅建 queued）→ task 消化后 ready；坏文件只记 rejected。"""
+    headers, uid = await _mk_admin(client)
+    files = [
+        ("files", ("批量甲.md", ("批量甲正文。%s 第一段知识。\n\n第二段补充。" % uid).encode(), "text/markdown")),
+        ("files", ("批量乙.txt", ("批量乙正文，仅供 digest 冒烟。" * 5).encode(), "text/plain")),
+        ("files", ("坏文件.exe", b"\x00\x01binary", "application/octet-stream")),  # 不支持格式 → rejected
+    ]
+    r = await client.post("/api/v1/crop/documents/batch", headers=headers, files=files)
+    assert r.status_code == 202, r.text[:300]
+    body = r.json()
+    assert body["accepted"] == 2 and len(body["document_ids"]) == 2
+    assert len(body["rejected"]) == 1 and body["rejected"][0]["filename"] == "坏文件.exe"
+
+    ids = body["document_ids"]
+    # 队列异步：此刻应 queued（非 ready）
+    for did in ids:
+        rd = await client.get(f"/api/v1/crop/documents/{did}", headers=headers)
+        assert rd.json()["document"]["status"] in ("queued", "embedding", "ready")
+
+    # 手动执行 digest（等价 worker 消费 digest_documents 主逻辑；测试环境无独立 worker）
+    from app.tasks.crop_tasks import digest_documents
+    res = await digest_documents(ids)
+    assert res == {"ok": 2, "failed": 0}
+
+    for did in ids:
+        rd = await client.get(f"/api/v1/crop/documents/{did}", headers=headers)
+        assert rd.json()["document"]["status"] == "ready"
+
+    # 清理
+    for did in ids:
+        await client.delete(f"/api/v1/crop/documents/{did}", headers=headers)
+
+
+async def test_crop_stats_aggregates_status(client):
+    """stats 聚合反映批量入库进度（queued → ready 消长）。"""
+    headers, uid = await _mk_admin(client)
+
+    def _txt(name: str) -> tuple:
+        return ("files", (name, (f"统计正文 {name} " * 8).encode(), "text/plain"))
+
+    # 一份走同步快路径（直接 ready）
+    r = await client.post("/api/v1/crop/documents", headers=headers,
+                          json={"title": f"sync_{uid}", "content": "同步入库统计文档。" * 10})
+    assert r.json()["status"] == "ready"
+
+    # 批量入队 2 份（queued，先不消化）
+    files = [_txt(f"stat_queued_{uid}_a.md"), _txt(f"stat_queued_{uid}_b.md")]
+    r = await client.post("/api/v1/crop/documents/batch", headers=headers, files=files)
+    ids = r.json()["document_ids"]
+
+    st = (await client.get("/api/v1/crop/documents/stats", headers=headers)).json()
+    assert st["ready"] >= 1
+    assert st["queued"] >= 2
+    assert st["pending"] == st["queued"] + st["embedding"]
+
+    # 消化后 queued 回落、ready 上升
+    from app.tasks.crop_tasks import digest_documents
+    await digest_documents(ids)
+    st2 = (await client.get("/api/v1/crop/documents/stats", headers=headers)).json()
+    assert st2["queued"] < st["queued"]
+    assert st2["ready"] > st["ready"]

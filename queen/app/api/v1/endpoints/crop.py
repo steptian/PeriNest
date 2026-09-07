@@ -2,6 +2,8 @@
 
 - POST   /crop/documents          上传文本知识（crop:write）
 - GET    /crop/documents          文档列表（crop:read）
+- GET    /crop/documents/stats    状态聚合=批量入库进度（crop:read）
+- POST   /crop/documents/batch    批量入库：提取+入队即回 202（crop:write，Celery 消化）
 - GET    /crop/documents/{id}     详情+chunks（crop:read）
 - DELETE /crop/documents/{id}     删除（crop:write）
 - POST   /crop/search             语义检索（crop:read，四端共享）
@@ -114,6 +116,64 @@ async def list_documents(
     response.headers["X-Total-Count"] = str(total)
     return [CropDocumentResponse.model_validate(d) for d in docs]
 
+
+@router.get("/documents/stats")
+async def document_stats(
+    db: DBSession,
+    user: User = Depends(require_permission(f"{CROP}:read")),
+):
+    """文档状态聚合：批量入库进度（ready/queued/embedding/failed/pending）。"""
+    return await crop_service.document_stats(db)
+
+
+@router.post(
+    "/documents/batch",
+    status_code=status.HTTP_202_ACCEPTED,
+)  # noqa: E125
+async def batch_upload_documents(
+    db: DBSession,
+    user: User = Depends(require_permission(f"{CROP}:write")),
+    files: list[UploadFile] = File(description="txt/md/pdf/docx，可多选"),
+    visible_roles: str = Query(default="", max_length=255, pattern=r"^[a-z0-9_]+(,[a-z0-9_]+)*$|^$"),
+):
+    """批量入库：每个文件仅做「提取文本 + 建 queued 文档行」即返回 202；
+
+    向量化消化由 Celery crop.ingest_batch 串行执行（前端轮询文档状态看进度）。
+    单文件提取失败（如扫描件 PDF）只记 rejected 不炸整批。
+    """
+    accepted_ids: list[int] = []
+    rejected: list[dict] = []
+    for file in files:
+        filename = file.filename or "未命名"
+        raw = await file.read()
+        try:
+            text, source_type = crop_service.extract_text(filename, raw)
+        except crop_service.UploadUnsupported as e:
+            rejected.append({"filename": filename, "reason": str(e)})
+            continue
+        title = filename.rsplit(".", 1)[0]
+        req = CropDocumentCreate(
+            title=title, content=text, source_type=source_type,
+            visible_roles=visible_roles or None,
+        )
+        doc = await crop_service.register_document(
+            db, req, user.id,
+            original_file=(filename, file.content_type or "application/octet-stream", raw),
+        )
+        accepted_ids.append(doc.id)
+    await db.commit()
+
+    if accepted_ids:
+        # 落库后才投递，确保 worker 可见 queued 文档
+        from app.tasks.crop_tasks import crop_ingest_batch
+        crop_ingest_batch.delay(accepted_ids)
+
+    return {
+        "accepted": len(accepted_ids),
+        "document_ids": accepted_ids,
+        "rejected": rejected,
+        "queue": "crop.ingest_batch",
+    }
 
 @router.get("/documents/{doc_id}")
 async def get_document(

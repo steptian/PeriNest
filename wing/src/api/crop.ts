@@ -12,6 +12,10 @@ export interface CropSearchHit {
   seq: number; content: string; score: number;
 }
 
+export interface CropStats {
+  total: number; ready: number; queued: number; embedding: number; failed: number; pending: number;
+}
+
 export const cropApi = {
   list: (limit = 20, offset = 0) =>
     api.get<CropDocument[]>("/crop/documents", { params: { limit, offset } }).then((r) => r.data),
@@ -42,6 +46,19 @@ export const cropApi = {
     api.post<{ query: string; mock: boolean; hits: CropSearchHit[] }>("/crop/search", { query, top_k }).then((r) => r.data),
   rebuild: () => api.post<{ rebuilt: number }>("/crop/projection/rebuild").then((r) => r.data),
   health: () => api.get<{ vector_set: string; count: number }>("/crop/health").then((r) => r.data),
+  /** 批量入库：多文件上传 → 202 即回（仅提取+建 queued），向量化走 Celery 消化 */
+  batchUpload: (files: File[], visibleRoles?: string) => {
+    const form = new FormData();
+    for (const f of files) form.append("files", f);
+    return api
+      .post<{ accepted: number; document_ids: number[]; rejected: { filename: string; reason: string }[]; queue: string }>("/crop/documents/batch", form, {
+        params: { visible_roles: visibleRoles || "" },
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+      .then((r) => r.data);
+  },
+  /** 状态聚合：批量入库进度 */
+  stats: () => api.get<CropStats>("/crop/documents/stats").then((r) => r.data),
 };
 
 /** —— 知识库问答（agentic RAG：AI 多轮检索后作答）—— */

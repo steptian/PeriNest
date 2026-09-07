@@ -23,7 +23,7 @@ celery_app = Celery(
     broker=settings.CELERY_BROKER_URL,
     backend=settings.CELERY_RESULT_BACKEND,
     include=[
-        "app.tasks.email_tasks", "app.tasks.report_tasks", "app.tasks.ai_tasks",
+        "app.tasks.email_tasks", "app.tasks.report_tasks", "app.tasks.ai_tasks", "app.tasks.crop_tasks",
         *_plugin_includes,
     ],
 )

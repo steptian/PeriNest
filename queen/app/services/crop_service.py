@@ -132,16 +132,16 @@ def split_chunks(content: str, target: int = CHUNK_TARGET_CHARS) -> list[str]:
     return chunks or [content[:target]]
 
 
-async def create_document(
+async def register_document(
     db: AsyncSession,
     req: CropDocumentCreate,
     user_id: int | None,
     original_file: tuple[str, str, bytes] | None = None,
 ) -> CropDocument:
-    """吞入+消化：建文档 → 分块 → embedding → 存权威 → 投影到 Redis。
+    """建文档行（status=queued，仅落权威，不向量化）。
 
-    original_file=(filename, mime, bytes)：上传原件随权威一起落库
-    （预览/下载用）；文本粘贴无原件。
+    供同步 create_document 与批量异步入库共用——上传先快速落库返回，
+    向量化由队列 worker 调 ingest_document 消化（ack-agent 同款解耦）。
     """
     doc = CropDocument(
         title=req.title,
@@ -149,7 +149,7 @@ async def create_document(
         content=req.content,
         visible_roles=(req.visible_roles or "").strip() or None,
         size_bytes=len(req.content.encode("utf-8")),
-        status="embedding",
+        status="queued",
         created_by=user_id,
         **(
             dict(zip(("original_filename", "file_mime", "file_blob"), original_file))
@@ -160,8 +160,24 @@ async def create_document(
     db.add(doc)
     await db.flush()
     await db.refresh(doc)  # server_default 字段回读（见 01 文档铁坑）
+    return doc
 
-    chunks = split_chunks(req.content)
+
+async def ingest_document(db: AsyncSession, doc_id: int) -> CropDocument:
+    """对 queued 文档执行向量化消化：分块 → embedding → 存权威 chunk → 投影 Redis。
+
+    幂等：status 已在 ready/failed/embedding 时直接返回（防队列重复投递重消化）。
+    消化中失败：置 failed + error 后 raise（事务随调用方决定提交/回滚）。
+    """
+    doc = await db.get(CropDocument, doc_id)
+    if doc is None:
+        raise ValueError(f"文档不存在: {doc_id}")
+    if doc.status in ("ready", "failed", "embedding"):
+        return doc  # 已消化/消化中/已失败——不重复处理
+    doc.status = "embedding"
+    await db.flush()
+
+    chunks = split_chunks(doc.content)
     try:
         vectors, _mock = await embed_texts(chunks)
         for seq, (text, vec) in enumerate(zip(chunks, vectors)):
@@ -176,6 +192,7 @@ async def create_document(
             db.add(chunk)
         doc.chunk_count = len(chunks)
         doc.status = "ready"
+        doc.error = None
     except Exception as exc:
         doc.status = "failed"
         doc.error = str(exc)[:500]
@@ -193,10 +210,42 @@ async def create_document(
     ).all()
     for chunk_id, packed in rows:
         await crop_vector_store.add(chunk_id, packed)
-    logger.info(
-        "crop_ingested", document_id=doc.id, chunks=len(chunks)
-    )
+    logger.info("crop_ingested", document_id=doc.id, chunks=len(chunks))
     return doc
+
+
+async def create_document(
+    db: AsyncSession,
+    req: CropDocumentCreate,
+    user_id: int | None,
+    original_file: tuple[str, str, bytes] | None = None,
+) -> CropDocument:
+    """同步吞入+消化（单文档快路径）：register_document → ingest_document。
+
+    行为与旧版一致：失败抛异常由调用方回滚；成功文档 status=ready。
+    """
+    doc = await register_document(db, req, user_id, original_file)
+    await ingest_document(db, doc.id)
+    return doc
+
+async def document_stats(db: AsyncSession) -> dict:
+    """文档状态聚合（批量入库进度展示）：按 status 计数。"""
+    rows = (
+        await db.execute(
+            select(CropDocument.status, func.count(CropDocument.id)).group_by(CropDocument.status)
+        )
+    ).all()
+    counts = {status: int(n) for status, n in rows}
+    total = sum(counts.values())
+    pending = counts.get("queued", 0) + counts.get("embedding", 0)
+    return {
+        "total": total,
+        "ready": counts.get("ready", 0),
+        "queued": counts.get("queued", 0),
+        "embedding": counts.get("embedding", 0),
+        "failed": counts.get("failed", 0),
+        "pending": pending,
+    }
 
 
 async def list_documents(

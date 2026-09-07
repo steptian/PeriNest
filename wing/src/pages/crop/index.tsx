@@ -6,10 +6,10 @@ import { LabPane } from "./lab";
 
 type CropTab = "manage" | "ask" | "lab";
 
-const TABS: { k: CropTab; label: string; latin: string }[] = [
-  { k: "manage", label: "知识库管理", latin: "documents" },
-  { k: "ask", label: "智能问答", latin: "ask · rag" },
-  { k: "lab", label: "检索试验", latin: "retrieval lab" },
+const TABS: { k: CropTab; label: string }[] = [
+  { k: "manage", label: "知识库管理" },
+  { k: "ask", label: "智能问答" },
+  { k: "lab", label: "检索试验" },
 ];
 
 const ICONS: Record<CropTab, typeof BookOpenText> = {
@@ -39,7 +39,7 @@ export default function Crop() {
 
       {/* Tab 切换 */}
       <div className="flex flex-wrap gap-1.5">
-        {TABS.map(({ k, label, latin }) => {
+        {TABS.map(({ k, label }) => {
           const Icon = ICONS[k];
           const active = tab === k;
           return (
@@ -52,10 +52,6 @@ export default function Crop() {
             >
               <Icon className="h-3.5 w-3.5" />
               {label}
-              {/* latin 恒显：tab 宽度不随激活态变化，切换不横向跳动 */}
-              <span className={`specimen-latin !text-[8px] ${active ? "opacity-70" : "opacity-40"}`}>
-                {latin}
-              </span>
             </button>
           );
         })}
