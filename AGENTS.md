@@ -11,6 +11,6 @@ wiki: docs/agent/
 wiki: 
 
 ## 状态区
-status: Wing 知识库三 tab 分离 + 批量异步入库全闭环（batch 入队/Celery 串行消化/worker 启动自愈清扫/failed 手动重试）；64 测试+冒烟 40+eval 全绿；i18n 排队中
-next: 多语言（中英日三端系统性 i18n，方案见 wiki 待深入）；发下一版收口；在线 demo 上线（等服务器）；OA/进销存按契约孵化
+status: v0.13.0 已发布（AI 交互合并单入口+知识库三 tab+批量异步入库自愈闭环）；64 测试+冒烟 40+eval 全绿；i18n 排队中
+next: 多语言（中英日三端系统性 i18n，方案见 wiki 待深入，先做 Leg 试点）；在线 demo 上线（等服务器）；OA/进销存按契约孵化
 updated: 2026-09-07
