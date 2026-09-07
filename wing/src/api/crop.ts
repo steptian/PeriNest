@@ -111,3 +111,14 @@ export const agentApi = {
   usage: (days = 7) =>
     api.get<UsageSummary>("/crop/usage/summary", { params: { days } }).then((r) => r.data),
 };
+
+/** agent 审计（admin/system）：谁让 AI 干了什么 */
+export interface AuditItem {
+  id: number; user_id: number | null; level: string; detail: string; created_at: string;
+}
+export const auditApi = {
+  list: (limit = 50) =>
+    api.get<{ total: number; items: AuditItem[] }>("/system/agent-audit", {
+      params: { limit },
+    }).then((r) => r.data),
+};

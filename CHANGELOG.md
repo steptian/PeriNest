@@ -32,6 +32,11 @@
   投影分离原则不变；REST/MCP/agent 三方同源（权限逻辑只在 service 层）；
   列表/详情/源文件同口径隔离；Wing 吞入弹窗可选可见范围
 
+- **Agent 审计日志**（企业红线）：每次 agent 工具调用落 `pn_sys_log`
+  （source=agent-tool：工具/参数摘要/ok/denied/异常），执行统一收口
+  （unknown/denied/error 全留痕 + 工具异常不再炸问答链路）；
+  `GET /system/agent-audit`（system 权限）+ Wing 问答区审计 Modal（admin）
+
 ### Changed
 - Wing 系统设置 tab 重排：默认「巢穴成员」，「模型与凭证」移至最后；越权兜底
   改为按首个可见 tab 通用判定

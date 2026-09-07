@@ -4,7 +4,8 @@ import { BookOpenText, FileDown, FileUp, FlaskConical, MessagesSquare, RefreshCw
 import Modal from "@/components/Modal";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { Button } from "@/components/ui/button";
-import { agentApi, askStream, cropApi, type CropDocument, type CropSearchHit } from "@/api/crop";
+import { agentApi, askStream, auditApi, cropApi, type AuditItem, type CropDocument, type CropSearchHit } from "@/api/crop";
+import { useAuthStore } from "@/stores/auth";
 import { fmtTime } from "@/utils/format";
 
 const PAGE_SIZE = 15;
@@ -30,6 +31,10 @@ export default function Crop() {
   const [askCitations, setAskCitations] = useState<CropSearchHit[]>([]);
   const [askError, setAskError] = useState("");
   const [conversationId, setConversationId] = useState<string | undefined>(undefined);
+  const [auditOpen, setAuditOpen] = useState(false);
+  const canAudit = useAuthStore((s) => s.permissions).some(
+    (p) => p === "system" || p.startsWith("system:")
+  );
 
   const { data: usage } = useQuery({
     queryKey: ["crop", "usage"],
@@ -196,6 +201,11 @@ export default function Crop() {
               <span className="specimen-latin !text-[9px] text-muted-foreground" title="近 7 天问答用量（token/调用/工具次数）">
                 7d: {usage.calls}次 · {usage.total_tokens.toLocaleString()} tok · 工具×{usage.tool_calls}
               </span>
+            )}
+            {canAudit && (
+              <Button variant="outline" size="sm" onClick={() => setAuditOpen(true)} title="agent 工具调用审计">
+                审计
+              </Button>
             )}
             <select
               value={conversationId ?? ""}
@@ -367,6 +377,11 @@ export default function Crop() {
         </div>
       </Modal>
 
+      {/* agent 审计（admin/system）：谁让 AI 干了什么 */}
+      <Modal open={auditOpen} onClose={() => setAuditOpen(false)} title="Agent 审计" width="w-[720px]">
+        <AuditList />
+      </Modal>
+
       {previewId !== null && <DocPreview docId={previewId} onClose={() => setPreviewId(null)} />}
 
       {/* 删除确认 */}
@@ -427,5 +442,37 @@ function DocPreview({ docId, onClose }: { docId: number; onClose: () => void }) 
         </div>
       )}
     </Modal>
+  );
+}
+
+function AuditList() {
+  const { data, isLoading } = useQuery({
+    queryKey: ["crop", "audit"],
+    queryFn: () => auditApi.list(50),
+  });
+  if (isLoading) return <p className="text-sm text-muted-foreground">加载中…</p>;
+  if (!data?.items.length) return <p className="text-sm text-muted-foreground">暂无 agent 工具调用记录</p>;
+  return (
+    <div className="max-h-[60vh] space-y-1.5 overflow-y-auto">
+      {data.items.map((a: AuditItem) => {
+        let d: { tool?: string; args?: Record<string, unknown>; denied?: boolean; ok?: boolean } = {};
+        try { d = JSON.parse(a.detail); } catch { /* 原样 */ }
+        return (
+          <div key={a.id} className="flex items-baseline gap-2 rounded-lg border border-border/60 px-3 py-2 text-xs">
+            <span className={`font-mono ${a.level === "INFO" ? "text-muted-foreground" : a.level === "WARN" ? "text-amber-600" : "text-destructive"}`}>
+              {a.level}
+            </span>
+            <span className="font-medium">{d.tool ?? "agent"}</span>
+            <span className="text-muted-foreground">
+              {d.denied ? "⚠️ 越权拒绝" : d.ok === false ? "❌ 失败" : "✓"}
+            </span>
+            <span className="truncate text-muted-foreground">
+              {JSON.stringify(d.args ?? {})}
+            </span>
+            <span className="ml-auto shrink-0 text-muted-foreground">u{a.user_id} · {a.created_at.slice(5, 16)}</span>
+          </div>
+        );
+      })}
+    </div>
   );
 }

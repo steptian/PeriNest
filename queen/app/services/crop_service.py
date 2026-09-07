@@ -420,15 +420,27 @@ async def ask_stream(
         history = await agent_service.load_history(db, session_id, user)
 
     async def execute_tool(name: str, args: dict) -> dict:
+        """工具执行统一收口：权限门 → handler（异常兜底）→ 审计留痕。"""
         tool = handlers.get(name)
         if tool is None:
+            await agent_service.audit_tool_call(user.id, name, args, ok=False, preview="unknown tool")
             return {"error": f"unknown tool: {name}"}
         if tool.perm is not None and not has_permission(perms, tool.perm):
+            await agent_service.audit_tool_call(
+                user.id, name, args, denied=True, preview=f"缺少权限 {tool.perm}"
+            )
             return {"denied": True, "reason": f"缺少权限 {tool.perm}"}
-        result = await tool.handler(db, user, args)
+        try:
+            result = await tool.handler(db, user, args)
+        except Exception as e:  # noqa: BLE001 — 工具异常转结果给 LLM，不炸问答链路
+            await agent_service.audit_tool_call(user.id, name, args, ok=False, preview=str(e))
+            return {"error": f"工具执行失败: {e}"}
         if name == "crop_search":
             for h in result.get("hits", []):
                 citations[h["chunk_id"]] = h
+        await agent_service.audit_tool_call(
+            user.id, name, args, preview=str(result.get("denied") or "ok")
+        )
         return result
 
     messages: list[dict] = [

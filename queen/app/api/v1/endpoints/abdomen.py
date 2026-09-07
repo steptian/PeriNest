@@ -1,7 +1,7 @@
 """Abdomen (腹部) — 系统日志、用户反馈、附件。"""
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Query, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 
 from app.api.deps import CurrentUser, DBSession, get_db
@@ -36,6 +36,18 @@ async def submit_feedback(payload: dict, db: DBSession, user=Depends(require_per
 class AiConfigUpdate(BaseModel):
     """白名单键 + 值；空串=删除覆盖回落 env。"""
     updates: dict[str, str] = Field(min_length=1)
+
+
+@router.get("/system/agent-audit")
+async def agent_audit(
+    user: User = Depends(require_permission("system")),
+    limit: int = Query(default=50, ge=1, le=200),
+    offset: int = Query(default=0, ge=0),
+):
+    """agent 工具调用审计（admin/system）：谁让 AI 干了什么、结果如何。"""
+    from app.services import agent_service
+
+    return await agent_service.audit_list(limit=limit, offset=offset)
 
 
 @router.get("/system/ai-config")

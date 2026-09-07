@@ -13,6 +13,70 @@ from app.models.user import User
 logger = structlog.get_logger(__name__)
 
 
+async def audit_tool_call(
+    user_id: int,
+    tool: str,
+    args: dict,
+    ok: bool = True,
+    denied: bool = False,
+    preview: str = "",
+) -> None:
+    """agent 工具调用审计（pn_sys_log，source=agent-tool）。
+
+    审计核心问题=「谁让 AI 干了什么」：每次工具调用留痕（含参数摘要与
+    denied/unknown/error 结果）。独立连接 fire-and-forget，失败只记日志。
+    """
+    import json as _json
+
+    level = "INFO" if ok and not denied else ("WARN" if denied else "ERROR")
+    message = _json.dumps({
+        "tool": tool,
+        "args": {k: (v if len(str(v)) <= 120 else str(v)[:120] + "…") for k, v in (args or {}).items()},
+        "ok": ok,
+        "denied": denied,
+        "preview": (preview or "")[:200],
+    }, ensure_ascii=False)
+    try:
+        from app.models.sys_log import SysLog
+
+        async with AsyncSessionLocal() as db:
+            db.add(SysLog(user_id=user_id, level=level, source="agent-tool", message=message))
+            await db.commit()
+    except Exception as e:  # noqa: BLE001 — 审计失败不炸主链路
+        logger.warning("agent_audit_failed", error=str(e)[:200])
+
+
+async def audit_list(user_id: int | None = None, limit: int = 50, offset: int = 0) -> dict:
+    """审计查询（admin 用）：最近 agent 工具调用留痕。"""
+    from sqlalchemy import func as _f, select as _sel
+
+    from app.models.sys_log import SysLog
+
+    cond = SysLog.source == "agent-tool"
+    if user_id:
+        cond = cond & (SysLog.user_id == user_id)
+    async with AsyncSessionLocal() as db:
+        total = (await db.execute(_sel(_f.count()).select_from(SysLog).where(cond))).scalar_one()
+        rows = (
+            await db.execute(
+                _sel(SysLog).where(cond).order_by(SysLog.id.desc()).limit(limit).offset(offset)
+            )
+        ).scalars().all()
+    return {
+        "total": int(total or 0),
+        "items": [
+            {
+                "id": r.id,
+                "user_id": r.user_id,
+                "level": r.level,
+                "detail": r.message,
+                "created_at": r.created_at.isoformat(),
+            }
+            for r in rows
+        ],
+    }
+
+
 async def record_usage(
     user_id: int,
     source: str,
