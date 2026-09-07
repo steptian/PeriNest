@@ -3,6 +3,9 @@
 
 .PHONY: check dev shots plates
 
+demo: ## 在线 demo 一键引导（demo 账号 + 6 份演示知识，幂等；见 docs/DEMO.md）
+	cd queen && .venv/bin/python ../scripts/bootstrap_demo.py
+
 eval: ## RAG 检索质量评测（recall@5/MRR/分域红线，低于基线 exit 1）
 	cd queen && .venv/bin/python ../scripts/eval_rag.py
 

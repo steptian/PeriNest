@@ -42,6 +42,10 @@
   红线）→ recall@5 / MRR 报告 → 低于基线 90% 或红线破坏即 exit 1；
   CI 集成（pytest 后跑 eval），检索质量回归本地秒红
 
+- **在线 demo 一键引导**：`make demo`（`scripts/bootstrap_demo.py`）——demo
+  账号（wing 终端用户/admin）+ 6 份演示知识（含 operator 机密档演示分域
+  红线），幂等；部署/演示动线/上线检查单见 `docs/DEMO.md`
+
 ### Changed
 - Wing 系统设置 tab 重排：默认「巢穴成员」，「模型与凭证」移至最后；越权兜底
   改为按首个可见 tab 通用判定

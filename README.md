@@ -26,6 +26,8 @@
 四端 monorepo：**Queen**（后端核心）+ **Wing**（Web 管理端）+ **Antenna**（微信小程序）+ **Leg**（移动端 H5）。
 无 Docker 部署：原生 venv + Systemd + Nginx。
 
+> **Online Demo**（部署后更新链接）：Wing 管理端 · Leg H5 —— 体验账号见 [docs/DEMO.md](docs/DEMO.md)
+
 ## 🪳 巢穴意象
 
 <p align="center">
