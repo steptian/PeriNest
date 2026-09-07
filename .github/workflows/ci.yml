@@ -54,7 +54,7 @@ jobs:
       - name: Migrate
         run: alembic upgrade head
       - name: Test
-        run: pytest tests/ -v
+        run: pytest tests/ ../plugins -v
         env:
           PERINEST_Q_AI_MOCK: "true"  # CI 走 mock 模式，零 key 零成本
       - name: RAG eval（检索质量防退化：recall@5 基线 90% + 分域红线）

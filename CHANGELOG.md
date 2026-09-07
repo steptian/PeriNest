@@ -12,7 +12,7 @@
 
 > Queen 的 `/health` 与 Wing 侧边栏版本号均自动读取 `VERSION` 文件，无需手动改。
 
-## [Unreleased]
+## [0.12.0] - 2026-09-07
 
 ### Added
 - **内核插件化**（dsh ctx-seam 模式，v1）：`plugins/` 目录 + `PluginMeta`

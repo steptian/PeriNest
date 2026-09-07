@@ -10,7 +10,7 @@ eval: ## RAG 检索质量评测（recall@5/MRR/分域红线，低于基线 exit 
 	cd queen && .venv/bin/python ../scripts/eval_rag.py
 
 check: ## 全链路自检（改代码后的标准验证，parity 违规本地秒红）
-	cd queen && .venv/bin/python -m pytest tests/ -q
+	cd queen && .venv/bin/python -m pytest tests/ ../plugins -q  # 插件测试同跑（不降质量标准）
 	cd wing && npm run build > /dev/null && echo "wing build ✅"
 	cd leg && npm run build > /dev/null && echo "leg build ✅"
 	cd antenna && ./node_modules/.bin/tsc && python3 -c "import json; json.load(open('miniprogram/app.json'))" && echo "antenna 编译+类型检查+app.json ✅"
