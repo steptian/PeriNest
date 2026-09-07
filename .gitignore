@@ -29,3 +29,8 @@ deploy/ssl/*.key
 # 系统
 .DS_Store
 .workbuddy/
+
+# TS build 增量/复合产物（tsc -b / vite.config 编译输出）
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts
