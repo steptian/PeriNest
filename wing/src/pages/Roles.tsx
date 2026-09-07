@@ -104,7 +104,7 @@ export default function Roles() {
         <p className="mb-2 font-medium text-foreground">守卫规则</p>
         <p>· 角色定义存储于 <code className="rounded bg-muted px-1.5 py-0.5 text-xs">pn_role / pn_role_perm</code>，运行时可配置（内置种子见 <code className="rounded bg-muted px-1.5 py-0.5 text-xs">permissions.py</code>）</p>
         <p className="mt-1">· <b>admin 角色锁定</b>全域不可删改（防自锁）· 有用户引用的角色不可删除（先迁移成员）</p>
-        <p className="mt-1">· 账号级 grant/deny 覆盖在「巢穴成员 → 编辑」· 权限域管"能不能用"，数据归属管"能看谁的"</p>
+        <p className="mt-1">· 账号级 grant/deny 覆盖在「成员管理 → 编辑」· 权限域管"能不能用"，数据归属管"能看谁的"</p>
       </div>
 
       <RoleFormModal

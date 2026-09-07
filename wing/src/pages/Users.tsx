@@ -72,7 +72,7 @@ export default function Users() {
       <header className="flex items-end justify-between">
         <div>
           <p className="specimen-latin mb-1">colony members</p>
-          <h2 className="font-specimen text-3xl font-bold tracking-tight">巢穴成员</h2>
+          <h2 className="font-specimen text-3xl font-bold tracking-tight">成员管理</h2>
         </div>
         <button className="btn-amber flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-medium" onClick={() => setCreateOpen(true)}>
           <Plus className="h-4 w-4" /> 新增成员
@@ -179,7 +179,7 @@ function CreateModal({
   const [role, setRole] = useState("wing");
   if (!open) return null;
   return (
-    <Modal open={open} title="新增巢穴成员" onClose={onClose}>
+    <Modal open={open} title="新增成员" onClose={onClose}>
       <form
         className="space-y-4"
         onSubmit={(e) => {

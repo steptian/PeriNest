@@ -12,9 +12,9 @@ import { useAuthStore } from "@/stores/auth";
 // 菜单按 Carapace 最终权限渲染：无对应权限不显示入口
 const navItems = [
   { to: "/", label: "仪表盘", latin: "overview", icon: LayoutDashboard, perm: null },
-  { to: "/orders", label: "订单档案", latin: "specimens", icon: Package, perm: "orders" },
+  { to: "/orders", label: "订单", latin: "specimens", icon: Package, perm: "orders" },
   { to: "/crop", label: "知识库", latin: "crop", icon: BookOpenText, perm: "crop" },
-  { to: "/cercus", label: "尾须企微私域", latin: "cercus", icon: Radar, perm: "wecom" },
+  { to: "/cercus", label: "企微私域", latin: "cercus", icon: Radar, perm: "wecom" },
   { to: "/settings", label: "系统设置", latin: "config", icon: Settings2, perm: "users" },  // users 或 system 任一可见；页内 tab 按权限分层
 ];
 
@@ -145,7 +145,7 @@ export default function Layout() {
             <button
               onClick={() => setLogoutConfirm(true)}
               className="shrink-0 rounded-lg p-1.5 text-muted-foreground hover:bg-red-500/10 hover:text-red-500"
-              title="离巢"
+              title="退出登录"
             >
               <LogOut className="h-4 w-4" />
             </button>
@@ -164,8 +164,8 @@ export default function Layout() {
 
       <ConfirmDialog
         open={logoutConfirm}
-        title="确认离巢？"
-        message={`巢穴将忘记 ${user?.username ?? "你"} 的本次登录——需要再次进入时重新登录即可。`}
+        title="退出登录？"
+        message={`将结束 ${user?.username ?? "你"} 的本次登录——下次使用需重新登录。`}
         confirmText="离巢"
         onCancel={() => setLogoutConfirm(false)}
         onConfirm={logout}

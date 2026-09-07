@@ -37,7 +37,7 @@ export default function Cercus() {
       <div className="flex items-end justify-between">
         <div>
           <p className="specimen-latin mb-1">cercus · wecom crm</p>
-          <h1 className="font-specimen text-2xl font-bold">尾须 · 企微私域</h1>
+          <h1 className="font-specimen text-2xl font-bold">企微私域</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             感知客户动态——外部联系人镜像 + 标签 + 跟进时间线
             {health && (
@@ -83,7 +83,7 @@ export default function Cercus() {
             </tr>
           </thead>
           <tbody>
-            {isLoading && <tr><td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">尾须感知中…</td></tr>}
+            {isLoading && <tr><td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">加载中…</td></tr>}
             {!isLoading && contacts.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">

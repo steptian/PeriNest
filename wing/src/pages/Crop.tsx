@@ -161,7 +161,7 @@ export default function Crop() {
             重建投影
           </Button>
           <Button size="sm" onClick={() => setUploadOpen(true)}>
-            <Upload className="mr-1 h-4 w-4" /> 吞入知识
+            <Upload className="mr-1 h-4 w-4" /> 上传知识
           </Button>
         </div>
       </div>
@@ -208,7 +208,7 @@ export default function Crop() {
       {/* 问嗦囊：AI 多轮检索后作答（agentic RAG + 会话续聊） */}
       <div className="glass rounded-2xl p-4">
         <div className="mb-2 flex items-center gap-2 text-sm font-medium">
-          <MessagesSquare className="h-4 w-4 text-primary" /> 问嗦囊
+          <MessagesSquare className="h-4 w-4 text-primary" /> 智能问答
           <span className="text-xs font-normal text-muted-foreground">（AI 自主检索知识库后作答，附引用）</span>
           <span className="ml-auto flex items-center gap-2">
             {usage && (
@@ -310,7 +310,7 @@ export default function Crop() {
               <tr>
                 <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
                   <BookOpenText className="mx-auto mb-2 h-6 w-6 opacity-40" />
-                  嗉囊还是空的——吞入第一份知识吧
+                  知识库还是空的——上传第一份知识吧
                 </td>
               </tr>
             )}
@@ -345,7 +345,7 @@ export default function Crop() {
       </div>
 
       {/* 上传 Modal */}
-      <Modal open={uploadOpen} onClose={() => setUploadOpen(false)} title="吞入知识">
+      <Modal open={uploadOpen} onClose={() => setUploadOpen(false)} title="上传知识">
         <div className="space-y-3">
           <label className="flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed border-border bg-background/60 px-4 py-5 text-center transition-colors hover:border-primary/50">
             <FileUp className="h-5 w-5 text-primary/70" />
@@ -385,7 +385,7 @@ export default function Crop() {
               size="sm" disabled={title.trim().length < 1 || content.trim().length < 10 || upload.isPending}
               onClick={() => upload.mutate()}
             >
-              {upload.isPending ? "消化中…" : "吞入"}
+              {upload.isPending ? "消化中…" : "上传"}
             </Button>
           </div>
           {upload.isError && (

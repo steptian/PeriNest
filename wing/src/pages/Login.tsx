@@ -63,7 +63,7 @@ export default function Login() {
 
         {err && <p className="text-sm text-red-500">{err}</p>}
         <button className="btn-amber w-full rounded-xl py-3 font-medium" disabled={loading}>
-          {loading ? "登录中…" : "进入巢穴"}
+          {loading ? "登录中…" : "登 录"}
         </button>
       </form>
     </div>

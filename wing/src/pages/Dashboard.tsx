@@ -14,11 +14,11 @@ const SPARKS = [
   [2, 3, 5, 4, 7, 6, 9],
   [5, 3, 6, 2, 4, 3, 2],
 ];
-/** 巢穴雷达五维：演示值（模板展示用，接入真实指标后替换） */
+/** 五维概览：演示值（模板展示用，接入真实指标后替换） */
 const RADAR_DEMO = [
   { axis: "订单", value: 78 },
-  { axis: "神经索", value: 92 },
-  { axis: "嗦囊", value: 64 },
+  { axis: "AI 服务", value: 92 },
+  { axis: "知识库", value: 64 },
   { axis: "成员", value: 85 },
   { axis: "反馈", value: 55 },
 ];
@@ -75,7 +75,7 @@ export default function Dashboard() {
       <header className="flex items-end justify-between">
         <div>
           <p className="specimen-latin mb-1">specimen overview</p>
-          <h2 className="font-specimen text-3xl font-bold tracking-tight">巢穴概况</h2>
+          <h2 className="font-specimen text-3xl font-bold tracking-tight">经营概览</h2>
         </div>
         <span className="specimen-latin hidden md:block">periplaneta americana</span>
       </header>
@@ -95,7 +95,7 @@ export default function Dashboard() {
             <span className="specimen-latin !text-[8px]">status spectrum</span>
           </div>
           {byStatus.length === 0 ? (
-            <p className="py-6 text-center text-xs text-muted-foreground">嗉囊空空——暂无标本数据</p>
+            <p className="py-6 text-center text-xs text-muted-foreground">暂无数据</p>
           ) : (
             <>
               <div className="mb-3 flex h-3 overflow-hidden rounded-full">
@@ -190,7 +190,7 @@ export default function Dashboard() {
 
         <div className="specimen-card p-5">
           <div className="mb-1 flex items-baseline justify-between">
-            <h3 className="font-specimen text-sm font-bold">巢穴体检</h3>
+            <h3 className="font-specimen text-sm font-bold">健康概览</h3>
             <span className="specimen-latin !text-[8px] opacity-60">radar · demo</span>
           </div>
           <Radar data={RADAR_DEMO} />
@@ -235,7 +235,7 @@ export default function Dashboard() {
 
         <div className="specimen-card space-y-3.5 p-5">
           <div className="flex items-baseline justify-between">
-            <h3 className="font-specimen text-sm font-bold">巢穴状态</h3>
+            <h3 className="font-specimen text-sm font-bold">系统状态</h3>
             <span className="specimen-latin !text-[8px]">nest status</span>
           </div>
           <StatusRow label="Queen 后端" ok={version !== undefined} />

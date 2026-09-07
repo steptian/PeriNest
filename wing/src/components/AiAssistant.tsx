@@ -6,7 +6,7 @@ import { aiApi, type ChatMsg } from "@/api/ai";
 export default function AiAssistant() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMsg[]>([
-    { role: "assistant", content: "你好，我是巢穴的神经索。需要什么帮助？" },
+    { role: "assistant", content: "你好，我是 AI 助手。需要什么帮助？" },
   ]);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);

@@ -40,7 +40,7 @@ export default function Settings() {
   const canUsers = has("users");
   // 兜底：当前 tab 越权时落到首个可见 tab（tab 顺序：巢穴成员 → 权限矩阵 → 模型与凭证）
   const tabs: [Tab, string][] = [
-    ...(canUsers ? ([["users", "巢穴成员"], ["rbac", "权限矩阵"]] as [Tab, string][]) : []),
+    ...(canUsers ? ([["users", "成员管理"], ["rbac", "权限矩阵"]] as [Tab, string][]) : []),
     ...(canSystem ? ([["credentials", "模型与凭证"]] as [Tab, string][]) : []),
   ];
   const activeTab: Tab = tabs.some(([k]) => k === tab) ? tab : (tabs[0]?.[0] ?? "users");
@@ -112,8 +112,8 @@ export default function Settings() {
       {activeTab === "credentials" && (
         <>
           <ConfigCard title="对话模型（Nerve）" latin="chat · deepseek compatible" items={group("ai.")} edits={edits} setEdits={setEdits} />
-          <ConfigCard title="向量模型（Crop 嗦囊）" latin="embedding · rag" items={group("embedding.")} edits={edits} setEdits={setEdits} />
-          <ConfigCard title="企微私域（Cercus 尾须）" latin="wecom · crm" items={group("wecom.")} edits={edits} setEdits={setEdits} />
+          <ConfigCard title="向量模型（知识库检索）" latin="embedding · rag" items={group("embedding.")} edits={edits} setEdits={setEdits} />
+          <ConfigCard title="企微私域" latin="wecom · crm" items={group("wecom.")} edits={edits} setEdits={setEdits} />
         </>
       )}
 

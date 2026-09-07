@@ -3,7 +3,7 @@ const APP_VERSION = "0.12.0";
 App({
     globalData: {
         appVersion: APP_VERSION,
-        apiBase: "http://192.168.3.74:8000/api/v1",
+        apiBase: "http://10.10.14.72:8000/api/v1",
         token: "",
         userInfo: null,
     },
