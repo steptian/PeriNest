@@ -5,6 +5,7 @@
 - GET    /crop/documents/stats    状态聚合=批量入库进度（crop:read）
 - POST   /crop/documents/batch    批量入库：提取+入队即回 202（crop:write，Celery 消化）
 - GET    /crop/documents/{id}     详情+chunks（crop:read）
+- POST   /crop/documents/{id}/retry  重试 failed 文档（crop:write）
 - DELETE /crop/documents/{id}     删除（crop:write）
 - POST   /crop/search             语义检索（crop:read，四端共享）
 - POST   /crop/ask                知识库问答：AI 多轮检索后作答（crop:read）
@@ -228,6 +229,25 @@ async def delete_document(
     if not ok:
         raise HTTPException(status_code=404, detail="文档不存在")
     return {"ok": True}
+
+
+@router.post(
+    "/documents/{doc_id}/retry",
+    status_code=status.HTTP_202_ACCEPTED,
+)
+async def retry_document(
+    doc_id: int,
+    db: DBSession,
+    _user: User = Depends(require_permission(f"{CROP}:write")),
+):
+    """手动重试失败文档：failed → queued → 重入队（worker 消化）。非 failed 409。"""
+    doc = await crop_service.retry_failed_document(db, doc_id)
+    if doc is None:
+        raise HTTPException(status_code=409, detail="仅 failed 状态可重试（或文档不存在）")
+    await db.commit()
+    from app.tasks.crop_tasks import crop_ingest_batch
+    crop_ingest_batch.delay([doc_id])
+    return {"ok": True, "status": "queued"}
 
 
 @router.post("/search", response_model=CropSearchResponse)

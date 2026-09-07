@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import {
-  BookOpenText, FileDown, FileText, FileUp, Layers, ListPlus, RefreshCw, Trash2, Upload, X,
+  BookOpenText, FileDown, FileText, FileUp, Layers, ListPlus, RefreshCw, RotateCcw, Trash2, Upload, X,
 } from "lucide-react";
 import Modal from "@/components/Modal";
 import ConfirmDialog from "@/components/ConfirmDialog";
@@ -63,6 +63,10 @@ export function ManagePane() {
   });
   const rebuild = useMutation({
     mutationFn: cropApi.rebuild,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["crop"] }),
+  });
+  const retryDoc = useMutation({
+    mutationFn: (id: number) => cropApi.retry(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["crop"] }),
   });
 
@@ -152,6 +156,16 @@ export function ManagePane() {
                 </td>
                 <td className="px-4 py-3 text-muted-foreground">{fmtTime(d.created_at)}</td>
                 <td className="px-4 py-3 text-right">
+                  {d.status === "failed" && (
+                    <Button
+                      variant="ghost" size="sm"
+                      onClick={(e) => { e.stopPropagation(); retryDoc.mutate(d.id); }}
+                      disabled={retryDoc.isPending}
+                      title="重新入队消化"
+                    >
+                      <RotateCcw className="h-4 w-4 text-primary/80" />
+                    </Button>
+                  )}
                   <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setDelTarget(d); }}>
                     <Trash2 className="h-4 w-4 text-destructive/80" />
                   </Button>

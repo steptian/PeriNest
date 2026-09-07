@@ -33,6 +33,8 @@ export const cropApi = {
       visible_roles: visibleRoles || undefined,
     }).then((r) => r.data),
   remove: (id: number) => api.delete(`/crop/documents/${id}`).then((r) => r.data),
+  /** 手动重试 failed 文档：failed → queued → Celery 重新消化 */
+  retry: (id: number) => api.post<{ ok: boolean; status: string }>(`/crop/documents/${id}/retry`).then((r) => r.data),
   detail: (id: number) =>
     api.get<{ document: CropDocument; chunks: { document_id: number; seq: number; content: string }[] }>(`/crop/documents/${id}`).then((r) => r.data),
   /** 源文件预览：fetch blob（带鉴权头）→ objectURL（浏览器新窗预览 PDF/txt） */

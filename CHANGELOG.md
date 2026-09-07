@@ -48,7 +48,9 @@
   （状态聚合）；文档状态机 queued→embedding→ready/failed，向量化由 Celery
   `crop.ingest_batch` 串行消化（`tasks/crop_tasks.py`，单文档失败不炸整批）；
   Wing 批量导入弹窗（多选/大小/逐条移除）+ 顶部处理中计数与列表徽标 2s 轮询
-  自动刷新；单文档同步路径拆分 register_document + ingest_document 复用同源
+  自动刷新；单文档同步路径拆分 register_document + ingest_document 复用同源；
+  自愈：worker 启动清扫残留（queued 全收 + embedding 超 30min 重置重入队），
+  `POST /crop/documents/{id}/retry` + Wing failed 行 ↻ 按钮手动重试
 
 ## [0.12.0] - 2026-09-07
 

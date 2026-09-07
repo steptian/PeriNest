@@ -500,3 +500,89 @@ async def test_crop_stats_aggregates_status(client):
     st2 = (await client.get("/api/v1/crop/documents/stats", headers=headers)).json()
     assert st2["queued"] < st["queued"]
     assert st2["ready"] > st["ready"]
+
+
+async def test_crop_retry_failed_document(client):
+    """手动重试：failed → queued → 消化 → ready；非 failed 409。"""
+    from app.core.database import AsyncSessionLocal
+    from app.models.crop import CropDocument
+    from app.tasks.crop_tasks import digest_documents
+
+    headers, uid = await _mk_admin(client)
+    r = await client.post("/api/v1/crop/documents", headers=headers,
+                          json={"title": f"retry_{uid}", "content": "重试冒烟文档正文。" * 10})
+    doc_id = r.json()["id"]
+
+    # 人为置 failed（等价 embedding 失败后的落库态）
+    async with AsyncSessionLocal() as db:
+        doc = await db.get(CropDocument, doc_id)
+        doc.status = "failed"
+        doc.error = "模拟 embedding 失败"
+        await db.commit()
+
+    # 未消化前 retry：failed → queued
+    r = await client.post(f"/api/v1/crop/documents/{doc_id}/retry", headers=headers)
+    assert r.status_code == 202, r.text[:200]
+    assert r.json()["status"] == "queued"
+    async with AsyncSessionLocal() as db:
+        doc = await db.get(CropDocument, doc_id)
+        assert doc.status == "queued" and doc.error is None
+
+    # 非 failed（此时 queued）再 retry → 409
+    r = await client.post(f"/api/v1/crop/documents/{doc_id}/retry", headers=headers)
+    assert r.status_code == 409
+
+    # 消化后 ready
+    await digest_documents([doc_id])
+    rd = await client.get(f"/api/v1/crop/documents/{doc_id}", headers=headers)
+    assert rd.json()["document"]["status"] == "ready"
+
+    # 清理
+    await client.delete(f"/api/v1/crop/documents/{doc_id}", headers=headers)
+
+
+async def test_crop_requeue_stale_documents(client):
+    """清扫残留：queued 全收；embedding 超龄重置 queued；embedding 未超龄/ready 不动。"""
+    import datetime
+
+    from app.core.database import AsyncSessionLocal
+    from app.models.crop import CropDocument
+    from app.schemas.request import CropDocumentCreate
+    from app.services import crop_service
+
+    headers, uid = await _mk_admin(client)
+
+    async with AsyncSessionLocal() as db:
+        # queued（积压）+ embedding 超龄 + embedding 新鲜 + ready —— 四种形态
+        d_queued = await crop_service.register_document(
+            db, CropDocumentCreate(title=f"stale_q_{uid}", content="积压文档。" * 10, source_type="text"), None)
+        d_stale_emb = await crop_service.register_document(
+            db, CropDocumentCreate(title=f"stale_emb_{uid}", content="中断文档。" * 10, source_type="text"), None)
+        d_fresh_emb = await crop_service.register_document(
+            db, CropDocumentCreate(title=f"fresh_emb_{uid}", content="新鲜文档。" * 10, source_type="text"), None)
+        d_ready = await crop_service.register_document(
+            db, CropDocumentCreate(title=f"stale_ready_{uid}", content="完成文档。" * 10, source_type="text"), None)
+        await crop_service.ingest_document(db, d_ready.id)
+        d_stale_emb.status = "embedding"
+        d_fresh_emb.status = "embedding"
+        d_stale_emb.created_at = datetime.datetime.now() - datetime.timedelta(hours=2)  # 超龄
+        await db.commit()
+        ids = (d_queued.id, d_stale_emb.id, d_fresh_emb.id, d_ready.id)
+
+        requeued = await crop_service.requeue_stale_documents(db)
+        await db.commit()
+
+        assert set(ids[:2]) <= set(requeued)          # queued + 超龄 embedding 被清扫
+        assert d_fresh_emb.id not in requeued          # 新鲜 embedding 不动
+        assert d_ready.id not in requeued              # ready 不动
+        # 新 session 读 DB 真值（Core update 不过 ORM 身份映射，旧 session 缓存不可信）
+        async with AsyncSessionLocal() as db2:
+            for i in ids[:2]:
+                doc = await db2.get(CropDocument, i)
+                assert doc.status == "queued"
+            doc = await db2.get(CropDocument, d_fresh_emb.id)
+            assert doc.status == "embedding"
+
+    # 清理
+    for i in ids:
+        await client.delete(f"/api/v1/crop/documents/{i}", headers=headers)

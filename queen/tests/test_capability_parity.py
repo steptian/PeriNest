@@ -53,6 +53,7 @@ EXEMPT: dict[str, str] = {
     f"{API_PREFIX}/crop/documents/upload": "文件上传为 UI 入口（multipart），AI 侧 crop_ingest 文本吞入已覆盖同等能力",
     f"{API_PREFIX}/crop/documents/batch": "批量文件上传为 UI 入口（multipart 多文件），逐文档语义同 crop_ingest，AI 侧无需 N 文件批量",
     f"{API_PREFIX}/crop/documents/stats": "状态聚合=批量入库进度展示（UI 轮询观测量），非 AI 操作能力",
+    f"{API_PREFIX}/crop/documents/{{doc_id}}/retry": "失败重试为管理面运维操作；AI 侧 crop_ingest 可重新吞入同等内容",
     f"{API_PREFIX}/crop/documents/{{doc_id}}/file": "源文件流预览/下载为浏览器行为，检索能力由 crop_search 覆盖",
     f"{API_PREFIX}/crop/ask/stream": "SSE 流式通道，MCP 的 crop_ask 已覆盖其非流式语义",
     f"{API_PREFIX}/crop/conversations": "用户自己的问答会话列表——UI 续聊导航，非 AI 操作面能力",

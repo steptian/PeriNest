@@ -4,7 +4,7 @@
 分块策略 v1：按段落聚合，~600 字一块，中文优先。
 """
 import structlog
-from sqlalchemy import delete, func, or_, select
+from sqlalchemy import and_, delete, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.crop import CropChunk, CropDocument
@@ -246,6 +246,52 @@ async def document_stats(db: AsyncSession) -> dict:
         "failed": counts.get("failed", 0),
         "pending": pending,
     }
+
+
+EMBEDDING_STALE_AFTER = 1800  # embedding 卡死判定（秒）：真实消化最长大文档也是分钟级
+
+
+async def requeue_stale_documents(db: AsyncSession, embedding_stale_after: int = EMBEDDING_STALE_AFTER) -> list[int]:
+    import datetime
+
+    """清扫残留：worker 崩溃/停机期间卡住的文档重新入队（worker 启动时调用）。
+
+    - queued（任意时长）：worker 停机期间积压的，重入队安全
+    - embedding 且 created_at 超龄：消化中断（进程被杀），重置 queued 再入队；
+      阈值防多 worker 场景误伤正在进行的消化（PeriNest 单 worker 部署，双保险）
+    - ready/failed 不动；不 commit，由调用方提交
+    """
+    cutoff = datetime.datetime.now() - datetime.timedelta(seconds=embedding_stale_after)
+    rows = (
+        await db.execute(
+            select(CropDocument.id, CropDocument.status).where(
+            or_(
+                CropDocument.status == "queued",
+                and_(CropDocument.status == "embedding", CropDocument.created_at < cutoff),
+            )
+            )
+        )
+    ).all()
+    stale_ids = [doc_id for doc_id, _ in rows]
+    if stale_ids:
+        await db.execute(
+            CropDocument.__table__.update()
+            .where(CropDocument.id.in_(stale_ids), CropDocument.status != "ready")
+            .values(status="queued")
+        )
+    return stale_ids
+
+
+async def retry_failed_document(db: AsyncSession, doc_id: int) -> CropDocument | None:
+    """手动重试失败文档：failed → queued（error 清空）；非 failed 返回 None。"""
+    doc = await db.get(CropDocument, doc_id)
+    if doc is None or doc.status != "failed":
+        return None
+    doc.status = "queued"
+    doc.error = None
+    await db.flush()
+    return doc
+
 
 
 async def list_documents(
